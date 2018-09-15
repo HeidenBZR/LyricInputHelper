@@ -143,8 +143,11 @@ namespace App.Classes
         {
             List<string> notelyrics = new List<string>();
             int k = 0;
+            bool notEnoughWords = false;
             for (int i = 0; i < newlyric.Length; i++)
             {
+                while (Notes[k].Number == Number.Delete)
+                    k++;
                 if (k >= Notes.Length)
                     break;
                 while (Atlas.IsRest(Ust.Notes[k].ParsedLyric) && skipRest)
@@ -156,15 +159,22 @@ namespace App.Classes
                     } else { }
                     k++;
                     if (k >= Notes.Length)
+                    {
+                        notEnoughWords = true;
                         break;
+                    }
                     else { }
                 }
+                if (notEnoughWords) break;
+                while (Notes[k].Number == Number.Delete)
+                    k++;
                 if (Atlas.GetAliasType(newlyric[i]) == "C")
                     notelyrics.Add(newlyric[i]);
                 else
                 {
                     if (k >= Notes.Length)
                         break;
+                    if (notEnoughWords) break;
                     notelyrics.Add(newlyric[i]);
                     Ust.Notes[k].ParsedLyric = String.Join(" ", notelyrics);
                     notelyrics = new List<string>();
@@ -201,7 +211,7 @@ namespace App.Classes
             return notes[newInd];
         }
 
-        public static bool InsertNote(UNote parent, string lyric, Insert insert, UNote pitchparent)
+        public static bool InsertNote(UNote parent, string lyric, Insert insert, UNote pitchparent, UNote container = null)
         {
             UNote prev = GetPrevNote(parent);
             UNote next = GetNextNote(parent);
@@ -212,14 +222,15 @@ namespace App.Classes
                 NoteNum = pitchparent.NoteNum,
                 Parent = parent
             };
-            //if (insert == Insert.After && next != null && next.IsRest())
-            //    note.Parent = next;
+            if (insert == Insert.After && next != null && next.IsRest())
+                note.Parent = next;
             if (insert == Insert.Before && prev != null &&  prev.IsRest())
                 note.Parent = prev;
+            if (container != null) note.Parent = container;
 
             List<UNote> notes = Notes.ToList();
-            int indParent = notes.IndexOf(note.Parent);
-            int ind = notes.IndexOf(note.Parent) + 1 + (int)insert;
+            int indParent = notes.IndexOf(parent);
+            int ind = notes.IndexOf(parent) + 1 + (int)insert;
             notes.Insert(ind, note);
             Notes = notes.ToArray();
 
@@ -233,25 +244,48 @@ namespace App.Classes
             UNote next = GetNextNote(note);
 
             int length = PluginWindow.VCLength;
+            var nextmembers = next.ParsedLyric.Trim().Split(' ');
+            int vowelI = nextmembers.ToList().FindIndex(n => Atlas.GetAliasType(n) != "C");
+            string nextlyric = vowelI == -1 ? nextmembers[0] : nextmembers[vowelI];
             string alias_type = Atlas.GetAliasType(note.ParsedLyric);
             string containterAliasType = Atlas.GetAliasType(container.ParsedLyric);
             string nextAliasType = next == null ? "" : Atlas.GetAliasType(next.ParsedLyric);
             if (alias_type == "C" || alias_type == "VC")
             {
                 Oto oto = null;
-                if (alias_type == "C" && (containterAliasType.Contains("CV")))
+                if (alias_type == "C")
                 {
-                    string al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(container.ParsedLyric));
-                    oto = Singer.Current.FindOto(al, container.NoteNum);
+                    if (nextAliasType.Contains("CV"))
+                    {
+                        string al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(nextlyric));
+                        oto = Singer.Current.FindOto(al, container.NoteNum);
+                    }
+                    else if (nextAliasType.Contains("C"))
+                    {
+                        if (containterAliasType == "" || containterAliasType == "R")
+                        {
+                            oto = Singer.Current.FindOto(nextlyric, container.NoteNum);
+                        }
+                        else
+                        {
+                            string al = Atlas.GetAlias("-C", Atlas.GetPhonemes(nextlyric));
+                            oto = Singer.Current.FindOto(al, container.NoteNum);
+                        }
+                    }
+                    else if (nextAliasType.Contains("V"))
+                    {
+                        string al = Atlas.GetAlias("-V", Atlas.GetPhonemes(nextlyric));
+                        oto = Singer.Current.FindOto(al, container.NoteNum);
+                    }
                 }
                 else if (alias_type == "VC")
                 {
-                    oto = Singer.Current.FindOto(next.ParsedLyric, container.NoteNum);
+                    oto = Singer.Current.FindOto(nextlyric, next.NoteNum);
                 }
                 if (oto != null)
                     length = MusicMath.MillisecondToTick(oto.Attack, Tempo);
             }
-
+            length = (int) (length / PluginWindow.Velocity);
 
             if (container.Length < length + 10)
             {

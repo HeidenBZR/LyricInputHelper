@@ -52,11 +52,9 @@ namespace App.Classes
         {
             get
             {
-                //if (IsRest())
-                //    return "";
-                //if (Lyric == parsedLyric)
-                //    return "";
-                //else
+                if (IsRest())
+                    return "";
+                else
                     return parsedLyric;
             }
         }
@@ -89,7 +87,7 @@ namespace App.Classes
         public bool IsRest()
         {
             if (!Atlas.IsLoaded) return false;
-            else if (Lyric != null) return Atlas.IsRest(Lyric);
+            else if (parsedLyric != null) return Atlas.IsRest(parsedLyric);
             else return Atlas.IsRest(ParsedLyric);
         }
 

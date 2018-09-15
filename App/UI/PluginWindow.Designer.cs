@@ -47,9 +47,11 @@
             this.buttonSplit = new System.Windows.Forms.Button();
             this.buttonToCVC = new System.Windows.Forms.Button();
             this.buttonCV = new System.Windows.Forms.Button();
+            this.textBoxVelocity = new System.Windows.Forms.TextBox();
             this.buttonReload = new System.Windows.Forms.Button();
             this.buttonWhat = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
@@ -197,6 +199,12 @@
             this.buttonCV.UseVisualStyleBackColor = true;
             this.buttonCV.Click += new System.EventHandler(this.buttonToCV_Click);
             // 
+            // textBoxVelocity
+            // 
+            resources.ApplyResources(this.textBoxVelocity, "textBoxVelocity");
+            this.textBoxVelocity.Name = "textBoxVelocity";
+            this.toolTip.SetToolTip(this.textBoxVelocity, resources.GetString("textBoxVelocity.ToolTip"));
+            // 
             // buttonReload
             // 
             resources.ApplyResources(this.buttonReload, "buttonReload");
@@ -214,6 +222,8 @@
             // panel1
             // 
             resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.Controls.Add(this.textBoxVelocity);
+            this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.buttonWhat);
             this.panel1.Controls.Add(this.checkBoxInsertShort);
             this.panel1.Controls.Add(this.buttonOK);
@@ -228,6 +238,11 @@
             this.panel1.Controls.Add(this.buttonSplit);
             this.panel1.Controls.Add(this.buttonAtlasConvert);
             this.panel1.Name = "panel1";
+            // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
             // 
             // PluginWindow
             // 
@@ -272,5 +287,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.Button buttonWhat;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TextBox textBoxVelocity;
+        private System.Windows.Forms.Label label1;
     }
 }

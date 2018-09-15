@@ -145,7 +145,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonOK.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="buttonCancel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -172,7 +172,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonCancel.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>12</value>
   </data>
   <metadata name="Number.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
@@ -223,7 +223,7 @@
     <value>NoControl</value>
   </data>
   <data name="buttonAtlasConvert.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 243</value>
+    <value>3, 284</value>
   </data>
   <data name="buttonAtlasConvert.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -250,13 +250,13 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonAtlasConvert.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>14</value>
   </data>
   <data name="buttonSetText.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="buttonSetText.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 173</value>
+    <value>3, 214</value>
   </data>
   <data name="buttonSetText.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -280,7 +280,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonSetText.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="checkBoxVR.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -313,7 +313,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;checkBoxVR.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="label2.ImageAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleRight</value>
@@ -322,13 +322,13 @@
     <value>NoControl</value>
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 117</value>
+    <value>3, 109</value>
   </data>
   <data name="label2.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
     <value>No</value>
   </data>
   <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>153, 16</value>
+    <value>150, 16</value>
   </data>
   <data name="label2.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -349,10 +349,10 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="textBoxVCLength.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 136</value>
+    <value>3, 128</value>
   </data>
   <data name="textBoxVCLength.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 20</value>
@@ -376,7 +376,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;textBoxVCLength.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="checkBoxInsertShort.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -406,13 +406,13 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;checkBoxInsertShort.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="buttonSplit.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="buttonSplit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 208</value>
+    <value>3, 249</value>
   </data>
   <data name="buttonSplit.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -436,13 +436,13 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonSplit.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>13</value>
   </data>
   <data name="buttonToCVC.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="buttonToCVC.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 347</value>
+    <value>3, 376</value>
   </data>
   <data name="buttonToCVC.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -454,7 +454,7 @@
     <value>Преобразовать в CV + C</value>
   </data>
   <data name="buttonToCVC.ToolTip" xml:space="preserve">
-    <value>[p][r'i][m'e][r]</value>
+    <value>[-p][-r'i][im'][m'e][er-] =&gt; [p][r'i][m'e][r]</value>
   </data>
   <data name="&gt;&gt;buttonToCVC.Name" xml:space="preserve">
     <value>buttonToCVC</value>
@@ -466,13 +466,13 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonToCVC.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="buttonCV.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="buttonCV.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 382</value>
+    <value>3, 411</value>
   </data>
   <data name="buttonCV.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -484,7 +484,7 @@
     <value>Преобразовать в CV</value>
   </data>
   <data name="buttonCV.ToolTip" xml:space="preserve">
-    <value>[p r'i][m'e r]</value>
+    <value>[-p][-r'i][im'][m'e][er-] =&gt; [p r'i][m'e r]</value>
   </data>
   <data name="&gt;&gt;buttonCV.Name" xml:space="preserve">
     <value>buttonCV</value>
@@ -496,13 +496,40 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonCV.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
+  </data>
+  <data name="textBoxVelocity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 176</value>
+  </data>
+  <data name="textBoxVelocity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="textBoxVelocity.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="textBoxVelocity.Text" xml:space="preserve">
+    <value>1.0</value>
+  </data>
+  <data name="textBoxVelocity.ToolTip" xml:space="preserve">
+    <value>Set value more than 1 to get InsertNote shorter</value>
+  </data>
+  <data name="&gt;&gt;textBoxVelocity.Name" xml:space="preserve">
+    <value>textBoxVelocity</value>
+  </data>
+  <data name="&gt;&gt;textBoxVelocity.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;textBoxVelocity.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;textBoxVelocity.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="buttonReload.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
   <data name="buttonReload.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 313</value>
+    <value>3, 342</value>
   </data>
   <data name="buttonReload.Size" type="System.Drawing.Size, System.Drawing">
     <value>150, 29</value>
@@ -523,7 +550,7 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonReload.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="buttonWhat.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -550,10 +577,46 @@
     <value>panel1</value>
   </data>
   <data name="&gt;&gt;buttonWhat.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="panel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
+  </data>
+  <data name="label1.ImageAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>MiddleRight</value>
+  </data>
+  <data name="label1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 157</value>
+  </data>
+  <data name="label1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>No</value>
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 16</value>
+  </data>
+  <data name="label1.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Множитель:</value>
+  </data>
+  <data name="label1.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
+    <value>BottomLeft</value>
+  </data>
+  <data name="&gt;&gt;label1.Name" xml:space="preserve">
+    <value>label1</value>
+  </data>
+  <data name="&gt;&gt;label1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label1.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="panel1.Location" type="System.Drawing.Point, System.Drawing">
     <value>309, 0</value>
@@ -580,7 +643,7 @@
     <value>True</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>66</value>
+    <value>25</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>6, 13</value>

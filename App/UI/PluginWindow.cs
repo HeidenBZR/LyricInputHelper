@@ -15,6 +15,7 @@ namespace App
         public static PluginWindow window;
         public static Dictionary<string, string> DefaultLyric = new Dictionary<string, string> { };
         public static int MinSize = 120;
+        public static double Velocity = 1;
         public static bool MakeVR = true;
         public static bool MakeShort = true;
         public static bool IsParsed = false;
@@ -77,12 +78,12 @@ namespace App
 
         public static void Recolor(DataGridView lyricView)
         {
-            Color SelectionForeColor = Color.Gray;
+            Color SelectionForeColor = Color.DarkGray;
             Color LightColor = Color.FromArgb(220, 230, 240);
             Color MediumColor = Color.FromArgb(180, 190, 190);
             Color DarkColor = Color.FromArgb(80, 110, 120);
             DataGridViewCellStyle defaultCellStyle = lyricView.DefaultCellStyle.Clone();
-            defaultCellStyle.SelectionBackColor = lyricView.DefaultCellStyle.BackColor;
+            defaultCellStyle.SelectionBackColor = Color.LightBlue;
             defaultCellStyle.SelectionForeColor = DarkColor;
 
             DataGridViewCellStyle darkCellStyle = defaultCellStyle.Clone();
@@ -93,8 +94,15 @@ namespace App
 
             DataGridViewCellStyle mediumCellStyle = defaultCellStyle.Clone();
             mediumCellStyle.BackColor = LightColor;
-            mediumCellStyle.SelectionBackColor = LightColor;
-            mediumCellStyle.SelectionForeColor = MediumColor;
+            mediumCellStyle.SelectionBackColor = Color.LightSkyBlue;
+            mediumCellStyle.SelectionForeColor = DarkColor;
+
+            DataGridViewCellStyle deleteCellStyle = defaultCellStyle.Clone();
+            deleteCellStyle.ForeColor = Color.DarkGray;
+            deleteCellStyle.BackColor = Color.LightGray;
+            deleteCellStyle.SelectionBackColor = Color.DimGray;
+            deleteCellStyle.SelectionForeColor = Color.LightGray;
+
 
             lyricView.Columns[0].DefaultCellStyle = darkCellStyle;
             lyricView.DefaultCellStyle = defaultCellStyle;
@@ -107,7 +115,16 @@ namespace App
                     lyricView[1,i].Style = mediumCellStyle;
                     lyricView[2,i].Style = mediumCellStyle;
                 }
-                if (note.IsRest()) lyricView.Rows[i].DefaultCellStyle = darkCellStyle;
+                if (note.IsRest())
+                {
+                    lyricView[1, i].Style = darkCellStyle;
+                    lyricView[2, i].Style = darkCellStyle;
+                }
+                if (note.Number == Classes.Number.Delete)
+                {
+                    lyricView[1, i].Style = deleteCellStyle;
+                    lyricView[2, i].Style = deleteCellStyle;
+                }
             }
         }
 
@@ -130,7 +147,8 @@ namespace App
 
         private void buttonAtlasConvert_Click(object sender, EventArgs e)
         {
-            if (!int.TryParse(textBoxVCLength.Text, out VCLength)) VCLength = VCLengthDefault;
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
             MakeVR = checkBoxVR.Checked;
             MakeShort = checkBoxInsertShort.Checked;
             IsParsed = true;
@@ -149,16 +167,18 @@ namespace App
 
         private void buttonSetText_Click(object sender, EventArgs e)
         {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
             if (lastText == null) lastText = Ust.GetLyrics(skipRest:false);
             int[] sizes = Ust.GetLengths();
             SetTextWindow setTextWindow = new SetTextWindow(lastText.ToList(), sizes);
             DialogResult result = setTextWindow.ShowDialog(this);
             if (setTextWindow.Cancel) return;
-            if (IsParsed)
-            {
-                Ust.Reload();
-                IsParsed = false;
-            }
+            //if (IsParsed)
+            //{
+            //    Ust.Reload();
+            //    IsParsed = false;
+            //}
             Ust.SetLyric(setTextWindow.CurrentText.ToArray());
             SetLyric();
         }
@@ -191,6 +211,8 @@ namespace App
 
         private void buttonToCVC_Click(object sender, EventArgs e)
         {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
             Parser.ToCVC();
             try
             {
@@ -216,6 +238,8 @@ namespace App
 
         private void buttonToCV_Click(object sender, EventArgs e)
         {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
             Parser.ToCV();
             try
             {
@@ -232,6 +256,8 @@ namespace App
 
         private void buttonSplit_Click(object sender, EventArgs e)
         {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
             Parser.Split();
             try
             {

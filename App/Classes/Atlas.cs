@@ -160,12 +160,13 @@ namespace App.Classes
 
         #endregion
 
-        public static bool IsRest(string phoneme) { return phoneme.Trim(' ') == "" || Rests.Contains(phoneme); }
+        public static bool IsRest(string phoneme) { return phoneme.Trim(' ') == "" || Rests.Contains(phoneme) || phoneme == "R"; }
         public static bool IsConsonant(string phoneme) { return Consonants.Contains(phoneme); }
         public static bool IsVowel(string phoneme) { return Vowels.Contains(phoneme); }
 
         public static string GetAliasType(string alias)
         {
+            if (alias == Number.Delete) return "";
             if (IsRest(alias)) return "R";
             if (IsVowel(alias)) return "V";
             if (IsConsonant(alias)) return "C";
