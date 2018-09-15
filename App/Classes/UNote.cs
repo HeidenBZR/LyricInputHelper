@@ -66,6 +66,7 @@ namespace App.Classes
             string lyric = Lyric != ParsedLyric && ParsedLyric == "" ? Lyric : ParsedLyric;
             if (Atlas.IsLoaded && Atlas.IsRest(lyric)) lyric = "R";
             if (lyric == "r") lyric = "rr";
+            if (lyric == Classes.Number.Delete) lyric = "";
             List<string> text = new List<string>
             {
                 Number,

@@ -108,7 +108,8 @@ namespace App
             for (int i = 0; i < Ust.Notes.Length; i++)
             {
                 UNote note = Ust.Notes[i];
-                switch (Atlas.GetAliasType(note.ParsedLyric))
+                string alias_type = Atlas.GetAliasType(note.ParsedLyric);
+                switch (alias_type)
                 {
                     case "-V":
                         note.ParsedLyric = Atlas.GetAlias("V", Atlas.GetPhonemes(note.ParsedLyric));
@@ -134,7 +135,7 @@ namespace App
                         }
                         break;
                     case "-C":
-                        lyric = Atlas.GetAlias("C", Atlas.GetPhonemes(note.ParsedLyric));
+                        note.ParsedLyric = Atlas.GetAlias("C", Atlas.GetPhonemes(note.ParsedLyric));
                         break;
                     case "-CV":
                         note.ParsedLyric = Atlas.GetAlias("CV", Atlas.GetPhonemes(note.ParsedLyric));
@@ -161,26 +162,47 @@ namespace App
 
             }
 
-            for (int i = 0; i < Ust.Notes.Length; i++)
+            bool c_left = true;
+            while (c_left)
             {
-                // remove C
-                if (Atlas.GetAliasType(Ust.Notes[i].ParsedLyric) == "C")
+                c_left = false;
+                for (int i = 0; i < Ust.Notes.Length; i++)
                 {
-                    if (i > 0 && !Ust.Notes[i - 1].IsRest())
+                    // remove C
+                    if (Atlas.GetAliasType(Ust.Notes[i].ParsedLyric) == "C")
                     {
-                        Ust.Notes[i + 1].Length += Ust.Notes[i].Length;
-                        Ust.Notes[i + 1].ParsedLyric = $"{Ust.Notes[i].ParsedLyric} {Ust.Notes[i + 1].ParsedLyric}";
-                        Ust.Notes[i].ParsedLyric = Number.Delete;
-                        Ust.Notes[i].Number = Number.Delete;
-                    }
-                    else
-                    {
-                        Ust.Notes[i - 1].Length += Ust.Notes[i].Length;
-                        Ust.Notes[i - 1].ParsedLyric += $" {Ust.Notes[i].ParsedLyric}";
-                        Ust.Notes[i].ParsedLyric = Number.Delete;
-                        Ust.Notes[i].Number = Number.Delete;
+                        c_left = true;
+                        if (i > 0 && !Ust.Notes[i - 1].IsRest())
+                        {
+                            Ust.Notes[i - 1].Length += Ust.Notes[i].Length;
+                            if (Ust.Notes[i - 1].ParsedLyric == Number.Delete)
+                            {
+                                Ust.Notes[i - 1].ParsedLyric = Ust.Notes[i].ParsedLyric;
+                                //Ust.Notes[i - 1].Number = Number.GetNumber(900);
+                                Ust.Notes[i - 1].Length = Ust.Notes[i].Length;
+                            }
+                            else
+                                Ust.Notes[i - 1].ParsedLyric += $" {Ust.Notes[i].ParsedLyric}";
+                            Ust.Notes[i].ParsedLyric = Number.Delete;
+                            Ust.Notes[i].Number = Number.Delete;
+                        }
+                        else
+                        {
+                            Ust.Notes[i - 1].Length += Ust.Notes[i].Length;
+                            if (Ust.Notes[i + 1].ParsedLyric == Number.Delete)
+                            {
+                                Ust.Notes[i + 1].ParsedLyric = Ust.Notes[i].ParsedLyric;
+                                //Ust.Notes[i + 1].Number = Number.GetNumber(900);
+                                Ust.Notes[i + 1].Length = Ust.Notes[i].Length;
+                            }
+                            else
+                                Ust.Notes[i + 1].ParsedLyric = $"{Ust.Notes[i].ParsedLyric} {Ust.Notes[i + 1].ParsedLyric}";
+                            Ust.Notes[i].ParsedLyric = Number.Delete;
+                            Ust.Notes[i].Number = Number.Delete;
+                        }
                     }
                 }
+
             }
         }
 
