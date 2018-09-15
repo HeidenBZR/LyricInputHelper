@@ -48,6 +48,18 @@ namespace App.Classes
         public string Lyric { get => lyric; set => lyric = ValidateLyric(value); }
         public string Number { get => number; set => number = value; }
         public string ParsedLyric { get => parsedLyric; set => parsedLyric = ValidateLyric(value); }
+        public string ParsedLyricView
+        {
+            get
+            {
+                //if (IsRest())
+                //    return "";
+                //if (Lyric == parsedLyric)
+                //    return "";
+                //else
+                    return parsedLyric;
+            }
+        }
 
         public string[] GetText()
         {

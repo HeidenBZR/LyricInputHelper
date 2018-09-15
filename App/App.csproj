@@ -67,11 +67,15 @@
   <ItemGroup>
     <Compile Include="Classes\Atlas.cs" />
     <Compile Include="Classes\Ini.cs" />
+    <Compile Include="Classes\MusicMath.cs" />
     <Compile Include="Classes\Oto.cs" />
+    <Compile Include="Classes\Pitchmap.cs" />
     <Compile Include="Classes\Rule.cs" />
     <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\Singer.cs" />
     <Compile Include="Classes\UNote.cs" />
     <Compile Include="Classes\Ust.cs" />
+    <Compile Include="Classes\Wav.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="UI\PluginWindow.cs">
       <SubType>Form</SubType>

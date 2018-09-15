@@ -26,7 +26,7 @@ namespace App.Classes
         public static void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
         public static void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
         public static string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
-
+        
         public Ust(string dir)
         {
             Dir = dir;
@@ -93,6 +93,7 @@ namespace App.Classes
                     {
                         TakeOut(line, "Lyric", out string lyric);
                         note.Lyric = lyric;
+                        note.ParsedLyric = note.Lyric;
                     }
                     i++;
                     Console.WriteLine(i);
@@ -138,15 +139,45 @@ namespace App.Classes
             return text.ToArray();
         }
 
-        public static void SetLyric(string[] lyric, bool skipRest = true)
+        public static void SetLyric(string[] newlyric, bool skipRest = true)
         {
-            int i = 0;
-            foreach (UNote note in Notes)
+            List<string> notelyrics = new List<string>();
+            int k = 0;
+            for (int i = 0; i < newlyric.Length; i++)
             {
-                if (Atlas.IsRest(note.Lyric) && skipRest) continue;
-                if (lyric.Length <= i) break;
-                note.Lyric = lyric[i];
-                i++;
+                if (k >= Notes.Length)
+                    break;
+                while (Atlas.IsRest(Ust.Notes[k].ParsedLyric) && skipRest)
+                {
+                    if (notelyrics.Count > 0)
+                    {
+                        Ust.Notes[k].ParsedLyric += " " + String.Join(" ", notelyrics);
+                        notelyrics = new List<string>();
+                    } else { }
+                    k++;
+                    if (k >= Notes.Length)
+                        break;
+                    else { }
+                }
+                if (Atlas.GetAliasType(newlyric[i]) == "C")
+                    notelyrics.Add(newlyric[i]);
+                else
+                {
+                    if (k >= Notes.Length)
+                        break;
+                    notelyrics.Add(newlyric[i]);
+                    Ust.Notes[k].ParsedLyric = String.Join(" ", notelyrics);
+                    notelyrics = new List<string>();
+                    k++;
+                }
+            }
+            if (notelyrics.Count > 0)
+            {
+                UNote last = Ust.Notes.Last();
+                for (int i = 0; i < notelyrics.Count; i++)
+                {
+                    Ust.InsertNote(Ust.Notes.Last(), notelyrics[i], Insert.After, last);
+                }
             }
         }
 
@@ -156,6 +187,7 @@ namespace App.Classes
             int ind = notes.IndexOf(note);
             if (ind == -1) throw new Exception();
             int newInd = ind + 1;
+            if (newInd >= notes.Count) return null;
             return notes[newInd];
         }
 
@@ -165,41 +197,76 @@ namespace App.Classes
             int ind = notes.IndexOf(note);
             if (ind == -1) throw new Exception();
             int newInd = ind - 1;
+            if (newInd == -1) return null;
             return notes[newInd];
         }
 
-        public static bool InsertNote(UNote parent, string lyric, Insert insert)
+        public static bool InsertNote(UNote parent, string lyric, Insert insert, UNote pitchparent)
         {
-            UNote notePrev = GetPrevNote(parent);
+            UNote prev = GetPrevNote(parent);
+            UNote next = GetNextNote(parent);
             UNote note = new UNote()
             {
                 ParsedLyric = lyric,
                 Number = Number.Insert,
-                NoteNum = insert == Insert.Before ? notePrev.NoteNum : parent.NoteNum
+                NoteNum = pitchparent.NoteNum,
+                Parent = parent
             };
-            Console.WriteLine(insert == Insert.Before);
-            note.Parent = parent;
-
-            if (note.Parent.Length < PluginWindow.VCLength + 10)
-            {
-                if (PluginWindow.makeShort) 
-                {
-                    note.Length = note.Parent.Length / 2;
-                    note.Parent.Length -= note.Length;
-                }
-                else return false;
-            }
-            else
-            {
-                note.Length = PluginWindow.VCLength;
-                note.Parent.Length -= note.Length;
-            }
+            //if (insert == Insert.After && next != null && next.IsRest())
+            //    note.Parent = next;
+            if (insert == Insert.Before && prev != null &&  prev.IsRest())
+                note.Parent = prev;
 
             List<UNote> notes = Notes.ToList();
             int indParent = notes.IndexOf(note.Parent);
             int ind = notes.IndexOf(note.Parent) + 1 + (int)insert;
             notes.Insert(ind, note);
             Notes = notes.ToArray();
+
+            if (!SetLength(note)) return false;
+            return true;
+        }
+
+        public static bool SetLength(UNote note)
+        {
+            UNote container = note.Parent;
+            UNote next = GetNextNote(note);
+
+            int length = PluginWindow.VCLength;
+            string alias_type = Atlas.GetAliasType(note.ParsedLyric);
+            string containterAliasType = Atlas.GetAliasType(container.ParsedLyric);
+            string nextAliasType = next == null ? "" : Atlas.GetAliasType(next.ParsedLyric);
+            if (alias_type == "C" || alias_type == "VC")
+            {
+                Oto oto = null;
+                if (alias_type == "C" && (containterAliasType.Contains("CV")))
+                {
+                    string al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(container.ParsedLyric));
+                    oto = Singer.Current.FindOto(al, container.NoteNum);
+                }
+                else if (alias_type == "VC")
+                {
+                    oto = Singer.Current.FindOto(next.ParsedLyric, container.NoteNum);
+                }
+                if (oto != null)
+                    length = MusicMath.MillisecondToTick(oto.Attack, Tempo);
+            }
+
+
+            if (container.Length < length + 10)
+            {
+                if (PluginWindow.MakeShort)
+                {
+                    note.Length = container.Length / 2;
+                    container.Length -= note.Length;
+                }
+                else return false;
+            }
+            else
+            {
+                note.Length = length;
+                container.Length -= note.Length;
+            }
             return true;
         }
 

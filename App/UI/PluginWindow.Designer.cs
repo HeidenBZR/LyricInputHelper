@@ -42,12 +42,17 @@
             this.checkBoxVR = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.textBoxVCLength = new System.Windows.Forms.TextBox();
-            this.statusBar = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.checkBoxInsertShort = new System.Windows.Forms.CheckBox();
+            this.buttonSplit = new System.Windows.Forms.Button();
+            this.buttonToCVC = new System.Windows.Forms.Button();
+            this.buttonCV = new System.Windows.Forms.Button();
             this.buttonReload = new System.Windows.Forms.Button();
+            this.buttonWhat = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonOK
@@ -59,8 +64,8 @@
             // 
             // buttonCancel
             // 
-            resources.ApplyResources(this.buttonCancel, "buttonCancel");
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            resources.ApplyResources(this.buttonCancel, "buttonCancel");
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
@@ -104,9 +109,10 @@
             // 
             // parsedLyricDataGridViewTextBoxColumn
             // 
-            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyric";
+            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
             resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
             this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
+            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // uNoteBindingSource
             // 
@@ -149,15 +155,6 @@
             this.toolTip.SetToolTip(this.textBoxVCLength, resources.GetString("textBoxVCLength.ToolTip"));
             this.textBoxVCLength.TextChanged += new System.EventHandler(this.textMinSize_TextChanged);
             // 
-            // statusBar
-            // 
-            this.statusBar.AcceptsReturn = true;
-            this.statusBar.AcceptsTab = true;
-            resources.ApplyResources(this.statusBar, "statusBar");
-            this.statusBar.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.statusBar.Name = "statusBar";
-            this.statusBar.ReadOnly = true;
-            // 
             // toolTip
             // 
             this.toolTip.AutoPopDelay = 5000;
@@ -169,10 +166,36 @@
             // 
             // checkBoxInsertShort
             // 
+            this.checkBoxInsertShort.Checked = true;
+            this.checkBoxInsertShort.CheckState = System.Windows.Forms.CheckState.Checked;
             resources.ApplyResources(this.checkBoxInsertShort, "checkBoxInsertShort");
             this.checkBoxInsertShort.Name = "checkBoxInsertShort";
             this.toolTip.SetToolTip(this.checkBoxInsertShort, resources.GetString("checkBoxInsertShort.ToolTip"));
             this.checkBoxInsertShort.UseVisualStyleBackColor = true;
+            // 
+            // buttonSplit
+            // 
+            resources.ApplyResources(this.buttonSplit, "buttonSplit");
+            this.buttonSplit.Name = "buttonSplit";
+            this.toolTip.SetToolTip(this.buttonSplit, resources.GetString("buttonSplit.ToolTip"));
+            this.buttonSplit.UseVisualStyleBackColor = true;
+            this.buttonSplit.Click += new System.EventHandler(this.buttonSplit_Click);
+            // 
+            // buttonToCVC
+            // 
+            resources.ApplyResources(this.buttonToCVC, "buttonToCVC");
+            this.buttonToCVC.Name = "buttonToCVC";
+            this.toolTip.SetToolTip(this.buttonToCVC, resources.GetString("buttonToCVC.ToolTip"));
+            this.buttonToCVC.UseVisualStyleBackColor = true;
+            this.buttonToCVC.Click += new System.EventHandler(this.buttonToCVC_Click);
+            // 
+            // buttonCV
+            // 
+            resources.ApplyResources(this.buttonCV, "buttonCV");
+            this.buttonCV.Name = "buttonCV";
+            this.toolTip.SetToolTip(this.buttonCV, resources.GetString("buttonCV.ToolTip"));
+            this.buttonCV.UseVisualStyleBackColor = true;
+            this.buttonCV.Click += new System.EventHandler(this.buttonToCV_Click);
             // 
             // buttonReload
             // 
@@ -181,23 +204,39 @@
             this.buttonReload.UseVisualStyleBackColor = true;
             this.buttonReload.Click += new System.EventHandler(this.buttonReload_Click);
             // 
+            // buttonWhat
+            // 
+            resources.ApplyResources(this.buttonWhat, "buttonWhat");
+            this.buttonWhat.Name = "buttonWhat";
+            this.buttonWhat.UseVisualStyleBackColor = true;
+            this.buttonWhat.Click += new System.EventHandler(this.buttonWhat_Click);
+            // 
+            // panel1
+            // 
+            resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.Controls.Add(this.buttonWhat);
+            this.panel1.Controls.Add(this.checkBoxInsertShort);
+            this.panel1.Controls.Add(this.buttonOK);
+            this.panel1.Controls.Add(this.checkBoxVR);
+            this.panel1.Controls.Add(this.buttonReload);
+            this.panel1.Controls.Add(this.textBoxVCLength);
+            this.panel1.Controls.Add(this.buttonToCVC);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.buttonCV);
+            this.panel1.Controls.Add(this.buttonSetText);
+            this.panel1.Controls.Add(this.buttonCancel);
+            this.panel1.Controls.Add(this.buttonSplit);
+            this.panel1.Controls.Add(this.buttonAtlasConvert);
+            this.panel1.Name = "panel1";
+            // 
             // PluginWindow
             // 
             this.AcceptButton = this.buttonOK;
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.Controls.Add(this.checkBoxInsertShort);
-            this.Controls.Add(this.checkBoxVR);
-            this.Controls.Add(this.textBoxVCLength);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.statusBar);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.lyricView);
-            this.Controls.Add(this.buttonCancel);
-            this.Controls.Add(this.buttonAtlasConvert);
-            this.Controls.Add(this.buttonSetText);
-            this.Controls.Add(this.buttonReload);
-            this.Controls.Add(this.buttonOK);
             this.HelpButton = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -206,8 +245,9 @@
             this.Load += new System.EventHandler(this.PluginWindow_Load);
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -220,13 +260,17 @@
         private System.Windows.Forms.CheckBox checkBoxVR;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxVCLength;
-        private System.Windows.Forms.TextBox statusBar;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.BindingSource uNoteBindingSource;
+        private System.Windows.Forms.Button buttonReload;
+        private System.Windows.Forms.CheckBox checkBoxInsertShort;
+        private System.Windows.Forms.Button buttonToCVC;
+        private System.Windows.Forms.Button buttonCV;
+        private System.Windows.Forms.Button buttonSplit;
         private System.Windows.Forms.DataGridViewTextBoxColumn Number;
         private System.Windows.Forms.DataGridViewTextBoxColumn lyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;
-        private System.Windows.Forms.Button buttonReload;
-        private System.Windows.Forms.CheckBox checkBoxInsertShort;
+        private System.Windows.Forms.Button buttonWhat;
+        private System.Windows.Forms.Panel panel1;
     }
 }

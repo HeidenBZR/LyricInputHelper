@@ -15,6 +15,8 @@ namespace App.UI
     {
         public List<string> CurrentText;
         public int[] sizes;
+        public string Message;
+        public bool Cancel = true;
 
         public SetTextWindow(List<string> text, int[] sizes)
         {
@@ -30,21 +32,22 @@ namespace App.UI
             labelNotesSelected.Text = normalized.Count.ToString();
             SetMinSize();
 
-            labelTip.Text = "Введите алиасы. Можно ввести как алиасы CV, C и V, которые в последствии " +
-                    "будут преобразованы по атласу, так и сразу конечные алиасы.\r\n";
-            labelTip.Text += " Алиасы разделяются пробелами, символом дефиса или переносами строк. " +
-                "Нижние подчеркивания будут преобразованы в пробелы, например, введите \"-_va\" " +
-                "вместо - va.\r\n" +
-                "Можно вводить символы в любом регистре.\r\n" +
+            Message = "Введите текст на кириллице или сразу алиасы. Слова и алиасы разделяются пробелами," +
+                " дефисами или переносами строк.\r\n" +
+                "Нижнее подчеркивание будет преобразовано в пробел, например:\r\n" +
+                "ta a_chi chi => [ta] [a chi] [chi]\r\n";
+            Message += "Можно вводить символы в любом регистре.\r\n" +
                 "Будут стерты символы: .,:\"()!? \r\n\r\n";
             if (Atlas.HasDict)
             {
                 string key = Atlas.Dict.Keys.First();
-                labelTip.Text += "Для этого войсбанка доступен словарь. Пример преобразования:\r\n";
-                if (Atlas.VoicebankType == "CVC RUS") labelTip.Text += "ку => ku";
-                else labelTip.Text += $"{key} => {Atlas.Dict[key]}";
-                labelTip.Text += "\r\nОбратите внимание, что словарь предосталяет правила транслитерации, " +
-                    "но не делает фонетический анализ.";
+                Message += "Для этого войсбанка доступен словарь. Пример преобразования:\r\n";
+                if (Atlas.VoicebankType == "CVC RUS") Message += "привет => [p] [r'i] [v'e] [t]";
+                else Message += $"{key} => {String.Join(" ", Atlas.Dict[key].Select(n => $"[{n}]"))}";
+                Message += "\r\nСловарь неполный, и отсутствующие слова будут преобразованы процедурно. " +
+                    "Вы можете добавить собственные слова в файл .dict, пример (для CVC RUS): \r\n" +
+                    "слово=s lo va\r\n" +
+                    "авиация=a v'i a cy ~a";
             }
         }
 
@@ -83,15 +86,7 @@ namespace App.UI
             if (!Atlas.HasDict) return texts;
             List<string> redicted = new List<string>();
             foreach (string text in texts)
-            {
-                if (Atlas.Dict.ContainsKey(text))
-                    redicted.Add(Atlas.Dict[text]);
-                else
-                {
-                    redicted.Add(text);
-                    Program.Log($"Cant find dict rule for \"{text}\"");
-                }
-            }
+                redicted.AddRange(Atlas.DictAnalysis(text));
             return redicted;
         }
 
@@ -111,6 +106,7 @@ namespace App.UI
             text = text.Replace("\"", "");
             text = text.ToLower();
             CurrentText = ReDict(Denormalize(text.Split(' ').ToList()));
+            Cancel = false;
             Close();
         }
 
@@ -122,6 +118,11 @@ namespace App.UI
         private void textBoxMinSize_TextChanged(object sender, EventArgs e)
         {
             SetMinSize();
+        }
+
+        private void buttonWhat_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(Message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

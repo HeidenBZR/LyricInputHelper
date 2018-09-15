@@ -89,6 +89,16 @@ namespace App
                 ErrorMessage(ex, "Error on reading ust");
                 return;
             }
+            try
+            {
+                var Singer = new Singer(Ust.VoiceDir);
+                if (Singer.IsLoaded) Log("Singer loaded"); else Log($"Error reading singer");
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage(ex, "Error on reading singer");
+                return;
+            }
             Log("All files loaded successfully");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

@@ -19,3 +19,14 @@ D:\DISCS\YandexDisk\Heiden\Programming\Visual Studio\CV2CVC\App\bin\Debug\autocv
 D:\DISCS\YandexDisk\Heiden\Programming\Visual Studio\CV2CVC\App\bin\Debug\autocvc.pdb
 D:\DISCS\YandexDisk\Heiden\Programming\Visual Studio\CV2CVC\App\obj\Debug\autocvc.exe
 D:\DISCS\YandexDisk\Heiden\Programming\Visual Studio\CV2CVC\App\obj\Debug\autocvc.pdb
+D:\Github\autocvc\App\bin\Debug\autocvc.exe.config
+D:\Github\autocvc\App\bin\Debug\autocvc.exe
+D:\Github\autocvc\App\bin\Debug\autocvc.pdb
+D:\Github\autocvc\App\obj\Debug\App.csprojResolveAssemblyReference.cache
+D:\Github\autocvc\App\obj\Debug\App.PluginWindow.resources
+D:\Github\autocvc\App\obj\Debug\App.UI.SetTextWindow.resources
+D:\Github\autocvc\App\obj\Debug\App.UI.StandaloneWindow.resources
+D:\Github\autocvc\App\obj\Debug\App.csproj.GenerateResource.cache
+D:\Github\autocvc\App\obj\Debug\App.csproj.CoreCompileInputs.cache
+D:\Github\autocvc\App\obj\Debug\autocvc.exe
+D:\Github\autocvc\App\obj\Debug\autocvc.pdb

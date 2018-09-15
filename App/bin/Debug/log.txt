@@ -1,5 +1,6 @@
 ﻿====== Mode: Plugin ======
-30.6.2018, 08:38:05
+15.9.2018, 16:58:38
 Ust loaded
 Atlas loaded
+Singer loaded
 All files loaded successfully

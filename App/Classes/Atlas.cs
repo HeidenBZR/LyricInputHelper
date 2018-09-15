@@ -18,7 +18,7 @@ namespace App.Classes
         public static List<string> AliasTypes;
         public static Dictionary<string, string> Format;
         public static List<string[]> Replaces;
-        public static Dictionary<string, string> Dict;
+        public static Dictionary<string, string[]> Dict;
 
         public static bool IsLoaded = false;
         public static bool HasDict = true;
@@ -93,7 +93,7 @@ namespace App.Classes
         {
             string[] dict = line.Split('=');
             if (dict.Length != 2) return;
-            Dict[dict[0]] = dict[1];
+            Dict[dict[0]] = dict[1].Split(' ');
         }
         static void ReadAtlas()
         {
@@ -146,14 +146,14 @@ namespace App.Classes
 
         void ReadDict()
         {
-            Dict = new Dictionary<string, string>();
+            Dict = new Dictionary<string, string[]>();
             string[] dicts = File.ReadAllLines(DictPath);
             foreach (string line in dicts) ReadDict(line);
         }
 
         public static void ReloadDict()
         {
-            Dict = new Dictionary<string, string>();
+            Dict = new Dictionary<string, string[]>();
             string[] dicts = File.ReadAllLines(DictPath);
             foreach (string line in dicts) ReadDict(line);
         }
@@ -174,13 +174,17 @@ namespace App.Classes
                 string pattern = Format[alias_type].Replace("%V%", VowelPattern);
                 pattern = pattern.Replace("%C%", ConsonantPattern);
                 pattern = pattern.Replace("%R%", RestPattern);
-                if (Regex.IsMatch(alias, pattern) && Regex.Match(alias, pattern).Value == alias)
+                if (Regex.IsMatch(alias, pattern))
                 {
-                    string attempt = Regex.Match(alias, pattern).Value;
-                    return alias_type;
+                    var value = Regex.Match(alias, pattern).Value;
+                    if (value == alias)
+                    {
+                        string attempt = Regex.Match(alias, pattern).Value;
+                        return alias_type;
+                    }
                 }
             }
-            throw new KeyNotFoundException($"Can't detect alias type for [{alias}]. Check your atlas");
+            return "";
         }
 
         public static string[] GetPhonemes(string alias)
@@ -277,5 +281,71 @@ namespace App.Classes
             return line;
         }
 
+        public static string[] DictAnalysis(string lyric)
+        {
+            List<string> aliases = new List<string>();
+            int k;
+            string l = "";
+            List<string> syll = new List<string>();
+            for (int i = 0; i < lyric.Length; )
+            {
+                for (k = lyric.Length - i; k > 0; k--)
+                {
+                    l = lyric.Substring(i, k);
+                    if (Dict.ContainsKey(l))
+                        break;
+                }
+                if (k == 0)
+                {
+                    return new[] { lyric };
+                }
+                else
+                {
+                    aliases.AddRange(Dict[l]);
+                    i += k;
+                }
+            }
+            int vs = aliases.Select(n => GetAliasType(n) != "C").ToArray().Length;
+            if (vs == 1)
+                return new[] { String.Join(" ", Dict[l]) };
+            var sylls = new List<string>();
+            int lastv = aliases.Select(n => GetAliasType(n) != "C").ToList().FindLastIndex(n => n);
+            int prevv = -1;
+            for (int ph = 0; ph <= lastv; ph++)
+            {
+                string alias_type = GetAliasType(aliases[ph]);
+                while (alias_type == "C" && ph < lastv)
+                {
+                    ph++;
+                    alias_type = GetAliasType(aliases[ph]);
+                }
+                if (ph == lastv)
+                {
+                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, aliases.Count - 1 - prevv)));
+                    prevv = ph;
+                }
+                else
+                {
+                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, ph - prevv)));
+                    prevv = ph;
+                }
+            }
+            string t = String.Join(" ", sylls);
+            return sylls.ToArray();
+        }
+
+        public static int FindVowel(string[] aliases)
+        {
+            for (int i = 0; i < aliases.Length; i++)
+            {
+                if (IsVowel(aliases[i])) return i;
+            }
+            return 0;
+        }
+
+        public static int VowelsCount(string[] aliases)
+        {
+            return aliases.Count(n => new[] { "CV", "V", "-CV", "`V", "-V"}.Contains(GetAliasType(n)));
+        }
     }
 }
