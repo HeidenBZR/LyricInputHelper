@@ -34,9 +34,6 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.lyricView = new System.Windows.Forms.DataGridView();
             this.Number = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.buttonAtlasConvert = new System.Windows.Forms.Button();
             this.buttonSetText = new System.Windows.Forms.Button();
             this.checkBoxVR = new System.Windows.Forms.CheckBox();
@@ -52,9 +49,12 @@
             this.buttonWhat = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonOK
@@ -102,23 +102,6 @@
             this.Number.ReadOnly = true;
             this.Number.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Number.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // lyricDataGridViewTextBoxColumn
-            // 
-            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
-            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
-            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
-            // 
-            // parsedLyricDataGridViewTextBoxColumn
-            // 
-            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
-            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
-            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
-            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // uNoteBindingSource
-            // 
-            this.uNoteBindingSource.DataSource = typeof(App.Classes.UNote);
             // 
             // buttonAtlasConvert
             // 
@@ -244,6 +227,23 @@
             resources.ApplyResources(this.label1, "label1");
             this.label1.Name = "label1";
             // 
+            // lyricDataGridViewTextBoxColumn
+            // 
+            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
+            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
+            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
+            // 
+            // parsedLyricDataGridViewTextBoxColumn
+            // 
+            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
+            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
+            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
+            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // uNoteBindingSource
+            // 
+            this.uNoteBindingSource.DataSource = typeof(App.Classes.UNote);
+            // 
             // PluginWindow
             // 
             this.AcceptButton = this.buttonOK;
@@ -259,9 +259,9 @@
             this.ShowIcon = false;
             this.Load += new System.EventHandler(this.PluginWindow_Load);
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }

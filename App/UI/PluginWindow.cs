@@ -19,6 +19,7 @@ namespace App
         public static bool MakeVR = true;
         public static bool MakeShort = true;
         public static bool IsParsed = false;
+        public static bool IsUnparsed = false;
         private static int VCLengthDefault;
         public static int VCLength;
         public static string LOG_Dir = @"log.txt";
@@ -134,6 +135,15 @@ namespace App
             else Message = text;
         }
 
+        public static void CheckAccess()
+        {
+            window.buttonSetText.Enabled = !IsUnparsed;
+            window.buttonSplit.Enabled = !IsUnparsed;
+            window.buttonAtlasConvert.Enabled = !IsUnparsed;
+            window.buttonCV.Enabled = !IsParsed;
+            window.buttonToCVC.Enabled = !IsParsed;
+        }
+
         private void buttonOK_Click(object sender, EventArgs e)
         {
             Ust.Save();
@@ -143,44 +153,6 @@ namespace App
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void buttonAtlasConvert_Click(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            MakeVR = checkBoxVR.Checked;
-            MakeShort = checkBoxInsertShort.Checked;
-            IsParsed = true;
-            try
-            {
-                Parser.AtlasConverting();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-
-            SetLyric();
-        }
-
-        private void buttonSetText_Click(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            if (lastText == null) lastText = Ust.GetLyrics(skipRest:false);
-            int[] sizes = Ust.GetLengths();
-            SetTextWindow setTextWindow = new SetTextWindow(lastText.ToList(), sizes);
-            DialogResult result = setTextWindow.ShowDialog(this);
-            if (setTextWindow.Cancel) return;
-            //if (IsParsed)
-            //{
-            //    Ust.Reload();
-            //    IsParsed = false;
-            //}
-            Ust.SetLyric(setTextWindow.CurrentText.ToArray());
-            SetLyric();
         }
 
         private void lyricView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -206,51 +178,31 @@ namespace App
         {
             Ust.Reload();
             IsParsed = false;
+            IsUnparsed = false;
+            CheckAccess();
             SetLyric();
         }
 
-        private void buttonToCVC_Click(object sender, EventArgs e)
+        private void buttonSetText_Click(object sender, EventArgs e)
         {
             if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
             if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            Parser.ToCVC();
+            if (lastText == null) lastText = Ust.GetLyrics(skipRest: false);
+            int[] sizes = Ust.GetLengths();
+            SetTextWindow setTextWindow = new SetTextWindow(lastText.ToList(), sizes);
+            DialogResult result = setTextWindow.ShowDialog(this);
+            if (setTextWindow.Cancel) return;
             try
             {
-                //Parser.ToCVC();
+                Ust.SetLyric(setTextWindow.CurrentText.ToArray());
+                IsParsed = true;
+                CheckAccess();
             }
             catch (Exception ex)
             {
                 Program.ErrorMessage(ex);
                 return;
             }
-            try
-            {
-                Parser.Split();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            IsParsed = true;
-            SetLyric();
-        }
-
-        private void buttonToCV_Click(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            Parser.ToCV();
-            try
-            {
-                //Parser.ToCV();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            IsParsed = true;
             SetLyric();
         }
 
@@ -258,16 +210,74 @@ namespace App
         {
             if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
             if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            Parser.Split();
             try
             {
+                Parser.Split();
+                IsParsed = true;
+                CheckAccess();
             }
             catch (Exception ex)
             {
                 Program.ErrorMessage(ex);
                 return;
             }
-            IsParsed = true;
+            SetLyric();
+        }
+
+        private void buttonAtlasConvert_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
+            MakeVR = checkBoxVR.Checked;
+            MakeShort = checkBoxInsertShort.Checked;
+            try
+            {
+                Parser.AtlasConverting();
+                IsParsed = true;
+                CheckAccess();
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex);
+                return;
+            }
+            SetLyric();
+        }
+
+        private void buttonToCVC_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
+            try
+            {
+                Parser.ToCVC();
+                Parser.Split();
+                IsUnparsed = true;
+                CheckAccess();
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex);
+                return;
+            }
+            SetLyric();
+        }
+
+        private void buttonToCV_Click(object sender, EventArgs e)
+        {
+            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
+            try
+            {
+                Parser.ToCV();
+                IsUnparsed = true;
+                CheckAccess();
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex);
+                return;
+            }
             SetLyric();
         }
 
