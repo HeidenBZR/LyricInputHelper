@@ -38,6 +38,8 @@ namespace App
             textBoxVCLength.Text = VCLength.ToString();
             SetInitMessage();
             SetLyric();
+            // Set Version and title
+            Text = $"autoCVC v.0.3.2 ({Singer.Current.Name} - {Atlas.VoicebankType})";
         }
 
 
@@ -157,10 +159,6 @@ namespace App
 
         private void lyricView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            int x = e.ColumnIndex;
-            int y = e.RowIndex;
-            if (x == 1) Ust.Notes[y].Lyric = (string)lyricView[x,y].Value;
-            if (x == 2) Ust.Notes[y].ParsedLyric = (string)lyricView[x,y].Value;
         }
 
         private void textMinSize_TextChanged(object sender, EventArgs e)
@@ -284,6 +282,30 @@ namespace App
         private void buttonWhat_Click(object sender, EventArgs e)
         {
             MessageBox.Show(Message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void lyricView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            int x = e.ColumnIndex;
+            int y = e.RowIndex;
+            if (x == 2)
+            {
+                // if (x == 1) Ust.Notes[y].Lyric = (string)lyricView[x,y].Value;
+                var dialog = new NewLyricDialog(Ust.Notes[y].ParsedLyric);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    Ust.Notes[y].ParsedLyric = dialog.NewLyric.Trim(' ');
+                    SetLyric();
+                }
+            }
+
+        }
+
+        private void buttonReloadResources_Click(object sender, EventArgs e)
+        {
+            Singer.Current.Reload();
+            Atlas.Reload();
+            MessageBox.Show("Вокалист, атлас и словарь были перезагружены.", "Обновление ресурсов");
         }
     }
 }

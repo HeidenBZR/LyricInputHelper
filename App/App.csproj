@@ -77,6 +77,12 @@
     <Compile Include="Classes\Ust.cs" />
     <Compile Include="Classes\Wav.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="UI\NewLyricDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NewLyricDialog.Designer.cs">
+      <DependentUpon>NewLyricDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\PluginWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -110,6 +116,9 @@
     <None Include="Properties\DataSources\App.Classes.Ust.datasource" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="UI\NewLyricDialog.resx">
+      <DependentUpon>NewLyricDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\PluginWindow.resx">
       <DependentUpon>PluginWindow.cs</DependentUpon>
     </EmbeddedResource>

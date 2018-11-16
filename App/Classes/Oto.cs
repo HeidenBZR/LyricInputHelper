@@ -44,6 +44,16 @@ namespace App.Classes
                     return FullLength - Preutterance + Overlap;
             }
         }
+        public double InnerLength
+        {
+            get
+            {
+                if (Preutterance > Overlap)
+                    return 0;
+                else
+                    return Overlap - Preutterance;
+            }
+        }
         public double FixedVowel
         {
             get

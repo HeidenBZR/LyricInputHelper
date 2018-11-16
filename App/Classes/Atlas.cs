@@ -45,25 +45,59 @@ namespace App.Classes
         private static string ConsonantPattern;
         private static string RestPattern;
 
+        public static Atlas Current;
+
+        string _dir;
+
         #endregion
 
         public Atlas(string dir)
         {
-            if (File.Exists(Path.Combine(dir, "character.txt")))
+            _dir = dir;
+            Current = this;
+            Load();
+            Ust.ValidateLyrics();
+        }
+
+        public static void Reload()
+        {
+            Load();
+        }
+
+        static void Load()
+        {
+            if (File.Exists(Path.Combine(Current._dir, "character.txt")))
             {
-                string[] character = File.ReadAllLines(Path.Combine(dir, "character.txt"));
-                if (character.ToList().Exists(n => n.StartsWith("VoicebankType")))
+                string[] character = File.ReadAllLines(Path.Combine(Current._dir, "character.txt"));
+                if (character.ToList().Exists(n => n.StartsWith("type")))
                 {
-                    VoicebankType = character.ToList().Find(n => n.StartsWith("VoicebankType"));
-                    VoicebankType = VoicebankType.Substring("VoicebankType".Length + 1);
-                    if (!File.Exists(AtlasPath)) IsDefault = true;
-                    if (!File.Exists(DictPath)) HasDict = false;
+                    VoicebankType = character.ToList().Find(n => n.StartsWith("type="));
+                    VoicebankType = VoicebankType.Substring("type=".Length);
+                    if (!File.Exists(AtlasPath))
+                        SetDefault();
                 }
-                else IsDefault = true;
+                else if (character.ToList().Exists(n => n.StartsWith("VoicebankType")))
+                {
+                    VoicebankType = character.ToList().Find(n => n.StartsWith("VoicebankType="));
+                    VoicebankType = VoicebankType.Substring("VoicebankType=".Length);
+                    if (!File.Exists(AtlasPath))
+                        SetDefault();
+                    else
+                        IsDefault = false;
+                }
+                else SetDefault();
             }
-            else IsDefault = true;
+            else SetDefault();
             ReadAtlas();
-            if (HasDict) ReadDict();
+            if (!File.Exists(DictPath))
+                HasDict = false;
+            if (HasDict) Current.ReadDict();
+        }
+
+        static void SetDefault()
+        {
+            IsDefault = true;
+            VoicebankType = DefaultVoicebankType;
         }
 
         #region Reading
@@ -141,7 +175,6 @@ namespace App.Classes
                 i++;
             }
             IsLoaded = true;
-            Ust.ValidateLyrics();
         }
 
         void ReadDict()

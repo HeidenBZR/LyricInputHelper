@@ -91,15 +91,25 @@ namespace App
                 {
                     RuleResult result = rule.FormatConvert.GetResult(lyricPrev, lyric);
                     Ust.Notes[i].ParsedLyric = result.Alias;
+                    if (Ust.Notes[i].Parent != null)
+                    {
+                        Oto oto = Singer.Current.FindOto(Ust.Notes[i].ParsedLyric);
+                        if (oto != null)
+                        {
+                            int ilength = MusicMath.MillisecondToTick(oto.InnerLength, Ust.Tempo);
+                            Ust.Notes[i].Length += ilength;
+                            Ust.Notes[i].Parent.Length -= ilength;
+                        }
+                    }
                 }
                 else Ust.Notes[i].ParsedLyric = lyric;
                 Console.WriteLine(Ust.Notes[i].ParsedLyric);
                 if (rule.MustInsert)
                 {
                     RuleResult result = rule.FormatInsert.GetResult(lyricPrev, lyric);
-                    Insert insert = result.AliasType == "V-" ? Insert.Before : Insert.After;
-                    UNote pitchparent = Ust.Notes[i - 1];
-                    UNote parent = result.AliasType == "VC" ? Ust.Notes[i - 1] : Ust.Notes[i];
+                    Insert insert =  new[] { "V-", "-C" }.Contains(result.AliasType) ? Insert.Before : Insert.After;
+                    UNote pitchparent = new[] { "-C" }.Contains(result.AliasType) ? Ust.Notes[i] : Ust.Notes[i - 1];
+                    UNote parent = new[] { "VC"}.Contains(result.AliasType) ? Ust.Notes[i - 1] : Ust.Notes[i];
                     if (PluginWindow.MakeVR || result.AliasType != "V-")
                     {
                         if (Ust.InsertNote(parent, result.Alias, insert, pitchparent))
@@ -107,6 +117,8 @@ namespace App
                             Console.WriteLine(Ust.Notes[i].ParsedLyric);
                         }
                     }
+                    if (new[] { "-C" }.Contains(result.AliasType))
+                        i++;
                 }
             }
         }

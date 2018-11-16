@@ -20,7 +20,7 @@ namespace App.UI
 
         public SetTextWindow(List<string> text, int[] sizes)
         {
-            if (Atlas.HasDict) Atlas.ReloadDict();
+            // if (Atlas.HasDict) Atlas.ReloadDict();
             InitializeComponent();
             this.sizes = sizes;
             List<string> normalized = Normalize(text);
@@ -102,7 +102,6 @@ namespace App.UI
             text = text.Replace(":", "");
             text = text.Replace("(", "");
             text = text.Replace(")", "");
-            text = text.Replace("'", "");
             text = text.Replace("\"", "");
             text = text.ToLower();
             CurrentText = ReDict(Denormalize(text.Split(' ').ToList()));

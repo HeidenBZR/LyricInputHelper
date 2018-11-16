@@ -41,6 +41,15 @@ namespace App.Classes
             Load();
         }
 
+        public void Reload()
+        {
+            CheckVoicebank();
+            if (!IsEnabled) return;
+            CharLoad();
+            Pitchmap = new Pitchmap(Dir);
+            Load();
+        }
+
         void Add()
         {
             Singers.Add(this);
@@ -83,6 +92,7 @@ namespace App.Classes
                     if (line.StartsWith("name=")) Name = line.Substring("name=".Length);
                     if (line.StartsWith("sample=")) Sample = line.Substring("sample=".Length);
                     if (line.StartsWith("VoicebankType=")) VoicebankType = line.Substring("VoicebankType=".Length);
+                    if (line.StartsWith("type=")) VoicebankType = line.Substring("type=".Length);
                 }
             }
             if (Name == null) Name = Path.GetFileName(Dir);

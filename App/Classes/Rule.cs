@@ -125,8 +125,10 @@ namespace App.Classes
             string subject = t[0];
             string rule = t[1];
 
-            if (rule.StartsWith(">")) FindLinks(subject, rule.Substring(1));
-            else Links[subject] = new Rule(rule);
+            if (rule.StartsWith(">"))
+                FindLinks(subject, rule.Substring(1));
+            else
+                Links[subject] = new Rule(rule);
         }
 
         static void FindLinks(string subject, string link)

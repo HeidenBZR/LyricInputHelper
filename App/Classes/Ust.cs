@@ -228,6 +228,8 @@ namespace App.Classes
                 note.Parent = prev;
             if (container != null) note.Parent = container;
 
+
+
             List<UNote> notes = Notes.ToList();
             int indParent = notes.IndexOf(parent);
             int ind = notes.IndexOf(parent) + 1 + (int)insert;
@@ -235,6 +237,17 @@ namespace App.Classes
             Notes = notes.ToArray();
 
             if (!SetLength(note)) return false;
+
+            if (parent != null)
+            {
+                Oto oto = Singer.Current.FindOto(note.ParsedLyric);
+                if (oto != null)
+                {
+                    int ilength = MusicMath.MillisecondToTick(oto.InnerLength, Ust.Tempo);
+                    note.Length += ilength;
+                    parent.Length -= ilength;
+                }
+            }
             return true;
         }
 
@@ -250,14 +263,17 @@ namespace App.Classes
             string alias_type = Atlas.GetAliasType(note.ParsedLyric);
             string containterAliasType = Atlas.GetAliasType(container.ParsedLyric);
             string nextAliasType = next == null ? "" : Atlas.GetAliasType(next.ParsedLyric);
+            Oto oto = null;
+            Oto thisoto = Singer.Current.FindOto(note); ;
             if (alias_type == "C" || alias_type == "VC")
             {
-                Oto oto = null;
                 if (alias_type == "C")
                 {
                     if (nextAliasType.Contains("CV"))
                     {
-                        string al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(nextlyric));
+                        string al = container.ParsedLyric;
+                        if (Atlas.VoicebankType.ToLower().Contains("cvc") && !Atlas.VoicebankType.ToLower().Contains("words"))
+                            al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(nextlyric));
                         oto = Singer.Current.FindOto(al, container.NoteNum);
                     }
                     else if (nextAliasType.Contains("C"))
@@ -268,13 +284,28 @@ namespace App.Classes
                         }
                         else
                         {
-                            string al = Atlas.GetAlias("-C", Atlas.GetPhonemes(nextlyric));
+                            string al = Atlas.GetAlias("-C", new[] { Atlas.GetPhonemes(nextlyric)[0] });
+                            oto = Singer.Current.FindOto(al, container.NoteNum);
+                        }
+                        if (Atlas.VoicebankType.Contains("Arpasing"))
+                        {
+                            var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                            phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                            string al = Atlas.GetAlias("CC", phonemes.ToArray());
                             oto = Singer.Current.FindOto(al, container.NoteNum);
                         }
                     }
                     else if (nextAliasType.Contains("V"))
                     {
-                        string al = Atlas.GetAlias("-V", Atlas.GetPhonemes(nextlyric));
+                        string al = container.ParsedLyric;
+                        if (Atlas.VoicebankType.ToLower().Contains("cvc") && !Atlas.VoicebankType.ToLower().Contains("words"))
+                            al = Atlas.GetAlias("-V", Atlas.GetPhonemes(nextlyric));
+                        if (Atlas.VoicebankType.Contains("Arpasing"))
+                        {
+                            var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                            phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                            al = Atlas.GetAlias("CV", phonemes.ToArray());
+                        }
                         oto = Singer.Current.FindOto(al, container.NoteNum);
                     }
                 }
@@ -282,10 +313,46 @@ namespace App.Classes
                 {
                     oto = Singer.Current.FindOto(nextlyric, next.NoteNum);
                 }
-                if (oto != null)
-                    length = MusicMath.MillisecondToTick(oto.Attack, Tempo);
             }
-            length = (int) (length / PluginWindow.Velocity);
+            else if (alias_type == "V" && Atlas.VoicebankType.Contains("Arpasing"))
+            {
+                string al = "";
+                if (nextAliasType == "C")
+                {
+                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                    al = Atlas.GetAlias("VC", phonemes.ToArray());
+                }
+                else if (nextAliasType == "V")
+                {
+                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                    al = Atlas.GetAlias("VV", phonemes.ToArray());
+                }
+                oto = Singer.Current.FindOto(al, container.NoteNum);
+            }
+            else if (alias_type == "R" && Atlas.VoicebankType.Contains("Arpasing"))
+            {
+                string al = "";
+                if (nextAliasType == "C")
+                {
+                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                    al = Atlas.GetAlias("-C", phonemes.ToArray());
+                }
+                else if (nextAliasType == "V")
+                {
+                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
+                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
+                    al = Atlas.GetAlias("-V", phonemes.ToArray());
+                }
+                oto = Singer.Current.FindOto(al, container.NoteNum);
+            }
+            if (oto != null)
+            {
+                length = MusicMath.MillisecondToTick(oto.Attack, Tempo);
+            }
+            length = (int) (length / PluginWindow.Velocity) + 1;
 
             if (container.Length < length + 10)
             {

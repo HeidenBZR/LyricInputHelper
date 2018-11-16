@@ -52,6 +52,7 @@
             this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.buttonReloadResources = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
@@ -74,6 +75,8 @@
             // 
             // lyricView
             // 
+            this.lyricView.AllowUserToAddRows = false;
+            this.lyricView.AllowUserToDeleteRows = false;
             this.lyricView.AllowUserToResizeColumns = false;
             this.lyricView.AllowUserToResizeRows = false;
             this.lyricView.AutoGenerateColumns = false;
@@ -91,6 +94,7 @@
             this.lyricView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.lyricView.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.lyricView.Tag = "";
+            this.lyricView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.lyricView_CellClick);
             this.lyricView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.lyricView_CellEndEdit);
             // 
             // Number
@@ -211,6 +215,7 @@
             this.panel1.Controls.Add(this.checkBoxInsertShort);
             this.panel1.Controls.Add(this.buttonOK);
             this.panel1.Controls.Add(this.checkBoxVR);
+            this.panel1.Controls.Add(this.buttonReloadResources);
             this.panel1.Controls.Add(this.buttonReload);
             this.panel1.Controls.Add(this.textBoxVCLength);
             this.panel1.Controls.Add(this.buttonToCVC);
@@ -232,6 +237,8 @@
             this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
             resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
             this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
+            this.lyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.lyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // parsedLyricDataGridViewTextBoxColumn
             // 
@@ -239,10 +246,18 @@
             resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
             this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
             this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.parsedLyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // uNoteBindingSource
             // 
             this.uNoteBindingSource.DataSource = typeof(App.Classes.UNote);
+            // 
+            // buttonReloadResources
+            // 
+            resources.ApplyResources(this.buttonReloadResources, "buttonReloadResources");
+            this.buttonReloadResources.Name = "buttonReloadResources";
+            this.buttonReloadResources.UseVisualStyleBackColor = true;
+            this.buttonReloadResources.Click += new System.EventHandler(this.buttonReloadResources_Click);
             // 
             // PluginWindow
             // 
@@ -282,12 +297,13 @@
         private System.Windows.Forms.Button buttonToCVC;
         private System.Windows.Forms.Button buttonCV;
         private System.Windows.Forms.Button buttonSplit;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Number;
-        private System.Windows.Forms.DataGridViewTextBoxColumn lyricDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.Button buttonWhat;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox textBoxVelocity;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Number;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lyricDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Button buttonReloadResources;
     }
 }

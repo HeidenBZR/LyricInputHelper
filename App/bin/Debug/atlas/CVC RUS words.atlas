@@ -1,0 +1,37 @@
+[MAIN]
+Version=0.2
+Vowels=a,e,o,u,y,i
+Consonants=bj,b,vj,v,gj,g,dj,d,zj,z,kj,k,lj,l,mj,m,nj,n,pj,p,rj,r,sj,s,tj,t,fj,f,hj,h,shj,sh,zh,j,ts,ch
+Rests=R
+[FORMAT]
+-C=- %C%
+V=%V%
+C=%C%
+V-=%V% -
+C-=%C% -
+-V=-%V%
+VC=%V% %C%
+CV=%C% %V%
+[RULES]
+R,C=-C[][0]
+R,CV=INSERT(-C[][0])
+R,V=-V[][0]
+VC,C=C-[][0]
+CV,CV=INSERT(VC[-1][0])
+V,R=INSERT(V-[-1][])
+R,CV=INSERT(-C[][0])
+V-,C=>R,C
+V-,CV=>R,CV
+V-,V=>R,V
+C,V=>R,V
+C-,C=>VC,C
+-C,C=>VC,C
+-V,CV=>CV,CV
+V,CV=>CV,CV
+`V,CV=>CV,CV
+V,C=>CV,CV
+-V,C=>CV,CV
+CV,C=>CV,CV
+-V,R=>V,R
+CV,R=>V,R
+[REPLACE]

@@ -6,7 +6,7 @@ Rests=R
 [FORMAT]
 V=%V%
 C=%C%
--C=-%C%
+-C=- %C%
 V-=%V% -
 -V=- %V%
 CV=%C% %V%
@@ -16,7 +16,7 @@ CC=%C% %C%
 [RULES]
 V,C=VC[-1][0]
 V,V=VV[-1][0]
-V,R=INSERT(V-[0][])
+V,R=INSERT(V-[-1][])
 R,C=-C[][0]
 R,V=-V[][0]
 C,V=CV[-1][0]
@@ -30,4 +30,10 @@ VV,V=>V,V
 CV,R=>V,R
 VV,R=>V,R
 -V,R=>V,R
+CC,C=>C,C
+-C,C=>C,C
+VC,C=>C,C
+CC,V=>C,V
+-C,V=>C,V
+VC,V=>C,V
 [REPLACE]
