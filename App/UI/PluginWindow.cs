@@ -51,25 +51,40 @@ namespace App
                     "для текущего типа банка, поэтому будет использоваться атлас по умолчанию.\r\n" +
                     "Чтобы внести информацию о типе войсбанка, добавьте информацию о нем в файл character.txt, " +
                     "добавив строку вида:\r\n" +
-                    "VoicebankType=MyVoicebankType\r\n" +
+                    "type=MyVoicebankType\r\n" +
                     "Например:\r\n" +
-                    "VoicebankType=CVC RUS\r\n" +
+                    "type=CVC RUS\r\n" +
                     "Убедитесь, что в папке atlas в директории плагина присутствует файл атласа с именем в формате " +
                     "VoicebankType.atlas, например, \"CVC RUS.atlas\".\r\n\r\n";
             Message += $"Атлас: {Path.GetFileName(Atlas.AtlasPath)}.\r\n";
-            if (Atlas.HasDict) Message += $"Словарь: {Path.GetFileName(Atlas.DictPath)}.\r\n";
-            Message +=
-                "\r\nВходной уст должен представлять собой CV уст, содержащий CV, V и C ноты. " +
-                "Обратите внимание, что C ноты в усте должны стоять отдельно, в этой версии " +
-                "конвертер еще не умеет их разделять.\r\n\r\n" +
-                "Конвертер создает VC ноты заданной длины, подобрать их точную длину нужно " +
-                "самостоятельно.\r\n\r\n" +
-                "Вы можете ввести текст, нажав кнопку \"Ввести текст\". Введенный текст можно " +
-                "конвертировать, а можно сохранить без конвертирования, нажав кнопку OK. \r\n\r\n";
+            if (Atlas.HasDict) Message += $"Словарь: {Path.GetFileName(Atlas.DictPath)}.\r\n\r\n";
             if (Atlas.HasDict) Message += $"Для этого типа войсбанка доступен словарь, поэтому вы " +
                     $"можете вводить алиасы на кириллице, или иным способом, предусмотренным словарем. " +
                     $"Для уточнения, откройте файл {Path.GetFileName(Atlas.DictPath)} в папке atlas " +
-                    $"в директории плагина.\r\n";
+                    $"в директории плагина с помощью любого текстового редактора.\r\n";
+            
+            Message +=
+                "\r\nВозможно несколько режимов работы: \r\n" +
+                "1. Вы работаете с импортированный MIDI-файлом или CV-устом (без отдельных выдохов и C-нот). " +
+                "Нажмите кнопку \"Ввести текст\", введите текст (если доступен словарь) либо фонетические " +
+                "единицы (фонемы для arpasing и CV/V/C для остальных типов банка). Проверьте правильность " +
+                "введенных единиц. При необходимости замените текст, нажав на нужную ячейку. Если все правильно, " +
+                "нажмите \"Разбить\", затем \"Конвертировать\".\r\n" +
+                "2. Вы работаете с presamp-устом. В этом случае достаточно нажать кнопку \"Конвертировать\".\r\n" +
+                "3. Вы работаете с готовым устом на основе другого реклиста. \r\n" +
+                "3.1. Для этого реклиста есть atlas: запустите плагин с установленным голосовым банком " +
+                "на основе этого реклиста и нажмите кнопку \"Преобразовать в CV\" (для arpasing) или " +
+                "\"Преобразовать в CV + C\" (для остальных типов). Примените изменения, после чего снова запустите " +
+                "плагин с вашим голосовым банком, и перейдите к пункту 1, если это был arpasing уст, " +
+                "или к пункту 2 для других типов реклиста. \r\n" +
+                "3.2. Файла atlas нет: если возможно, преобразуйте уст к CV-виду посредством других плагинов " +
+                "и перейдите к пункту 1. " +
+                "Если нет, бог вам в помощь. \r\n\r\n" +
+                "" +
+                "Используйте кнопку \"Сбросить все изменения\", если всё пошло не так.\r\n\r\n" +
+                "Используйте кнопку \"Перезагрузить ресурсы\", если вам нужно, чтобы плагин заново прочитал " +
+                "конфигурацию голосового банка, реклиста и словарь.";
+
         }
 
         public void SetLyric()
@@ -123,7 +138,7 @@ namespace App
                     lyricView[1, i].Style = darkCellStyle;
                     lyricView[2, i].Style = darkCellStyle;
                 }
-                if (note.Number == Classes.Number.Delete)
+                if (note.Number == Classes.Number.DELETE)
                 {
                     lyricView[1, i].Style = deleteCellStyle;
                     lyricView[2, i].Style = deleteCellStyle;
@@ -185,14 +200,16 @@ namespace App
         {
             if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
             if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            if (lastText == null) lastText = Ust.GetLyrics(skipRest: false);
+            //if (lastText == null)
+                lastText = Ust.GetLyrics(skipRest: false);
             int[] sizes = Ust.GetLengths();
             SetTextWindow setTextWindow = new SetTextWindow(lastText.ToList(), sizes);
             DialogResult result = setTextWindow.ShowDialog(this);
             if (setTextWindow.Cancel) return;
             try
             {
-                Ust.SetLyric(setTextWindow.CurrentText.ToArray());
+                var phonemes = setTextWindow.CurrentText.ToArray();
+                Ust.SetLyric(phonemes);
                 IsParsed = true;
                 CheckAccess();
             }

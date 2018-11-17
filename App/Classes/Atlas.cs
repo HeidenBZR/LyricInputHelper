@@ -18,6 +18,7 @@ namespace App.Classes
         public static List<string> AliasTypes;
         public static Dictionary<string, string> Format;
         public static List<string[]> Replaces;
+        public static List<string[]> PhonemeReplaces;
         public static Dictionary<string, string[]> Dict;
 
         public static bool IsLoaded = false;
@@ -123,6 +124,14 @@ namespace App.Classes
             if (replace.Length != 2) return;
             Replaces.Add(replace);
         }
+        static void ReadPhonemeReplace(string line)
+        {
+            string[] replace = line.Split('=');
+            if (replace.Length != 2) return;
+            replace[0] = replace[0].Trim();
+            replace[1] = replace[1].Trim();
+            PhonemeReplaces.Add(replace);
+        }
         static void ReadDict(string line)
         {
             string[] dict = line.Split('=');
@@ -169,9 +178,15 @@ namespace App.Classes
             }
             i++;
             Replaces = new List<string[]>();
-            while (i < atlas.Length)
+            while (atlas[i] != "[PHONEME_REPLACE]")
             {
                 ReadReplace(atlas[i]);
+                i++;
+            }
+            PhonemeReplaces = new List<string[]>();
+            while (i < atlas.Length)
+            {
+                ReadPhonemeReplace(atlas[i]);
                 i++;
             }
             IsLoaded = true;
@@ -199,7 +214,7 @@ namespace App.Classes
 
         public static string GetAliasType(string alias)
         {
-            if (alias == Number.Delete) return "";
+            if (alias == Number.DELETE) return "";
             if (IsRest(alias)) return "R";
             if (IsVowel(alias)) return "V";
             if (IsConsonant(alias)) return "C";
@@ -315,6 +330,18 @@ namespace App.Classes
             return line;
         }
 
+        public static string PhonemeReplace(string phonemes)
+        {
+            foreach (string[] pair in PhonemeReplaces)
+            {
+                var search = pair[0];
+                var replacement = pair[1];
+                if (phonemes.Contains(search))
+                    phonemes = phonemes.Replace(search, replacement);
+            }
+            return phonemes;
+        }
+
         public static string[] DictAnalysis(string lyric)
         {
             List<string> aliases = new List<string>();
@@ -328,6 +355,9 @@ namespace App.Classes
                     l = lyric.Substring(i, k);
                     if (Dict.ContainsKey(l))
                         break;
+                    var last = l.Last().ToString();
+                    if (Dict.ContainsKey(last) && Dict[last][0] == "#SKIP")
+                        k--;
                 }
                 if (k == 0)
                 {

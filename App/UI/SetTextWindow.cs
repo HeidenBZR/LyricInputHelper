@@ -37,7 +37,9 @@ namespace App.UI
                 "Нижнее подчеркивание будет преобразовано в пробел, например:\r\n" +
                 "ta a_chi chi => [ta] [a chi] [chi]\r\n";
             Message += "Можно вводить символы в любом регистре.\r\n" +
-                "Будут стерты символы: .,:\"()!? \r\n\r\n";
+                "Будут стерты символы: .,:\"()!?-— \r\n\r\n";
+            Message += "Если вы вводите сразу конечные алиасы и вам нужен символ дефиса, " +
+                "включите опцию \"Не заменять дефис\". \r\n\r\n";
             if (Atlas.HasDict)
             {
                 string key = Atlas.Dict.Keys.First();
@@ -94,7 +96,11 @@ namespace App.UI
         {
             CurrentText.Clear();
             string text = textBox.Text.Replace("\r\n", " ");
-            text = text.Replace("-", " ");
+            if (!checkBoxHyphen.Checked)
+            {
+                text = text.Replace("-", " ");
+            }
+            text = text.Replace("—", "");
             text = text.Replace(".", "");
             text = text.Replace("?", "");
             text = text.Replace("!", "");
@@ -103,8 +109,9 @@ namespace App.UI
             text = text.Replace("(", "");
             text = text.Replace(")", "");
             text = text.Replace("\"", "");
-            text = text.ToLower();
-            CurrentText = ReDict(Denormalize(text.Split(' ').ToList()));
+            text = text.Replace("\"", "");
+            text = System.Text.RegularExpressions.Regex.Replace(text, " {2,}", " ");
+            CurrentText = ReDict(Denormalize(text.ToLower().Split(' ').ToList()));
             Cancel = false;
             Close();
         }

@@ -60,13 +60,13 @@ namespace App.Classes
         {
             int i = 0;
             // Reading version
-            if (lines[0] == Number.Version)
+            if (lines[0] ==  Number.VERSION)
             {
                 Version = 1.2;
                 i++;
                 i++;
             }
-            if (lines[i] != Number.Setting) throw new Exception("Error UST reading");
+            if (lines[i] !=  Number.SETTING) throw new Exception("Error UST reading");
             else i++;
 
             while (i < lines.Length && !Number.IsNote(lines[i]))
@@ -124,13 +124,13 @@ namespace App.Classes
             List<string> text = new List<string> { };
             if (Version == 1.2)
             {
-                text.Add(Number.Version);
+                text.Add( Number.VERSION);
                 text.Add("UST Version " + Version.ToString());
-                text.Add(Number.Setting);
+                text.Add( Number.SETTING);
             }
             else
             {
-                text.Add(Number.Setting);
+                text.Add( Number.SETTING);
                 text.Add(TakeIn("Version", Version));
             }
             text.Add(TakeIn("Tempo", Tempo));
@@ -142,12 +142,17 @@ namespace App.Classes
         public static void SetLyric(string[] newlyric, bool skipRest = true)
         {
             List<string> notelyrics = new List<string>();
-            int k = 0;
+            int k = Notes[0].Number == Number.PREV ? 1 : 0;
+            int i = 0;
             bool notEnoughWords = false;
-            for (int i = 0; i < newlyric.Length; i++)
+            for (; i < newlyric.Length && k < Notes.Length; i++)
             {
-                while (Notes[k].Number == Number.Delete)
+                while (Notes[k].Number == Number.DELETE)
+                {
                     k++;
+                    if (k >= Notes.Length)
+                        break;
+                }
                 if (k >= Notes.Length)
                     break;
                 while (Atlas.IsRest(Ust.Notes[k].ParsedLyric) && skipRest)
@@ -166,7 +171,7 @@ namespace App.Classes
                     else { }
                 }
                 if (notEnoughWords) break;
-                while (Notes[k].Number == Number.Delete)
+                while (Notes[k].Number == Number.DELETE)
                     k++;
                 if (Atlas.GetAliasType(newlyric[i]) == "C")
                     notelyrics.Add(newlyric[i]);
@@ -181,14 +186,20 @@ namespace App.Classes
                     k++;
                 }
             }
+            if (i < newlyric.Length - 1)
+                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
+
             if (notelyrics.Count > 0)
             {
                 UNote last = Ust.Notes.Last();
-                for (int i = 0; i < notelyrics.Count; i++)
+                for (i = 0; i < notelyrics.Count; i++)
                 {
                     Ust.InsertNote(Ust.Notes.Last(), notelyrics[i], Insert.After, last);
                 }
             }
+
+            foreach (var note in Notes)
+                note.ParsedLyric = Atlas.PhonemeReplace(note.ParsedLyric);
         }
 
         public static UNote GetNextNote(UNote note)
@@ -218,7 +229,7 @@ namespace App.Classes
             UNote note = new UNote()
             {
                 ParsedLyric = lyric,
-                Number = Number.Insert,
+                Number = Number.INSERT,
                 NoteNum = pitchparent.NoteNum,
                 Parent = parent
             };
@@ -387,9 +398,12 @@ namespace App.Classes
             List<string> lyrics = new List<string>();
             foreach (UNote note in Notes)
             {
-                if (skipRest && Atlas.IsRest(note.Lyric)) continue;
+                if (note.Number == Number.NEXT || note.Number == Number.PREV)
+                    continue;
+                if (skipRest && Atlas.IsRest(note.Lyric))
+                    continue;
                 if (note.Lyric == null) continue;
-                lyrics.Add(note.Lyric);
+                lyrics.Add(note.ParsedLyricView);
             }
             return lyrics.ToArray();
         }

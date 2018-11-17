@@ -142,7 +142,7 @@ namespace App
                         if (i > 0 && Ust.Notes[i - 1].IsRest())
                         {
                             /// R [-C] -CV
-                            if (Ust.Notes[i + 1].ParsedLyric == Number.Delete)
+                            if (Ust.Notes[i + 1].ParsedLyric == Number.DELETE)
                             {
                                 /// R [-C] -C -CV
                                 Ust.Notes[i + 1].ParsedLyric = Ust.Notes[i].ParsedLyric;
@@ -153,14 +153,14 @@ namespace App
                                 Ust.Notes[i + 1].ParsedLyric = $"{Ust.Notes[i].ParsedLyric} {Ust.Notes[i + 1].ParsedLyric}";
                                 Ust.Notes[i - 1].Length += Ust.Notes[i].Length;
                             }
-                            Ust.Notes[i].ParsedLyric = Number.Delete;
-                            Ust.Notes[i].Number = Number.Delete;
+                            Ust.Notes[i].ParsedLyric = Number.DELETE;
+                            Ust.Notes[i].Number = Number.DELETE;
                             Ust.Notes[i].Length = 0;
                         }
                         else if (Ust.Notes[i + 1].IsRest())
                         {
                             /// VC- [C] R
-                            if (Ust.Notes[i - 1].ParsedLyric == Number.Delete)
+                            if (Ust.Notes[i - 1].ParsedLyric == Number.DELETE)
                             {
                                 /// VC- C [C] R
                                 Ust.Notes[i - 1].ParsedLyric = Ust.Notes[i].ParsedLyric;
@@ -171,8 +171,8 @@ namespace App
                                 Ust.Notes[i - 1].ParsedLyric += $" {Ust.Notes[i].ParsedLyric}";
                                 Ust.Notes[i + 1].Length += Ust.Notes[i].Length;
                             }
-                            Ust.Notes[i].ParsedLyric = Number.Delete;
-                            Ust.Notes[i].Number = Number.Delete;
+                            Ust.Notes[i].ParsedLyric = Number.DELETE;
+                            Ust.Notes[i].Number = Number.DELETE;
                             Ust.Notes[i].Length = 0;
                         }
                         else if (i > 0 && Ust.Notes[i - 1].ParsedLyric.Split(' ').Any(n => Atlas.GetAliasType(n).Contains("V")))
@@ -180,21 +180,21 @@ namespace App
                             /// CV [(VC-)] (-CV)
                             Ust.Notes[i - 1].Length += Ust.Notes[i].Length;
                             Ust.Notes[i + 1].ParsedLyric = $"{Ust.Notes[i].ParsedLyric} {Ust.Notes[i + 1].ParsedLyric}";
-                            Ust.Notes[i].ParsedLyric = Number.Delete;
-                            Ust.Notes[i].Number = Number.Delete;
+                            Ust.Notes[i].ParsedLyric = Number.DELETE;
+                            Ust.Notes[i].Number = Number.DELETE;
                             Ust.Notes[i].Length = 0;
                         }
                         else
                         {
                             int k = 1;
-                            while (Ust.Notes[i - k].Number == Number.Delete) k++;
+                            while (Ust.Notes[i - k].Number == Number.DELETE) k++;
                             if (Ust.Notes[i - k].IsRest())
                             {
                                 /// (R) (С)* [C] (!R)
                                 Ust.Notes[i - k].Length += Ust.Notes[i].Length;
                                 Ust.Notes[i + 1].ParsedLyric = $"{Ust.Notes[i].ParsedLyric} {Ust.Notes[i + 1].ParsedLyric}";
-                                Ust.Notes[i].ParsedLyric = Number.Delete;
-                                Ust.Notes[i].Number = Number.Delete;
+                                Ust.Notes[i].ParsedLyric = Number.DELETE;
+                                Ust.Notes[i].Number = Number.DELETE;
                                 Ust.Notes[i].Length = 0;
                             }
                             else
@@ -202,8 +202,8 @@ namespace App
                                 /// (CV) (VC-) (С)* [C] (!R)
                                 Ust.Notes[i - k].Length += Ust.Notes[i].Length;
                                 Ust.Notes[i - k].ParsedLyric = $"{Ust.Notes[i - k].ParsedLyric} {Ust.Notes[i].ParsedLyric}";
-                                Ust.Notes[i].ParsedLyric = Number.Delete;
-                                Ust.Notes[i].Number = Number.Delete;
+                                Ust.Notes[i].ParsedLyric = Number.DELETE;
+                                Ust.Notes[i].Number = Number.DELETE;
                                 Ust.Notes[i].Length = 0;
                             }
                         }
@@ -230,8 +230,8 @@ namespace App
                         if (i > 0)
                         {
                             Ust.Notes[i - 1].Length += note.Length;
-                            note.ParsedLyric = Number.Delete;
-                            note.Number = Number.Delete;
+                            note.ParsedLyric = Number.DELETE;
+                            note.Number = Number.DELETE;
                         }
                         break;
                     case "V-":
@@ -240,8 +240,8 @@ namespace App
                         if (container != null || container.IsRest())
                         {
                             container.Length += note.Length;
-                            note.ParsedLyric = Number.Delete;
-                            note.Number = Number.Delete;
+                            note.ParsedLyric = Number.DELETE;
+                            note.Number = Number.DELETE;
                         }
                         break;
                     case "-C":
@@ -257,8 +257,8 @@ namespace App
                         if (i > 0)
                         {
                             Ust.Notes[i - 1].Length += note.Length;
-                            note.ParsedLyric = Number.Delete;
-                            note.Number = Number.Delete;
+                            note.ParsedLyric = Number.DELETE;
+                            note.Number = Number.DELETE;
                         }
                         break;
                 }

@@ -9,18 +9,18 @@ namespace App.Classes
     class Number
     {
 
-        public const string Next = "[#NEXT]";
-        public const string Prev = "[#PREV]";
-        public const string Insert = "[#INSERT]";
-        public const string Delete = "[#DELETE]";
-        public const string Version = "[#VERSION]";
-        public const string Setting = "[#SETTING]";
+        public const string NEXT = "[#NEXT]";
+        public const string PREV = "[#PREV]";
+        public const string INSERT = "[#INSERT]";
+        public const string DELETE = "[#DELETE]";
+        public const string VERSION = "[#VERSION]";
+        public const string SETTING = "[#SETTING]";
 
         public static bool IsNote(string number)
         {
             if (number.Length < 6) return false;
-            if (number == Next) return true;
-            if (number == Prev) return true;
+            if (number == NEXT) return true;
+            if (number == PREV) return true;
             return int.TryParse(number.Substring(2, 4), out int i);
         }
 
@@ -38,9 +38,21 @@ namespace App.Classes
 
     public class UNote
     {
+        private UNote _parent;
+
         public int Length;
         public int NoteNum;
-        public UNote Parent;
+        public UNote Parent
+        {
+            get => _parent;
+            set
+            {
+                var temp = value;
+                while (temp.Parent != null)
+                    temp = temp.Parent;
+                _parent = temp;
+            }
+        }
         private string number;
         private string lyric;
         private string parsedLyric = "";
@@ -64,7 +76,7 @@ namespace App.Classes
             string lyric = Lyric != ParsedLyric && ParsedLyric == "" ? Lyric : ParsedLyric;
             if (Atlas.IsLoaded && Atlas.IsRest(lyric)) lyric = "R";
             if (lyric == "r") lyric = "rr";
-            if (lyric == Classes.Number.Delete) lyric = "";
+            if (lyric == Classes.Number.DELETE) lyric = "";
             List<string> text = new List<string>
             {
                 Number,
@@ -72,7 +84,7 @@ namespace App.Classes
                 $"Lyric={lyric}",
                 $"NoteNum={NoteNum}"
             };
-            if (Number == Classes.Number.Insert) text.Add("Modulation=0");
+            if (Number == Classes.Number.INSERT) text.Add("Modulation=0");
             return text.ToArray();
         }
 

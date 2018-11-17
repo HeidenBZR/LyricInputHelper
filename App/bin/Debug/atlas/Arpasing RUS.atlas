@@ -37,3 +37,18 @@ CC,V=>C,V
 -C,V=>C,V
 VC,V=>C,V
 [REPLACE]
+[PHONEME_REPLACE]
+v s=f s
+v s'=v s'
+v t=f t
+v t'=f t'
+v k=f k
+v k'=f k'
+v f=f f
+v f'=f' f'
+v p=f p
+v p'=f p'
+v sh=f sh
+v sh'=f sh'
+v ch=f ch
+v ts=f ts

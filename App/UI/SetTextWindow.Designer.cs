@@ -41,6 +41,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.buttonWhat = new System.Windows.Forms.Button();
             this.setTextWindowBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.checkBoxHyphen = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.setTextWindowBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -48,7 +49,7 @@
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonOK.Location = new System.Drawing.Point(433, 161);
+            this.buttonOK.Location = new System.Drawing.Point(433, 218);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 3;
@@ -59,7 +60,7 @@
             // buttonCancel
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCancel.Location = new System.Drawing.Point(433, 190);
+            this.buttonCancel.Location = new System.Drawing.Point(433, 247);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 3;
@@ -75,7 +76,7 @@
             this.textBox.Multiline = true;
             this.textBox.Name = "textBox";
             this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox.Size = new System.Drawing.Size(371, 193);
+            this.textBox.Size = new System.Drawing.Size(371, 250);
             this.textBox.TabIndex = 4;
             // 
             // label1
@@ -147,7 +148,7 @@
             this.panel1.Controls.Add(this.labelCSelected);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.labelNotesSelected);
-            this.panel1.Location = new System.Drawing.Point(395, 20);
+            this.panel1.Location = new System.Drawing.Point(395, 77);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(113, 73);
             this.panel1.TabIndex = 6;
@@ -155,7 +156,7 @@
             // buttonWhat
             // 
             this.buttonWhat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonWhat.Location = new System.Drawing.Point(433, 116);
+            this.buttonWhat.Location = new System.Drawing.Point(433, 173);
             this.buttonWhat.Name = "buttonWhat";
             this.buttonWhat.Size = new System.Drawing.Size(75, 23);
             this.buttonWhat.TabIndex = 3;
@@ -167,11 +168,24 @@
             // 
             this.setTextWindowBindingSource.DataSource = typeof(App.UI.SetTextWindow);
             // 
+            // checkBoxHyphen
+            // 
+            this.checkBoxHyphen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBoxHyphen.CheckAlign = System.Drawing.ContentAlignment.TopRight;
+            this.checkBoxHyphen.Location = new System.Drawing.Point(395, 37);
+            this.checkBoxHyphen.Name = "checkBoxHyphen";
+            this.checkBoxHyphen.Size = new System.Drawing.Size(106, 34);
+            this.checkBoxHyphen.TabIndex = 7;
+            this.checkBoxHyphen.Text = "Не заменять дефис (-)";
+            this.checkBoxHyphen.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.checkBoxHyphen.UseVisualStyleBackColor = true;
+            // 
             // SetTextWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(520, 225);
+            this.ClientSize = new System.Drawing.Size(520, 282);
+            this.Controls.Add(this.checkBoxHyphen);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.buttonCancel);
@@ -201,5 +215,6 @@
         private System.Windows.Forms.Label labelSylSelected;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button buttonWhat;
+        private System.Windows.Forms.CheckBox checkBoxHyphen;
     }
 }

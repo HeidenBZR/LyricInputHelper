@@ -35,3 +35,18 @@ CV,C=>CV,CV
 -V,R=>V,R
 CV,R=>V,R
 [REPLACE]
+[PHONEME_REPLACE]
+v s=f s
+v sj=v sj
+v t=f t
+v tj=f tj
+v k=f k
+v kj=f kj
+v f=f f
+v fj=fj fj
+v p=f p
+v pj=f pj
+v sh=f sh
+v shj=f shj
+v ch=f ch
+v ts=f ts
