@@ -11,7 +11,9 @@ namespace App
     {
         public static void Split()
         {
-            for (int i = 1; i < Ust.Notes.Length; i++)
+            int i = Ust.Notes.First().Number == Number.PREV ? 2 : 1; 
+            int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            for (; i < Ust.Notes.Length - stop; i++)
             {
                 UNote note = Ust.Notes[i];
                 UNote prev = i > 0 ? Ust.Notes[i - 1] : null;
@@ -61,7 +63,10 @@ namespace App
 
         public static void AtlasConverting()
         {
-            for  (int i = 1; i < Ust.Notes.Length; i++)
+            //int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
+            int i = 1; /// Всегда нужна предыдущая нота, а первая не обрабатывается
+            int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            for  (; i < Ust.Notes.Length - stop; i++)
             {
                 string lyric = Ust.Notes[i].ParsedLyric;
                 string lyricPrev = Ust.Notes[i - 1].ParsedLyric;
@@ -131,7 +136,9 @@ namespace App
             while (c_left)
             {
                 c_left = false;
-                for (int i = 0; i < Ust.Notes.Length; i++)
+                int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
+                int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+                for (; i < Ust.Notes.Length - stop; i++)
                 {
                     // remove C
                     var members = Ust.Notes[i].ParsedLyric.Split(' ');
@@ -215,7 +222,9 @@ namespace App
 
         public static void ToCVC()
         {
-            for (int i = 0; i < Ust.Notes.Length; i++)
+            int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
+            int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            for (; i < Ust.Notes.Length - stop; i++)
             {
                 UNote note = Ust.Notes[i];
                 switch (Atlas.GetAliasType(note.ParsedLyric))

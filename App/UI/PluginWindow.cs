@@ -39,7 +39,7 @@ namespace App
             SetInitMessage();
             SetLyric();
             // Set Version and title
-            Text = $"autoCVC v.0.3.2 ({Singer.Current.Name} - {Atlas.VoicebankType})";
+            Text = $"autoCVC v.0.3.3 ({Singer.Current.Name} - {Atlas.VoicebankType})";
         }
 
 
