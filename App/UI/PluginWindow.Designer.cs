@@ -34,28 +34,28 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.lyricView = new System.Windows.Forms.DataGridView();
             this.Number = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.buttonAtlasConvert = new System.Windows.Forms.Button();
             this.buttonSetText = new System.Windows.Forms.Button();
             this.checkBoxVR = new System.Windows.Forms.CheckBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.labelOfVrLength = new System.Windows.Forms.Label();
             this.textBoxVCLength = new System.Windows.Forms.TextBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.checkBoxInsertShort = new System.Windows.Forms.CheckBox();
             this.buttonSplit = new System.Windows.Forms.Button();
             this.buttonToCVC = new System.Windows.Forms.Button();
-            this.buttonCV = new System.Windows.Forms.Button();
+            this.buttonToCV = new System.Windows.Forms.Button();
             this.textBoxVelocity = new System.Windows.Forms.TextBox();
             this.buttonReload = new System.Windows.Forms.Button();
             this.buttonWhat = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.labelOfMultiplayer = new System.Windows.Forms.Label();
             this.buttonReloadResources = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonOK
@@ -107,6 +107,26 @@
             this.Number.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Number.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
+            // lyricDataGridViewTextBoxColumn
+            // 
+            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
+            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
+            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
+            this.lyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.lyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // parsedLyricDataGridViewTextBoxColumn
+            // 
+            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
+            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
+            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
+            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.parsedLyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // uNoteBindingSource
+            // 
+            this.uNoteBindingSource.DataSource = typeof(App.Classes.UNote);
+            // 
             // buttonAtlasConvert
             // 
             resources.ApplyResources(this.buttonAtlasConvert, "buttonAtlasConvert");
@@ -132,10 +152,10 @@
             this.toolTip.SetToolTip(this.checkBoxVR, resources.GetString("checkBoxVR.ToolTip"));
             this.checkBoxVR.UseVisualStyleBackColor = true;
             // 
-            // label2
+            // labelOfVrLength
             // 
-            resources.ApplyResources(this.label2, "label2");
-            this.label2.Name = "label2";
+            resources.ApplyResources(this.labelOfVrLength, "labelOfVrLength");
+            this.labelOfVrLength.Name = "labelOfVrLength";
             // 
             // textBoxVCLength
             // 
@@ -178,13 +198,13 @@
             this.buttonToCVC.UseVisualStyleBackColor = true;
             this.buttonToCVC.Click += new System.EventHandler(this.buttonToCVC_Click);
             // 
-            // buttonCV
+            // buttonToCV
             // 
-            resources.ApplyResources(this.buttonCV, "buttonCV");
-            this.buttonCV.Name = "buttonCV";
-            this.toolTip.SetToolTip(this.buttonCV, resources.GetString("buttonCV.ToolTip"));
-            this.buttonCV.UseVisualStyleBackColor = true;
-            this.buttonCV.Click += new System.EventHandler(this.buttonToCV_Click);
+            resources.ApplyResources(this.buttonToCV, "buttonToCV");
+            this.buttonToCV.Name = "buttonToCV";
+            this.toolTip.SetToolTip(this.buttonToCV, resources.GetString("buttonToCV.ToolTip"));
+            this.buttonToCV.UseVisualStyleBackColor = true;
+            this.buttonToCV.Click += new System.EventHandler(this.buttonToCV_Click);
             // 
             // textBoxVelocity
             // 
@@ -210,7 +230,7 @@
             // 
             resources.ApplyResources(this.panel1, "panel1");
             this.panel1.Controls.Add(this.textBoxVelocity);
-            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.labelOfMultiplayer);
             this.panel1.Controls.Add(this.buttonWhat);
             this.panel1.Controls.Add(this.checkBoxInsertShort);
             this.panel1.Controls.Add(this.buttonOK);
@@ -219,38 +239,18 @@
             this.panel1.Controls.Add(this.buttonReload);
             this.panel1.Controls.Add(this.textBoxVCLength);
             this.panel1.Controls.Add(this.buttonToCVC);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.buttonCV);
+            this.panel1.Controls.Add(this.labelOfVrLength);
+            this.panel1.Controls.Add(this.buttonToCV);
             this.panel1.Controls.Add(this.buttonSetText);
             this.panel1.Controls.Add(this.buttonCancel);
             this.panel1.Controls.Add(this.buttonSplit);
             this.panel1.Controls.Add(this.buttonAtlasConvert);
             this.panel1.Name = "panel1";
             // 
-            // label1
+            // labelOfMultiplayer
             // 
-            resources.ApplyResources(this.label1, "label1");
-            this.label1.Name = "label1";
-            // 
-            // lyricDataGridViewTextBoxColumn
-            // 
-            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
-            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
-            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
-            this.lyricDataGridViewTextBoxColumn.ReadOnly = true;
-            this.lyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // parsedLyricDataGridViewTextBoxColumn
-            // 
-            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
-            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
-            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
-            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
-            this.parsedLyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // uNoteBindingSource
-            // 
-            this.uNoteBindingSource.DataSource = typeof(App.Classes.UNote);
+            resources.ApplyResources(this.labelOfMultiplayer, "labelOfMultiplayer");
+            this.labelOfMultiplayer.Name = "labelOfMultiplayer";
             // 
             // buttonReloadResources
             // 
@@ -274,9 +274,9 @@
             this.ShowIcon = false;
             this.Load += new System.EventHandler(this.PluginWindow_Load);
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -288,19 +288,19 @@
         private System.Windows.Forms.Button buttonAtlasConvert;
         private System.Windows.Forms.Button buttonSetText;
         private System.Windows.Forms.CheckBox checkBoxVR;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label labelOfVrLength;
         private System.Windows.Forms.TextBox textBoxVCLength;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.BindingSource uNoteBindingSource;
         private System.Windows.Forms.Button buttonReload;
         private System.Windows.Forms.CheckBox checkBoxInsertShort;
         private System.Windows.Forms.Button buttonToCVC;
-        private System.Windows.Forms.Button buttonCV;
+        private System.Windows.Forms.Button buttonToCV;
         private System.Windows.Forms.Button buttonSplit;
         private System.Windows.Forms.Button buttonWhat;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox textBoxVelocity;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelOfMultiplayer;
         private System.Windows.Forms.DataGridViewTextBoxColumn Number;
         private System.Windows.Forms.DataGridViewTextBoxColumn lyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;

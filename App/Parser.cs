@@ -64,7 +64,7 @@ namespace App
         public static void AtlasConverting()
         {
             //int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
-            int i = 1; /// Всегда нужна предыдущая нота, а первая не обрабатывается
+            int i = 1; /// Всегда нужна первая нота, но будут нюансы со вставкой
             int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
             for  (; i < Ust.Notes.Length - stop; i++)
             {

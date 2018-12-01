@@ -29,35 +29,41 @@ namespace App.UI
             textBox.Text = textBox.Text.Replace("\r\n ", "\r\n");
             textBox.Text = textBox.Text.Replace(" \r\n", "\r\n");
             textBox.Text = textBox.Text.Trim(new char[] { '\r','\n' });
-            labelNotesSelected.Text = normalized.Count.ToString();
+            //labelNotesSelected.Text = normalized.Count.ToString();
             SetMinSize();
+            SetLang();
+        }
+        void SetTitle(string title, string dict)
+        {
+            Text = $"{title} [{Atlas.VoicebankType}] [{dict}]";
+        }
 
-            Message = "Введите текст на кириллице или сразу алиасы. Слова и алиасы разделяются пробелами," +
-                " дефисами или переносами строк.\r\n" +
-                "Нижнее подчеркивание будет преобразовано в пробел, например:\r\n" +
-                "ta a_chi chi => [ta] [a chi] [chi]\r\n";
-            Message += "Можно вводить символы в любом регистре.\r\n" +
-                "Будут стерты символы: .,:\"()!?-— \r\n\r\n";
-            Message += "Если вы вводите сразу конечные алиасы и вам нужен символ дефиса, " +
-                "включите опцию \"Не заменять дефис\". \r\n\r\n";
+        void SetLang()
+        {
+            Message = $"{Lang.Get("set_text_message")}\r\n\r\n" +
+                $"{Lang.Get("set_text_message2")}\r\n\r\n" +
+                $"{Lang.Get("set_text_message3")}\r\n\r\n" ;
             if (Atlas.HasDict)
             {
-                string key = Atlas.Dict.Keys.First();
-                Message += "Для этого войсбанка доступен словарь. Пример преобразования:\r\n";
-                if (Atlas.VoicebankType == "CVC RUS") Message += "привет => [p] [r'i] [v'e] [t]";
-                else Message += $"{key} => {String.Join(" ", Atlas.Dict[key].Select(n => $"[{n}]"))}";
-                Message += "\r\nСловарь неполный, и отсутствующие слова будут преобразованы процедурно. " +
-                    "Вы можете добавить собственные слова в файл .dict, пример (для CVC RUS): \r\n" +
-                    "слово=s lo va\r\n" +
-                    "авиация=a v'i a cy ~a";
+                string key = Atlas.Dict.Keys.ToArray()[Atlas.Dict.Count / 2];
+                if (Atlas.VoicebankType == "CVC RUS")
+                    key = "привет";
+                Message += $"{Lang.Get("set_text_has_dict_message")}\r\n\r\n" +
+                    $"{key} => {String.Join(" ", Atlas.Dict[key].Select(n => $"[{n}]"))}\r\n\r\n" +
+                    $"{Lang.Get("set_text_has_dict_message2")}";
             }
+            buttonOK.Text = Lang.Get("button_ok");
+            buttonCancel.Text = Lang.Get("button_cancel");
+            checkBoxHyphen.Text = Lang.Get("checkbox_hyphen");
+            string dict = Atlas.HasDict ? Lang.Get("dict_enabled") : Lang.Get("dict_disabled");
+            SetTitle(Lang.Get("set_text_dialog_title"), dict);
         }
 
         private void SetMinSize()
         {
             int syls = sizes.Count(n => n >= PluginWindow.MinSize);
-            labelSylSelected.Text = syls.ToString();
-            labelCSelected.Text = (sizes.Length - syls).ToString();
+            //labelSylSelected.Text = syls.ToString();
+            //labelCSelected.Text = (sizes.Length - syls).ToString();
         }
 
         private List<string> Normalize(List<string> texts)

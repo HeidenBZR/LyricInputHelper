@@ -31,30 +31,30 @@
             this.buttonOk = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.textBoxNewLyric = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.labelOfNewText = new System.Windows.Forms.Label();
+            this.labelOfCurrentText = new System.Windows.Forms.Label();
             this.labelLyric = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.labelOfWarning = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // buttonOk
             // 
-            this.buttonOk.Location = new System.Drawing.Point(98, 143);
+            this.buttonOk.Location = new System.Drawing.Point(58, 143);
             this.buttonOk.Name = "buttonOk";
-            this.buttonOk.Size = new System.Drawing.Size(75, 23);
+            this.buttonOk.Size = new System.Drawing.Size(96, 23);
             this.buttonOk.TabIndex = 0;
-            this.buttonOk.Text = "ОК";
+            this.buttonOk.Text = "button_ok";
             this.buttonOk.UseVisualStyleBackColor = true;
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(190, 143);
+            this.buttonCancel.Location = new System.Drawing.Point(169, 143);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.Size = new System.Drawing.Size(96, 23);
             this.buttonCancel.TabIndex = 0;
-            this.buttonCancel.Text = "Отмена";
+            this.buttonCancel.Text = "button_cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
@@ -65,23 +65,23 @@
             this.textBoxNewLyric.Size = new System.Drawing.Size(136, 20);
             this.textBoxNewLyric.TabIndex = 1;
             // 
-            // label1
+            // labelOfNewText
             // 
-            this.label1.Location = new System.Drawing.Point(12, 60);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 23);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Новый текст:";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelOfNewText.Location = new System.Drawing.Point(12, 60);
+            this.labelOfNewText.Name = "labelOfNewText";
+            this.labelOfNewText.Size = new System.Drawing.Size(100, 23);
+            this.labelOfNewText.TabIndex = 2;
+            this.labelOfNewText.Text = "new_text";
+            this.labelOfNewText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label2
+            // labelOfCurrentText
             // 
-            this.label2.Location = new System.Drawing.Point(12, 22);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(100, 23);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Текущий текст:";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.labelOfCurrentText.Location = new System.Drawing.Point(12, 22);
+            this.labelOfCurrentText.Name = "labelOfCurrentText";
+            this.labelOfCurrentText.Size = new System.Drawing.Size(100, 23);
+            this.labelOfCurrentText.TabIndex = 2;
+            this.labelOfCurrentText.Text = "current_text";
+            this.labelOfCurrentText.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelLyric
             // 
@@ -92,13 +92,13 @@
             this.labelLyric.Text = "_";
             this.labelLyric.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // label3
+            // labelOfWarning
             // 
-            this.label3.Location = new System.Drawing.Point(12, 98);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(253, 42);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Введенный вами текст никак не проверяется, \r\nпеняйте на себя.";
+            this.labelOfWarning.Location = new System.Drawing.Point(12, 98);
+            this.labelOfWarning.Name = "labelOfWarning";
+            this.labelOfWarning.Size = new System.Drawing.Size(253, 42);
+            this.labelOfWarning.TabIndex = 2;
+            this.labelOfWarning.Text = "no_text_validation_warning";
             // 
             // NewLyricDialog
             // 
@@ -107,16 +107,16 @@
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(268, 178);
             this.Controls.Add(this.labelLyric);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.labelOfCurrentText);
+            this.Controls.Add(this.labelOfWarning);
+            this.Controls.Add(this.labelOfNewText);
             this.Controls.Add(this.textBoxNewLyric);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOk);
             this.Name = "NewLyricDialog";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Изменить текст";
+            this.Text = "change_lyric_dialog_title";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -127,9 +127,9 @@
         private System.Windows.Forms.Button buttonOk;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.TextBox textBoxNewLyric;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label labelOfNewText;
+        private System.Windows.Forms.Label labelOfCurrentText;
         private System.Windows.Forms.Label labelLyric;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelOfWarning;
     }
 }

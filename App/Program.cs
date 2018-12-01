@@ -29,12 +29,34 @@ namespace App
         [STAThread]
         static void Main(string[] args)
         {
-            NFI = new CultureInfo("en-US", false).NumberFormat;
-            Program.args = args;
-            mode = DetectMode();
-            // SaveArgs();
-            Init();
-            // Save
+            try
+            {
+                Lang.Init("ru");
+                NFI = new CultureInfo("en-US", false).NumberFormat;
+                Program.args = args;
+                mode = DetectMode();
+                // SaveArgs();
+                Init();
+                // Save
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    File.WriteAllText(LOG_Dir,
+                        $"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.Message}\r\n"
+                        );
+
+                }
+                catch (Exception ex2)
+                {
+
+                    MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
+                        $"{ex.Message}\r\n\r\n" +
+                        $"{ex2.Message}\r\n{ex2.Source}\r\n{ex2.TargetSite.ToString()}\r\n" +
+                        $"{ex2.Message}\r\n", "Error");
+                }
+            }
         }
 
         static void SaveArgs()
@@ -107,10 +129,9 @@ namespace App
 
         public static void ErrorMessage (Exception ex, string name = "Error")
         {
-            string oops = "Упс, что-то пошло не так. Напишите автору, приложив скриншот ошибки, приложив " +
-                "файлы log.txt и ust.tmp из папки плагина.\r\n\r\n";
             Log(ex.Message);
-            MessageBox.Show(ex.TargetSite + ": " + ex.Message +"\r\n" + ex.StackTrace, name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.TargetSite + ": " + ex.Message +"\r\n" + ex.StackTrace, name, 
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         static void StandaloneModeInit()
@@ -153,39 +174,72 @@ namespace App
 
         static void InitLog(string type)
         {
-            using (StreamWriter log = new StreamWriter(LOG_Dir, false, System.Text.Encoding.UTF8))
+            try
             {
-                log.WriteLine($"====== Mode: {type} ======");
-                log.WriteLine(DateTime.Now.ToString(format: "d.MMM.yyyy, HH:mm:ss"));
-                log.Close();
+                using (StreamWriter log = new StreamWriter(LOG_Dir, false, System.Text.Encoding.UTF8))
+                {
+                    log.WriteLine($"====== Mode: {type} ======");
+                    log.WriteLine(DateTime.Now.ToString(format: "d.MMM.yyyy, HH:mm:ss"));
+                    log.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
+                    $"{ex.Message}\r\n", "Error");
             }
         }
 
         public static void Log(string text, bool saveUST = true, bool appendTextbox = false)
         {
-            using (StreamWriter log = new StreamWriter(LOG_Dir, true, System.Text.Encoding.UTF8))
+            try
             {
-                string type;
-                switch (args.Length)
+                using (StreamWriter log = new StreamWriter(LOG_Dir, true, System.Text.Encoding.UTF8))
                 {
-                    case 6:
-                        type = "wavtool for R";
-                        break;
-                    default:
-                        type = mode.ToString();
-                        break;
+                    string type;
+                    switch (args.Length)
+                    {
+                        case 6:
+                            type = "wavtool for R";
+                            break;
+                        default:
+                            type = mode.ToString();
+                            break;
+                    }
+                    log.WriteLine(text);
+                    log.Close();
+
                 }
-                log.WriteLine(text);
-                log.Close();
-
             }
-
-            if (saveUST && Ust.IsLoaded)
+            catch (Exception ex)
             {
-                File.Copy(args[0], "ust.tmp", true);
+                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
+                    $"{ex.Message}\r\n", "Error");
             }
 
-            PluginWindow.SetStatus(text, appendTextbox);
+            try
+            {
+                if (saveUST && Ust.IsLoaded)
+                {
+                    File.Copy(args[0], "ust.tmp", true);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
+                    $"{ex.Message}\r\n", "Error");
+            }
+
+            try
+            {
+                PluginWindow.SetStatus(text, appendTextbox);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
+                    $"{ex.Message}\r\n", "Error");
+            }
+
         }
 
     }

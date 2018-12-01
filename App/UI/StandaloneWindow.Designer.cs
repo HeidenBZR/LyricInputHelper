@@ -37,7 +37,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(281, 64);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Предполагается что тут какой-то еще функционал. Совсем совсем другой.";
+            this.label1.Text = "standalone_window_message";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // StandaloneWindow

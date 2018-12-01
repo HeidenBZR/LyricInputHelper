@@ -24,6 +24,7 @@ namespace App
         public static int VCLength;
         public static string LOG_Dir = @"log.txt";
         public static Dictionary<string, string> parents = new Dictionary<string, string>();
+        public static Version VERSION = new Version(0, 3, 4);
 
         public static string Message;
 
@@ -36,55 +37,58 @@ namespace App
             VCLengthDefault = 110 * (int)Ust.Tempo / 120;
             VCLength = VCLengthDefault;
             textBoxVCLength.Text = VCLength.ToString();
-            SetInitMessage();
+            SetLang();
             SetLyric();
-            // Set Version and title
-            Text = $"autoCVC v.0.3.3 ({Singer.Current.Name} - {Atlas.VoicebankType})";
+            SetTitle();
         }
 
+        void SetTitle()
+        {
+            Text = $"autoCVC v.{VERSION.ToString()} ({Singer.Current.Name} - {Atlas.VoicebankType})";
+        }
 
-        public void SetInitMessage()
+        void SetLang()
         {
             Message = "";
-
-            if (Atlas.IsDefault) Message += "Информация о типе голосового банка не найдена или отсутствует атлас " +
-                    "для текущего типа банка, поэтому будет использоваться атлас по умолчанию.\r\n" +
-                    "Чтобы внести информацию о типе войсбанка, добавьте информацию о нем в файл character.txt, " +
-                    "добавив строку вида:\r\n" +
-                    "type=MyVoicebankType\r\n" +
-                    "Например:\r\n" +
+            if (Atlas.IsDefault)
+                Message = $"{Lang.Get("plugin_window_message_no_dict")}\r\n\r\n" +
+                    $"{Lang.Get("plugin_window_message_no_dict2")}\r\n\r\n" +
                     "type=CVC RUS\r\n" +
-                    "Убедитесь, что в папке atlas в директории плагина присутствует файл атласа с именем в формате " +
-                    "VoicebankType.atlas, например, \"CVC RUS.atlas\".\r\n\r\n";
-            Message += $"Атлас: {Path.GetFileName(Atlas.AtlasPath)}.\r\n";
-            if (Atlas.HasDict) Message += $"Словарь: {Path.GetFileName(Atlas.DictPath)}.\r\n\r\n";
-            if (Atlas.HasDict) Message += $"Для этого типа войсбанка доступен словарь, поэтому вы " +
-                    $"можете вводить алиасы на кириллице, или иным способом, предусмотренным словарем. " +
-                    $"Для уточнения, откройте файл {Path.GetFileName(Atlas.DictPath)} в папке atlas " +
-                    $"в директории плагина с помощью любого текстового редактора.\r\n";
-            
-            Message +=
-                "\r\nВозможно несколько режимов работы: \r\n" +
-                "1. Вы работаете с импортированный MIDI-файлом или CV-устом (без отдельных выдохов и C-нот). " +
-                "Нажмите кнопку \"Ввести текст\", введите текст (если доступен словарь) либо фонетические " +
-                "единицы (фонемы для arpasing и CV/V/C для остальных типов банка). Проверьте правильность " +
-                "введенных единиц. При необходимости замените текст, нажав на нужную ячейку. Если все правильно, " +
-                "нажмите \"Разбить\", затем \"Конвертировать\".\r\n" +
-                "2. Вы работаете с presamp-устом. В этом случае достаточно нажать кнопку \"Конвертировать\".\r\n" +
-                "3. Вы работаете с готовым устом на основе другого реклиста. \r\n" +
-                "3.1. Для этого реклиста есть atlas: запустите плагин с установленным голосовым банком " +
-                "на основе этого реклиста и нажмите кнопку \"Преобразовать в CV\" (для arpasing) или " +
-                "\"Преобразовать в CV + C\" (для остальных типов). Примените изменения, после чего снова запустите " +
-                "плагин с вашим голосовым банком, и перейдите к пункту 1, если это был arpasing уст, " +
-                "или к пункту 2 для других типов реклиста. \r\n" +
-                "3.2. Файла atlas нет: если возможно, преобразуйте уст к CV-виду посредством других плагинов " +
-                "и перейдите к пункту 1. " +
-                "Если нет, бог вам в помощь. \r\n\r\n" +
-                "" +
-                "Используйте кнопку \"Сбросить все изменения\", если всё пошло не так.\r\n\r\n" +
-                "Используйте кнопку \"Перезагрузить ресурсы\", если вам нужно, чтобы плагин заново прочитал " +
-                "конфигурацию голосового банка, реклиста и словарь.";
+                    $"{Lang.Get("plugin_window_message_no_dict3")}\r\n\r\n";
+            Message += $"{Lang.Get("plugin_window_message_atlas")}: {Path.GetFileName(Atlas.AtlasPath)}.\r\n";
+            if (Atlas.HasDict)
+                Message += $"{ Lang.Get("plugin_window_message_dict")}: { Path.GetFileName(Atlas.DictPath)}.\r\n\r\n";
+            if (Atlas.HasDict) Message += $"{Lang.Get("plugin_window_message_has_dict")} " +
+                    $"{Path.GetFileName(Atlas.DictPath)} " +
+                    $"{Lang.Get("plugin_window_message_has_dict")}\r\n\r\n";
+            Message += $"{Lang.Get("tutorial")}\r\n";
+            Message += $"{Lang.Get("tutorial2")}\r\n";
+            Message += $"{Lang.Get("tutorial3")}\r\n";
+            Message += $"{Lang.Get("tutorial4")}\r\n";
+            Message += $"{Lang.Get("tutorial5")}\r\n";
+            Message += $"{Lang.Get("tutorial6")}\r\n";
+            Message += $"{Lang.Get("tutorial7")}\r\n";
+            Message += $"{Lang.Get("tutorial8")}\r\n\r\n";
+            Message += $"{Lang.Get("plugin_window_message_reset")}\r\n";
+            Message += $"{Lang.Get("plugin_window_message_reload")}\r\n";
 
+            checkBoxInsertShort.Text = Lang.Get("checkbox_insert_short");
+            checkBoxVR.Text = Lang.Get("checkbox_insert_vr");
+            labelOfVrLength.Text = Lang.Get("vr_length");
+            labelOfMultiplayer.Text = Lang.Get("multiplayer");
+
+            buttonSetText.Text = Lang.Get("button_set_text");
+            buttonSplit.Text = Lang.Get("button_split");
+            buttonAtlasConvert.Text = Lang.Get("button_atlas_convert");
+
+            buttonReload.Text = Lang.Get("button_reload_ust");
+            buttonToCVC.Text = Lang.Get("button_to_cv_c");
+            buttonToCV.Text = Lang.Get("button_to_cv");
+
+            buttonReloadResources.Text = Lang.Get("button_reload_resources");
+
+            buttonOK.Text = Lang.Get("button_ok");
+            buttonCancel.Text = Lang.Get("button_cancel");
         }
 
         public void SetLyric()
@@ -157,7 +161,7 @@ namespace App
             window.buttonSetText.Enabled = !IsUnparsed;
             window.buttonSplit.Enabled = !IsUnparsed;
             window.buttonAtlasConvert.Enabled = !IsUnparsed;
-            window.buttonCV.Enabled = !IsParsed;
+            window.buttonToCV.Enabled = !IsParsed;
             window.buttonToCVC.Enabled = !IsParsed;
         }
 
@@ -194,6 +198,8 @@ namespace App
             IsUnparsed = false;
             CheckAccess();
             SetLyric();
+            SetLang();
+            SetTitle();
         }
 
         private void buttonSetText_Click(object sender, EventArgs e)

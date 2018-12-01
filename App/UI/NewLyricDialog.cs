@@ -1,4 +1,5 @@
-﻿using System;
+﻿using App.Classes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using App.Classes;
 
 namespace App.UI
 {
@@ -20,6 +22,17 @@ namespace App.UI
             NewLyric = lyric;
             labelLyric.Text = lyric;
             textBoxNewLyric.Text = lyric;
+            SetLang();
+        }
+
+        void SetLang()
+        {
+            Text = Lang.Get("change_lyric_dialog_title");
+            labelOfCurrentText.Text = Lang.Get("current_text");
+            labelOfNewText.Text = Lang.Get("new_text");
+            labelOfWarning.Text = Lang.Get("no_text_validation_warning");
+            buttonOk.Text = Lang.Get("button_ok");
+            buttonCancel.Text = Lang.Get("button_cancel");
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
