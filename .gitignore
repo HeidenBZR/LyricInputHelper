@@ -1,0 +1,4 @@
+
+App/bin/Debug/*
+App/bin/Release/*
+*.tmp

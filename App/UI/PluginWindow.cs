@@ -24,7 +24,7 @@ namespace App
         public static int VCLength;
         public static string LOG_Dir = @"log.txt";
         public static Dictionary<string, string> parents = new Dictionary<string, string>();
-        public static Version VERSION = new Version(0, 3, 4);
+        public static Version VERSION = new Version(0, 3, 4, 1);
 
         public static string Message;
 

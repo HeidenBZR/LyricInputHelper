@@ -11,8 +11,10 @@ namespace App
     {
         public static void Split()
         {
-            int i = Ust.Notes.First().Number == Number.PREV ? 2 : 1; 
-            int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            // int i = Ust.Notes.First().Number == Number.PREV ? 2 : 1; // always must be 1
+            //int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0; // always must be 1
+            int i = 1;
+            int stop = 1;
             for (; i < Ust.Notes.Length - stop; i++)
             {
                 UNote note = Ust.Notes[i];

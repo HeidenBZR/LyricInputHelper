@@ -79,6 +79,12 @@
     <Compile Include="Classes\Ust.cs" />
     <Compile Include="Classes\Wav.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="UI\AddWordDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\AddWordDialog.Designer.cs">
+      <DependentUpon>AddWordDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\NewLyricDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +124,9 @@
     <None Include="Properties\DataSources\App.Classes.Ust.datasource" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="UI\AddWordDialog.resx">
+      <DependentUpon>AddWordDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\NewLyricDialog.resx">
       <DependentUpon>NewLyricDialog.cs</DependentUpon>
     </EmbeddedResource>
