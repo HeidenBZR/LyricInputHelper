@@ -187,7 +187,8 @@ namespace LyricInputHelper
             var dialog = new NewLyricDialog(Ust.Notes[i].ParsedLyric);
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                Ust.Notes[i].ParsedLyric = dialog.NewLyric.Trim(' ');
+                Ust.Notes[i].Syllable = new Syllable(dialog.NewLyric.Trim().Split(' '));
+                Ust.Notes[i].ParsedLyric = Ust.Notes[i].Syllable.ToString();
                 SetLyric();
             }
         }

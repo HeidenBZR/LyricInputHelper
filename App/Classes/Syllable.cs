@@ -21,6 +21,9 @@ namespace LyricInputHelper.Classes
         public readonly string[] ExtraConsonantBeginning = new string[0];
         public readonly string[] ExtraConsonantEnding = new string[0];
 
+
+
+
         public Syllable(List<string> phonemes) : this(phonemes.ToArray()) { }
 
         public Syllable(string[] phonemes)

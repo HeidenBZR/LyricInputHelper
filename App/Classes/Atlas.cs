@@ -77,9 +77,11 @@ namespace LyricInputHelper.Classes
             Load();
         }
 
-        public static bool IsRest(string phoneme) { return phoneme.Trim(' ') == "" || Rests.Contains(phoneme) || phoneme == "R"; }
+        public static bool IsRest(string phoneme) { return Rests.Contains(phoneme) || phoneme == "R" || phoneme.Trim(' ') == ""; }
         public static bool IsConsonant(string phoneme) { return Consonants.Contains(phoneme); }
         public static bool IsVowel(string phoneme) { return Vowels.Contains(phoneme); }
+
+        public static bool IsAtlasPhoneme(string phoneme) { return Rests.Contains(phoneme) || Consonants.Contains(phoneme) || Vowels.Contains(phoneme); }
 
         public static string GetAliasType(string alias)
         {

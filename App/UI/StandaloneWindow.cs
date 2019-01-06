@@ -24,7 +24,7 @@ namespace LyricInputHelper.UI
             labelSetupTemp.Text = "";
         }
 
-        void Setup()
+        bool SetupAtlas()
         {
             try
             {
@@ -40,15 +40,19 @@ namespace LyricInputHelper.UI
                     Directory.Delete("atlas");
                 }
                 labelSetupAtlas.Text = "Atlases are successfully installed.";
+                return true;
             }
             catch (Exception ex)
             {
                 labelSetupAtlas.Text = "Error on aliases installation.";
                 labelSetupMessage.Text = "Installation failed.";
                 Program.ErrorMessage(ex, "Error on aliases installation.");
-                return;
+                return false;
             }
+        }
 
+        bool SetupResources()
+        {
             try
             {
                 Program.GetResourceFolder("LyricInputHelper", "lang");
@@ -62,14 +66,19 @@ namespace LyricInputHelper.UI
                     Directory.Delete("lang");
                 }
                 labelSetupResources.Text = "Resources are successfully installed.";
+                return true;
             }
             catch (Exception ex)
             {
                 labelSetupResources.Text = "Error on resources installation.";
                 labelSetupMessage.Text = "Installation failed.";
                 Program.ErrorMessage(ex, "Error on resources installation.");
-                return;
+                return false;
             }
+        }
+
+        bool SetupTemp()
+        {
 
             try
             {
@@ -79,15 +88,21 @@ namespace LyricInputHelper.UI
                 if (!File.Exists(Program.GetTempFile("LyricInputHelper", "ust.tmp")))
                     File.Create(Program.GetTempFile("LyricInputHelper", "ust.tmp")).Close();
                 //labelSetupTemp.Text = "Temp folder  successfully created.";
+                return true;
             }
             catch (Exception ex)
             {
                 labelSetupTemp.Text = "Error on temp folder creation.";
                 labelSetupMessage.Text = "Installation failed.";
                 Program.ErrorMessage(ex, "Error on temp folder creation.");
-                return;
+                return false;
             }
-            labelSetupMessage.Text = "Plugin is successfully installed!";
+        }
+
+        void Setup()
+        {
+            if (SetupAtlas() & SetupResources() & SetupTemp())
+                labelSetupMessage.Text = "Plugin is successfully installed!";
         }
 
         private void buttonOk_Click(object sender, EventArgs e)

@@ -29,7 +29,12 @@ namespace LyricInputHelper
                     if (!syll.ContainsVowel)
                     {
                         if (Atlas.KeepCC)
+                        {
+                            prev = note;
+                            note = next;
+                            next = Ust.GetNextNote(note);
                             continue;
+                        }
                         // split CC
                         note.ParsedLyric = syll.Phonemes.Last();
                         for (int k = 0; k < syll.Phonemes.Length - 1; k++)

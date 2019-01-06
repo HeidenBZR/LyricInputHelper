@@ -72,6 +72,7 @@
     <Compile Include="Classes\Atlas.cs" />
     <Compile Include="Classes\Atlas.Reading.cs" />
     <Compile Include="Classes\Dict.cs" />
+    <Compile Include="Classes\Flag.cs" />
     <Compile Include="Classes\Ini.cs" />
     <Compile Include="Classes\Lang.cs" />
     <Compile Include="Classes\MusicMath.cs" />

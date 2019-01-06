@@ -11,3 +11,16 @@ D:\Github\autocvc\App\bin\Debug\LyricInputHelper.pdb
 D:\Github\autocvc\App\obj\Debug\LyricInputHelper.exe
 D:\Github\autocvc\App\obj\Debug\LyricInputHelper.pdb
 D:\Github\autocvc\App\obj\Debug\LyricInputHelper.csprojResolveAssemblyReference.cache
+D:\Github\LyricInputHelper\App\bin\Debug\LyricInputHelper.exe.config
+D:\Github\LyricInputHelper\App\bin\Debug\LyricInputHelper.exe
+D:\Github\LyricInputHelper\App\bin\Debug\LyricInputHelper.pdb
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.csprojResolveAssemblyReference.cache
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.AddWordDialog.resources
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.NewLyricDialog.resources
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.PluginWindow.resources
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.SetTextWindow.resources
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.StandaloneWindow.resources
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.GenerateResource.cache
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.CoreCompileInputs.cache
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.exe
+D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.pdb
