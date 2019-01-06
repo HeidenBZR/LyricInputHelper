@@ -7,105 +7,107 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using App.Classes;
+using LyricInputHelper.Classes;
 
-namespace App.UI
+namespace LyricInputHelper.UI
 {
+    public enum InputMode
+    {
+        LyricInput,
+        PhoneticInput
+    }
+
     public partial class SetTextWindow : Form
     {
-        public List<string> CurrentText;
+        public List<Syllable> Syllables;
+        public List<Word> Words;
         public int[] sizes;
-        public string Message;
         public bool Cancel = true;
+        public InputMode InputMode { get; set; } = InputMode.LyricInput;
 
-        public SetTextWindow(List<string> text, int[] sizes)
+        public SetTextWindow()
         {
-            // if (Atlas.HasDict) Atlas.ReloadDict();
             InitializeComponent();
-            this.sizes = sizes;
-            List<string> normalized = Normalize(text);
-            if (CurrentText == null) CurrentText = normalized;
-            textBox.Text = String.Join(" ", normalized);
-            textBox.Text = textBox.Text.Replace("\r\n ", "\r\n");
-            textBox.Text = textBox.Text.Replace(" \r\n", "\r\n");
-            textBox.Text = textBox.Text.Trim(new char[] { '\r','\n' });
-            //labelNotesSelected.Text = normalized.Count.ToString();
-            SetMinSize();
             SetLang();
+
+            SetInputMode();
         }
+
+        public void SetTitle()
+        {
+            string dict = Atlas.HasDict ? Lang.Get("dict_enabled") : Lang.Get("dict_disabled");
+            SetTitle(Lang.Get("set_text_dialog_title"), dict);
+        }
+
         void SetTitle(string title, string dict)
         {
             Text = $"{title} [{Atlas.VoicebankType}] [{dict}]";
         }
 
-        void SetLang()
+        public void SetInputMode()
         {
-            Message = $"{Lang.Get("set_text_message")}\r\n\r\n" +
-                $"{Lang.Get("set_text_message2")}\r\n\r\n" +
-                $"{Lang.Get("set_text_message3")}\r\n\r\n" ;
-            if (Atlas.HasDict)
+            if (!Atlas.Dict.IsEnabled)
             {
-                string key = Atlas.Dict.Keys.ToArray()[Atlas.Dict.Count / 2];
-                if (Atlas.VoicebankType == "CVC RUS")
-                    key = "привет";
-                Message += $"{Lang.Get("set_text_has_dict_message")}\r\n\r\n" +
-                    $"{key} => {String.Join(" ", Atlas.Dict[key].Select(n => $"[{n}]"))}\r\n\r\n" +
-                    $"{Lang.Get("set_text_has_dict_message2")}";
+                InputMode = InputMode.PhoneticInput;
+                comboBoxInputMode.Enabled = false;
             }
-            buttonOK.Text = Lang.Get("button_ok");
+            else
+            {
+                comboBoxInputMode.Enabled = true;
+                InputMode = InputMode.LyricInput;
+            }
+            comboBoxInputMode.SelectedIndex = (int)InputMode;
+        }
+
+        public void SetLang()
+        {
+            buttonOk.Text = Lang.Get("button_ok");
             buttonCancel.Text = Lang.Get("button_cancel");
-            checkBoxHyphen.Text = Lang.Get("checkbox_hyphen");
             string dict = Atlas.HasDict ? Lang.Get("dict_enabled") : Lang.Get("dict_disabled");
             SetTitle(Lang.Get("set_text_dialog_title"), dict);
         }
 
-        private void SetMinSize()
+        private bool ReDict(List<string> texts)
         {
-            int syls = sizes.Count(n => n >= PluginWindow.MinSize);
-            //labelSylSelected.Text = syls.ToString();
-            //labelCSelected.Text = (sizes.Length - syls).ToString();
-        }
-
-        private List<string> Normalize(List<string> texts)
-        {
-            List<string> normalized = new List<string>();
-            foreach (string text in texts)
+            if (!Atlas.HasDict) return true;
+            Words = new List<Word>();
+            for (int i = 0; i < texts.Count; i++)
             {
-                string t = text;
-                if (t == " ") t = "\r\n";
-                t = t.Replace(" ", "_");
-                normalized.Add(t);
+                Word word = new Word(texts[i], Atlas.Dict.Get(texts[i]));
+                while (word.Phonemes is null)
+                {
+                    // добавление слова
+                    bool success = false;
+                    while (!success)
+                    {
+                        var window = new AddWordDialog(texts[i]);
+                        window.SetStatus($"Слово \"{texts[i]}\" отсутствует в словаре. Добавьте слово");
+                        window.ShowDialog();
+                        if (window.DialogResult == DialogResult.OK)
+                        {
+                            if (Atlas.AddWord(window.Word, window.Phonemes, window.IsToSendMail))
+                            {
+                                window.SetStatus($"Слово \"{window.Word}\" успешно добавлено.");
+                                word = new Word(texts[i], Atlas.Dict.Get(texts[i]));
+                                success = true;
+                            }
+                            else
+                                window.SetStatus("Ошибка при добавлении слова.");
+                        }
+                        else return false;
+                    }
+                    word.Phonemes = Atlas.Dict.Get(texts[i]);
+                }
+                Words.Add(word);
             }
-            return normalized;
+            Syllables = texts.Select(n => new Syllable(n.Split(' '))).ToList();
+            return true;
         }
 
-        private List<string> Denormalize(List<string> texts)
+        string EcranLyric(string text)
         {
-            List<string> denormalized = new List<string>();
-            foreach (string text in texts)
-            {
-                denormalized.Add(text.Replace("_", " "));
-            }
-            return denormalized;
-        }
-
-        private List<string> ReDict(List<string> texts)
-        {
-            if (!Atlas.HasDict) return texts;
-            List<string> redicted = new List<string>();
-            foreach (string text in texts)
-                redicted.AddRange(Atlas.DictAnalysis(text));
-            return redicted;
-        }
-
-        private void buttonOK_Click(object sender, EventArgs e)
-        {
-            CurrentText.Clear();
-            string text = textBox.Text.Replace("\r\n", " ");
-            if (!checkBoxHyphen.Checked)
-            {
-                text = text.Replace("-", " ");
-            }
+            text = text.Replace("\r\n", " ");
+            text = text.Replace("-", " ");
             text = text.Replace("—", "");
             text = text.Replace(".", "");
             text = text.Replace("?", "");
@@ -116,25 +118,160 @@ namespace App.UI
             text = text.Replace(")", "");
             text = text.Replace("\"", "");
             text = text.Replace("\"", "");
+            text = text.Replace("_", " ");
             text = System.Text.RegularExpressions.Regex.Replace(text, " {2,}", " ");
-            CurrentText = ReDict(Denormalize(text.ToLower().Split(' ').ToList()));
-            Cancel = false;
-            Close();
+            text = text.ToLower();
+            text = text.Trim();
+            return text;
+        }
+
+        string EcranPhonetics(string text)
+        {
+            text = text.Trim();
+            text = text.Trim('\r', '\n');
+            text = text.Replace(" \r\n", "\r\n");
+            text = text.Replace("\r\n ", "\r\n");
+            text = System.Text.RegularExpressions.Regex.Replace(text, " {2,}", " ");
+            text = System.Text.RegularExpressions.Regex.Replace(text, "(\r\n){2,}", "\r\n");
+            text = text.Replace("\r", "");
+            return text;
+        }
+
+        public string PrintLyric()
+        {
+            StringBuilder text = new StringBuilder();
+            foreach (var note in Ust.Notes)
+            {
+                if (Atlas.IsRest(note.ParsedLyric))
+                {
+                    if (text.Length > 0)
+                    {
+                        if (text[text.Length - 1] == ' ')
+                            text[text.Length - 1] = '\n';
+                        else
+                            text.Append("\n");
+                    }
+                }
+                else if (note.Word.Name is null) { }
+                else
+                {
+                    text.Append(note.WordName);
+                    text.Append(" ");
+                }
+            }
+            if (text.Length > 0)
+                while (text[0] == '\n')
+                    text.Remove(0, 1);
+            if (text.Length > 0)
+                while (text[text.Length - 1] == '\n')
+                    text.Remove(text.Length - 1, 1);
+            text.Replace("\n", "\r\n");
+            text = new StringBuilder(System.Text.RegularExpressions.Regex.Replace(text.ToString(), 
+                "(\r\n){3,}", "\r\n\r\n"));
+            return text.ToString();
+        }
+
+        public string PrintSyllables()
+        {
+            StringBuilder text = new StringBuilder();
+            foreach (var note in Ust.Notes)
+            {
+                if (Atlas.IsRest(note.ParsedLyric))
+                {
+                    if (text.Length > 0)
+                    {
+                        text.Append("\n");
+                    }
+                }
+                else
+                {
+                    text.Append(note.ParsedLyric);
+                    text.Append("\n");
+                }
+            }
+            if (text.Length > 0)
+                while (text[0] == '\n')
+                    text.Remove(0, 1);
+            if (text.Length > 0)
+                while (text[text.Length - 1] == '\n')
+                    text.Remove(text.Length - 1, 1);
+            text.Replace("\n", "\r\n");
+            text = new StringBuilder(System.Text.RegularExpressions.Regex.Replace(text.ToString(),
+                "(\r\n){3,}", "\r\n\r\n"));
+            return text.ToString();
+        }
+
+        public bool LoseTextWarning()
+        {
+            if (textBox.Text.Trim().Length == 0)
+                return true;
+            var result = MessageBox.Show(Lang.Get("lose_text_warning"), "", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            return result == DialogResult.Yes;
+        }
+
+        private void buttonOk_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                InputMode = (InputMode)comboBoxInputMode.SelectedIndex;
+                string text = textBox.Text;
+                List<string> texts;
+                if (InputMode == InputMode.PhoneticInput)
+                {
+                    text = EcranPhonetics(text);
+                    texts = text.Split('\n').ToList();
+                    Syllables = texts.Select(n => new Syllable(n.Split(' '))).ToList();
+                    for (int i = 0; i < Syllables.Count; i++)
+                        Syllables[i] = Atlas.PhonemeReplace(Syllables[i]);
+                    Cancel = false;
+                    Close();
+                }
+                else
+                {
+                    text = EcranLyric(text);
+                    texts = text.Split(' ').ToList();
+                    if (ReDict(texts))
+                    {
+                        foreach (var word in Words)
+                            for (int i = 0; i < word.Syllables.Count; i++)
+                                word.Syllables[i] = Atlas.PhonemeReplace(word.Syllables[i]);
+                        Cancel = false;
+                        Close();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex, "Error on set text");
+                return;
+            }
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             Close();
         }
-
-        private void textBoxMinSize_TextChanged(object sender, EventArgs e)
+        
+        private void buttonLastText_Click(object sender, EventArgs e)
         {
-            SetMinSize();
+            if (Words is null)
+                return;
+            if (LoseTextWarning())
+            {
+                textBox.Text = PrintLyric();
+                comboBoxInputMode.SelectedIndex = (int)InputMode.LyricInput;
+            }
         }
 
-        private void buttonWhat_Click(object sender, EventArgs e)
+        private void buttonLastPhonemes_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(Message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (LoseTextWarning())
+            {
+                textBox.Text = PrintSyllables();
+                comboBoxInputMode.SelectedIndex = (int)InputMode.PhoneticInput;
+            }
         }
+
     }
 }

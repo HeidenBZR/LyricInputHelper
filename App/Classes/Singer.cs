@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
 
     public class Singer
@@ -84,7 +84,7 @@ namespace App.Classes
             string charfile = Path.Combine(Dir, "character.txt");
             if (IsEnabled && File.Exists(charfile))
             {
-                string[] charlines = File.ReadAllLines(charfile);
+                string[] charlines = File.ReadAllLines(charfile, Encoding.GetEncoding(932));
                 foreach (string line in charlines)
                 {
                     if (line.StartsWith("author=")) Author = line.Substring("author=".Length);
@@ -106,7 +106,7 @@ namespace App.Classes
                 string filename = Path.Combine(Dir, sub, "oto.ini");
                 if (File.Exists(filename))
                 {
-                    string[] lines = File.ReadAllLines(filename);
+                    string[] lines = File.ReadAllLines(filename, Encoding.GetEncoding(932));
                     foreach (string line in lines)
                     {
                         string pattern = "(.*)=(.*),(.*),(.*),(.*),(.*),(.*)";
@@ -130,11 +130,15 @@ namespace App.Classes
                 else File.Create(filename);
             }
             IsLoaded = true;
+            PluginWindow.LengthByOto = true;
         }
 
-        public Oto FindOto(UNote note)
+        public Oto FindOto(Note note)
         {
-            return FindOto(note.Lyric, note.NoteNum);
+            if (note.ParsedLyric == "r")
+                return FindOto("rr", note.NoteNum);
+            else
+                return FindOto(note.ParsedLyric, note.NoteNum);
         }
 
         public Oto FindOto(string lyric, int noteNum)

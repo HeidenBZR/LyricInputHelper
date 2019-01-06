@@ -1,101 +1,78 @@
 ﻿using System;
 using System.Windows.Forms;
-using App.Classes;
+using LyricInputHelper.Classes;
 using System.Collections.Generic;
-using App.UI;
+using LyricInputHelper.UI;
 using System.Drawing;
 using System.Linq;
 using System.IO;
 using System.Globalization;
 
-namespace App
+namespace LyricInputHelper
 {
     public partial class PluginWindow : Form
     {
         public static PluginWindow window;
-        public static Dictionary<string, string> DefaultLyric = new Dictionary<string, string> { };
-        public static int MinSize = 120;
-        public static double Velocity = 1;
-        public static bool MakeVR = true;
-        public static bool MakeShort = true;
-        public static bool IsParsed = false;
-        public static bool IsUnparsed = false;
-        private static int VCLengthDefault;
-        public static int VCLength;
-        public static string LOG_Dir = @"log.txt";
-        public static Dictionary<string, string> parents = new Dictionary<string, string>();
-        public static Version VERSION = new Version(0, 3, 4, 1);
-
-        public static string Message;
-
-        static string[] lastText;
+        static SetTextWindow SetTextWindow;
 
         public PluginWindow()
         {
             InitializeComponent();
             window = this;
-            VCLengthDefault = 110 * (int)Ust.Tempo / 120;
-            VCLength = VCLengthDefault;
-            textBoxVCLength.Text = VCLength.ToString();
-            SetLang();
-            SetLyric();
-            SetTitle();
+            Init();
         }
 
         void SetTitle()
         {
-            Text = $"autoCVC v.{VERSION.ToString()} ({Singer.Current.Name} - {Atlas.VoicebankType})";
+            Text = $"LyricInputHelper v.{VERSION.ToString()} ({Singer.Current.Name} - {Atlas.VoicebankType})";
+        }
+
+        void ChangeLang()
+        {
+            Lang.Set((string)comboBoxLanguage.SelectedItem);
+            SetLang();
+            SetTitle();
+            if (SetTextWindow != null)
+                SetTextWindow.SetLang();
         }
 
         void SetLang()
         {
-            Message = "";
-            if (Atlas.IsDefault)
-                Message = $"{Lang.Get("plugin_window_message_no_dict")}\r\n\r\n" +
-                    $"{Lang.Get("plugin_window_message_no_dict2")}\r\n\r\n" +
-                    "type=CVC RUS\r\n" +
-                    $"{Lang.Get("plugin_window_message_no_dict3")}\r\n\r\n";
-            Message += $"{Lang.Get("plugin_window_message_atlas")}: {Path.GetFileName(Atlas.AtlasPath)}.\r\n";
-            if (Atlas.HasDict)
-                Message += $"{ Lang.Get("plugin_window_message_dict")}: { Path.GetFileName(Atlas.DictPath)}.\r\n\r\n";
-            if (Atlas.HasDict) Message += $"{Lang.Get("plugin_window_message_has_dict")} " +
-                    $"{Path.GetFileName(Atlas.DictPath)} " +
-                    $"{Lang.Get("plugin_window_message_has_dict")}\r\n\r\n";
-            Message += $"{Lang.Get("tutorial")}\r\n";
-            Message += $"{Lang.Get("tutorial2")}\r\n";
-            Message += $"{Lang.Get("tutorial3")}\r\n";
-            Message += $"{Lang.Get("tutorial4")}\r\n";
-            Message += $"{Lang.Get("tutorial5")}\r\n";
-            Message += $"{Lang.Get("tutorial6")}\r\n";
-            Message += $"{Lang.Get("tutorial7")}\r\n";
-            Message += $"{Lang.Get("tutorial8")}\r\n\r\n";
-            Message += $"{Lang.Get("plugin_window_message_reset")}\r\n";
-            Message += $"{Lang.Get("plugin_window_message_reload")}\r\n";
-
             checkBoxInsertShort.Text = Lang.Get("checkbox_insert_short");
             checkBoxVR.Text = Lang.Get("checkbox_insert_vr");
-            labelOfVrLength.Text = Lang.Get("vr_length");
+            
+            labelOfMinLength.Text = Lang.Get("min_length");
             labelOfMultiplayer.Text = Lang.Get("multiplayer");
+            labelOfCompressionRatio.Text = Lang.Get("compression_ratio");
+            labelOfLastChildCompressionRatio.Text = Lang.Get("last_child_compression_ratio");
 
-            buttonSetText.Text = Lang.Get("button_set_text");
-            buttonSplit.Text = Lang.Get("button_split");
-            buttonAtlasConvert.Text = Lang.Get("button_atlas_convert");
-
-            buttonReload.Text = Lang.Get("button_reload_ust");
-            buttonToCVC.Text = Lang.Get("button_to_cv_c");
-            buttonToCV.Text = Lang.Get("button_to_cv");
-
-            buttonReloadResources.Text = Lang.Get("button_reload_resources");
-
-            buttonOK.Text = Lang.Get("button_ok");
+            buttonOk.Text = Lang.Get("button_ok");
             buttonCancel.Text = Lang.Get("button_cancel");
+
+            tabPageMain.Text = Lang.Get("pluginwindow_page_main");
+            tabPageOptions.Text = Lang.Get("pluginwindow_page_options");
+
+            checkBoxLengthByOto.Text = Lang.Get("oto_by_length");
+            checkBoxFade.Text = Lang.Get("fade");
         }
 
-        public void SetLyric()
+
+        public void GetValues()
         {
-            lyricView.DataSource = Ust.Notes;
-            lyricView.Refresh();
-            Recolor(lyricView);
+            if (double.TryParse(textBoxCompressionRatio.Text, out double ratio))
+                if (ratio > 0)
+                    CompressionRatio = ratio;
+            if (double.TryParse(textBoxCompressionRatio.Text, out double lchratio))
+                if (ratio > 0)
+                    LastChildCompressionRatio = lchratio;
+            if (int.TryParse(textBoxMinLength.Text, out int minLength))
+                MinLength = minLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity))
+                Velocity = velocity;
+            MakeVR = checkBoxVR.Checked;
+            MakeShort = checkBoxInsertShort.Checked;
+            LengthByOto = checkBoxLengthByOto.Checked;
+            MakeFade = checkBoxFade.Checked;
         }
 
         public static void Recolor(DataGridView lyricView)
@@ -104,6 +81,8 @@ namespace App
             Color LightColor = Color.FromArgb(220, 230, 240);
             Color MediumColor = Color.FromArgb(180, 190, 190);
             Color DarkColor = Color.FromArgb(80, 110, 120);
+            Color GreenColor = Color.FromArgb(196, 239, 214);
+            Color InsertColor = Color.FromArgb(230, 232, 237);
             DataGridViewCellStyle defaultCellStyle = lyricView.DefaultCellStyle.Clone();
             defaultCellStyle.SelectionBackColor = Color.LightBlue;
             defaultCellStyle.SelectionForeColor = DarkColor;
@@ -114,10 +93,10 @@ namespace App
             darkCellStyle.SelectionForeColor = MediumColor;
             darkCellStyle.ForeColor = MediumColor;
 
-            DataGridViewCellStyle mediumCellStyle = defaultCellStyle.Clone();
-            mediumCellStyle.BackColor = LightColor;
-            mediumCellStyle.SelectionBackColor = Color.LightSkyBlue;
-            mediumCellStyle.SelectionForeColor = DarkColor;
+            DataGridViewCellStyle insertCellStyle = defaultCellStyle.Clone();
+            insertCellStyle.BackColor = InsertColor;
+            insertCellStyle.SelectionBackColor = Color.LightSkyBlue;
+            insertCellStyle.SelectionForeColor = DarkColor;
 
             DataGridViewCellStyle deleteCellStyle = defaultCellStyle.Clone();
             deleteCellStyle.ForeColor = Color.DarkGray;
@@ -125,35 +104,42 @@ namespace App
             deleteCellStyle.SelectionBackColor = Color.DimGray;
             deleteCellStyle.SelectionForeColor = Color.LightGray;
 
+            DataGridViewCellStyle lyricCellStyle = defaultCellStyle.Clone();
+            lyricCellStyle.BackColor = GreenColor;
 
             lyricView.Columns[0].DefaultCellStyle = darkCellStyle;
             lyricView.DefaultCellStyle = defaultCellStyle;
 
-            for (int i = 0; i < lyricView.Rows.Count; i++)
+            for (int y = 0; y < lyricView.Rows.Count; y++)
             {
-                UNote note = Ust.Notes[i];
-                if (note.Length <= MinSize)
+                Note note = Ust.Notes[y];
+                if (note.Number == Classes.Number.INSERT)
                 {
-                    lyricView[1,i].Style = mediumCellStyle;
-                    lyricView[2,i].Style = mediumCellStyle;
+                    for (int x = 1; x < 3; x++)
+                        lyricView[x, y].Style = insertCellStyle;
                 }
                 if (note.IsRest())
                 {
-                    lyricView[1, i].Style = darkCellStyle;
-                    lyricView[2, i].Style = darkCellStyle;
+                    for (int x = 0; x < lyricView.Columns.Count; x++)
+                        lyricView[x, y].Style = darkCellStyle;
                 }
                 if (note.Number == Classes.Number.DELETE)
                 {
-                    lyricView[1, i].Style = deleteCellStyle;
-                    lyricView[2, i].Style = deleteCellStyle;
+                    for (int x = 1; x < lyricView.Columns.Count; x++)
+                        lyricView[x, y].Style = deleteCellStyle;
                 }
+                //if (note.Syllable != null)
+                    lyricView[3, y].Style = darkCellStyle;
+                //if (note.WordName != null)
+                    lyricView[4, y].Style = darkCellStyle;
+
             }
         }
 
         public static void SetStatus(string text, bool appendTextbox = false)
         {
-            if (appendTextbox) Message += "\r\n" + text;
-            else Message = text;
+            if (window != null)
+                window.labelStatus.Text = text;
         }
 
         public static void CheckAccess()
@@ -165,8 +151,9 @@ namespace App
             window.buttonToCVC.Enabled = !IsParsed;
         }
 
-        private void buttonOK_Click(object sender, EventArgs e)
+        private void buttonOk_Click(object sender, EventArgs e)
         {
+            GetValues();
             Ust.Save();
             Application.Exit();
         }
@@ -176,159 +163,143 @@ namespace App
             Application.Exit();
         }
 
-        private void lyricView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-        }
-
-        private void textMinSize_TextChanged(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBoxVCLength.Text, out int newMinSize)) MinSize = newMinSize;
-            Recolor(lyricView);
-        }
-
         private void PluginWindow_Load(object sender, EventArgs e)
         {
+            Init();
             Recolor(lyricView);
         }
 
-        private void buttonReload_Click(object sender, EventArgs e)
+        private void buttonReset_Click(object sender, EventArgs e)
         {
-            Ust.Reload();
-            IsParsed = false;
-            IsUnparsed = false;
-            CheckAccess();
-            SetLyric();
-            SetLang();
-            SetTitle();
+            Reset();
         }
 
         private void buttonSetText_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            //if (lastText == null)
-                lastText = Ust.GetLyrics(skipRest: false);
-            int[] sizes = Ust.GetLengths();
-            SetTextWindow setTextWindow = new SetTextWindow(lastText.ToList(), sizes);
-            DialogResult result = setTextWindow.ShowDialog(this);
-            if (setTextWindow.Cancel) return;
-            try
-            {
-                var phonemes = setTextWindow.CurrentText.ToArray();
-                Ust.SetLyric(phonemes);
-                IsParsed = true;
-                CheckAccess();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            SetLyric();
+            SetText();
         }
 
         private void buttonSplit_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            try
-            {
-                Parser.Split();
-                IsParsed = true;
-                CheckAccess();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            SetLyric();
+            Split();
         }
 
         private void buttonAtlasConvert_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            MakeVR = checkBoxVR.Checked;
-            MakeShort = checkBoxInsertShort.Checked;
-            try
-            {
-                Parser.AtlasConverting();
-                IsParsed = true;
-                CheckAccess();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            SetLyric();
+            Convert();
         }
 
         private void buttonToCVC_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            try
-            {
-                Parser.ToCVC();
-                Parser.Split();
-                IsUnparsed = true;
-                CheckAccess();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            SetLyric();
+            ToCV();
         }
 
         private void buttonToCV_Click(object sender, EventArgs e)
         {
-            if (int.TryParse(textBoxVCLength.Text, out int vcLength)) VCLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
-            try
-            {
-                Parser.ToCV();
-                IsUnparsed = true;
-                CheckAccess();
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex);
-                return;
-            }
-            SetLyric();
-        }
-
-        private void buttonWhat_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(Message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ToCV();
         }
 
         private void lyricView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            int x = e.ColumnIndex;
-            int y = e.RowIndex;
-            if (x == 2)
-            {
-                // if (x == 1) Ust.Notes[y].Lyric = (string)lyricView[x,y].Value;
-                var dialog = new NewLyricDialog(Ust.Notes[y].ParsedLyric);
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    Ust.Notes[y].ParsedLyric = dialog.NewLyric.Trim(' ');
-                    SetLyric();
-                }
-            }
+            if (e.ColumnIndex == 2)
+                EditNote(e.RowIndex);
 
         }
 
         private void buttonReloadResources_Click(object sender, EventArgs e)
         {
-            Singer.Current.Reload();
-            Atlas.Reload();
-            MessageBox.Show("Вокалист, атлас и словарь были перезагружены.", "Обновление ресурсов");
+            Reload();
+            MessageBox.Show("Вокалист и атлас были перезагружены. Словарь загружается", "Обновление ресурсов");
+        }
+
+        private void buttonAddWord_Click(object sender, EventArgs e)
+        {
+            AddWord();
+        }
+
+        private void buttonSetText_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_set_text");
+        }
+
+        private void buttonSplit_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_split");
+        }
+
+        private void buttonAtlasConvert_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_atlas_convert");
+        }
+
+        private void buttonReset_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_reset");
+        }
+
+        private void buttonToCVC_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_to_cv_c");
+        }
+
+        private void buttonToCV_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_to_cv");
+        }
+
+        private void buttonAddWord_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_add_word");
+        }
+
+        private void buttonReloadResources_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("button_reload_resources");
+        }
+
+        private void textBoxCompressionRatio_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("compression_ratio_tooltip");
+        }
+
+        private void buttonFade_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("fade_tooltip");
+        }
+
+        private void textBoxLastChildCompressionRatio_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("last_child_compression_ratio_tooltip");
+        }
+
+        private void checkBoxLengthByOto_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("oto_by_length_tooltip");
+        }
+
+        private void comboBoxLanguage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChangeLang();
+        }
+
+        private void checkBoxFade_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("fade_tooltip");
+        }
+
+        private void checkBoxVR_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("make_vr_tooltip");
+        }
+
+        private void textBoxMinLength_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("min_length_tooltip");
+        }
+
+        private void comboBoxLanguage_MouseEnter(object sender, EventArgs e)
+        {
+            labelStatus.Text = Lang.Get("language_tooltip");
         }
     }
 }

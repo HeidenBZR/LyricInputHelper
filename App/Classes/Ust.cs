@@ -4,113 +4,39 @@ using System.Linq;
 using System.IO;
 using System.Globalization;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
-    enum Insert : int
+    public enum Insert : int
     {
         Before = -1,
         After = 0
     }
 
-    class Ust
+    public partial class Ust
     {
         public static string VoiceDir;
         public static double Tempo;
         public static double Version;
-        public static UNote[] Notes { get; set; }
+        public static Note[] Notes { get; set; }
 
         public static bool IsLoaded = false;
         public static string Dir;
-
-        public static void TakeOut(string line, string name, out string value) { value = line.Substring(name.Length + 1); }
-        public static void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
         
         public Ust(string dir)
         {
             Dir = dir;
-            string[] lines = File.ReadAllLines(Dir, System.Text.Encoding.GetEncoding(932));
-            Read(lines);
+            Read();
         }
 
         public static void Reload()
         {
-            string[] lines = File.ReadAllLines(Dir);
-            Read(lines);
+            Read();
         }
 
-        public static string[] Save()
-        {
-            string[] text = GetText();
-            File.WriteAllLines(Dir, text);
-            Console.WriteLine("Successfully saved UST.");
-            return text;
-        }
-
-        public static void Save(string dir)
-        {
-            string[] text = GetText();
-            File.WriteAllLines(dir, text);
-            Console.WriteLine("Successfully saved debug UST.");
-        }
-
-
-        private static void Read(string[] lines)
-        {
-            int i = 0;
-            // Reading version
-            if (lines[0] ==  Number.VERSION)
-            {
-                Version = 1.2;
-                i++;
-                i++;
-            }
-            if (lines[i] !=  Number.SETTING) throw new Exception("Error UST reading");
-            else i++;
-
-            while (i < lines.Length && !Number.IsNote(lines[i]))
-            {
-                if (lines[i].StartsWith("UstVersion")) TakeOut(lines[i], "UstVersion", out Version);
-                if (lines[i].StartsWith("Tempo")) TakeOut(lines[i], "Tempo", out Tempo);
-                if (lines[i].StartsWith("VoiceDir")) TakeOut(lines[i], "VoiceDir", out VoiceDir);
-                i++;
-            }
-
-            List<UNote> notes = new List<UNote>();
-            UNote note = new UNote();
-            while (i + 1 < lines.Length)
-            {
-                note = new UNote();
-                note.Number = lines[i];
-                i++;
-                while (!Number.IsNote(lines[i]))
-                {
-                    string line = lines[i];
-                    if (lines[i].StartsWith("Length")) TakeOut(line, "Length", out note.Length);
-                    if (lines[i].StartsWith("NoteNum")) TakeOut(line, "NoteNum", out note.NoteNum);
-                    if (lines[i].StartsWith("Lyric"))
-                    {
-                        TakeOut(line, "Lyric", out string lyric);
-                        note.Lyric = lyric;
-                        note.ParsedLyric = note.Lyric;
-                    }
-                    i++;
-                    Console.WriteLine(i);
-                    if (i == lines.Length) break;
-                }
-                notes.Add(note);
-            }
-            Notes = notes.ToArray();
-
-            Console.WriteLine("Read UST successfully");
-            IsLoaded = true;
-            Console.WriteLine(String.Join("\r\n", GetText()));
-        }
 
         public static void ValidateLyrics()
         {
-            foreach (UNote note in Notes) note.Lyric = note.Lyric;
+            foreach (Note note in Notes) note.Lyric = note.Lyric;
         }
 
         public static bool IsTempUst(string Dir)
@@ -119,92 +45,91 @@ namespace App.Classes
             return filename.StartsWith("tmp") && filename.EndsWith("tmp");
         }
 
-        public static string[] GetText()
+        static int? SkipNotes(int k, bool skipRest = true)
         {
-            List<string> text = new List<string> { };
-            if (Version == 1.2)
+            while (Notes[k].Number == Number.DELETE ||
+                skipRest && Atlas.IsRest(Notes[k].ParsedLyric))
             {
-                text.Add( Number.VERSION);
-                text.Add("UST Version " + Version.ToString());
-                text.Add( Number.SETTING);
+                k++;
+                if (k >= Notes.Length)
+                    return null;
             }
-            else
-            {
-                text.Add( Number.SETTING);
-                text.Add(TakeIn("Version", Version));
-            }
-            text.Add(TakeIn("Tempo", Tempo));
-            text.Add(TakeIn("VoiceDir", VoiceDir));
-            foreach (UNote note in Notes) text.AddRange(note.GetText());
-            return text.ToArray();
+            return k;
         }
 
-        public static void SetLyric(string[] newlyric, bool skipRest = true)
+        public static void SetLyric(List<Syllable> syllables, bool skipRest = true)
         {
-            List<string> notelyrics = new List<string>();
-            int k = Notes[0].Number == Number.PREV ? 1 : 0;
-            int i = 0;
-            bool notEnoughWords = false;
-            for (; i < newlyric.Length && k < Notes.Length; i++)
+            int? n = Notes[0].Number == Number.PREV ? 1 : 0; // нота
+            int s = 0; // слог
+            string cc = "";
+            while (s < syllables.Count && n < Notes.Length)
             {
-                while (Notes[k].Number == Number.DELETE)
-                {
-                    k++;
-                    if (k >= Notes.Length)
-                        break;
-                }
-                if (k >= Notes.Length)
+                n = SkipNotes(n.Value);
+                if (!n.HasValue)
                     break;
-                while (Atlas.IsRest(Ust.Notes[k].ParsedLyric) && skipRest)
-                {
-                    if (notelyrics.Count > 0)
-                    {
-                        Ust.Notes[k].ParsedLyric += " " + String.Join(" ", notelyrics);
-                        notelyrics = new List<string>();
-                    } else { }
-                    k++;
-                    if (k >= Notes.Length)
-                    {
-                        notEnoughWords = true;
-                        break;
-                    }
-                    else { }
-                }
-                if (notEnoughWords) break;
-                while (Notes[k].Number == Number.DELETE)
-                    k++;
-                if (Atlas.GetAliasType(newlyric[i]) == "C")
-                    notelyrics.Add(newlyric[i]);
-                else
-                {
-                    if (k >= Notes.Length)
-                        break;
-                    if (notEnoughWords) break;
-                    notelyrics.Add(newlyric[i]);
-                    Ust.Notes[k].ParsedLyric = String.Join(" ", notelyrics);
-                    notelyrics = new List<string>();
-                    k++;
-                }
-            }
-            if (i < newlyric.Length - 1)
-                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
 
-            if (notelyrics.Count > 0)
-            {
-                UNote last = Ust.Notes.Last();
-                for (i = 0; i < notelyrics.Count; i++)
-                {
-                    Ust.InsertNote(Ust.Notes.Last(), notelyrics[i], Insert.After, last);
-                }
+
+                Notes[n.Value].ParsedLyric = syllables[s].ToString();
+                Notes[n.Value].Syllable = syllables[s];
+                n++;
+                s++;
             }
+            if (s < syllables.Count - 1)
+                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенных слогов. Часть слогов была утеряна.", "Предупреждение");
 
             foreach (var note in Notes)
                 note.ParsedLyric = Atlas.PhonemeReplace(note.ParsedLyric);
         }
 
-        public static UNote GetNextNote(UNote note)
+        public static void SetLyric(List<Word> words, bool skipRest = true)
         {
-            List<UNote> notes = Notes.ToList();
+            int? n = Notes[0].Number == Number.PREV ? 1 : 0; // нота
+            int s = 0; // слог
+            int w = 0; // слово
+            string cc = "";
+            while ( w < words.Count && n < Notes.Length)
+            {
+                n = SkipNotes(n.Value);
+                if (!n.HasValue)
+                    break;
+
+                /// Прелоги типа к, с, ф
+                if (words[w].Phonemes.All(p => !Atlas.IsVowel(p)))
+                {
+                    var new_cc = string.Join(" ", words[w].Phonemes);
+                    cc = cc.Length > 0? string.Join(" ", cc, new_cc) : new_cc;
+                    w++;
+                    continue;
+                }
+
+                if (cc.Length > 0)
+                    Notes[n.Value].ParsedLyric = $"{cc} {words[w].Syllables[s]}";
+                else
+                    Notes[n.Value].ParsedLyric = words[w].Syllables[s].ToString();
+                Notes[n.Value].Syllable = words[w].Syllables[s];
+                if (s == 0)
+                    Notes[n.Value].Word = words[w];
+                n++;
+
+                if (words[w].Phonemes.Any(p => Atlas.IsVowel(p)))
+                    cc = "";
+                s++;
+                if (s == words[w].Syllables.Count)
+                {
+                    s = 0;
+                    w++;
+                }
+            }
+            if (w < words.Count - 1)
+                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
+
+            foreach (var note in Notes)
+                note.ParsedLyric = Atlas.PhonemeReplace(note.ParsedLyric);
+        }
+
+        public static Note GetNextNote(Note note)
+        {
+            List<Note> notes = Notes.ToList();
             int ind = notes.IndexOf(note);
             if (ind == -1) throw new Exception();
             int newInd = ind + 1;
@@ -212,9 +137,9 @@ namespace App.Classes
             return notes[newInd];
         }
 
-        public static UNote GetPrevNote(UNote note)
+        public static Note GetPrevNote(Note note)
         {
-            List<UNote> notes = Notes.ToList();
+            List<Note> notes = Notes.ToList();
             int ind = notes.IndexOf(note);
             if (ind == -1) throw new Exception();
             int newInd = ind - 1;
@@ -222,15 +147,17 @@ namespace App.Classes
             return notes[newInd];
         }
 
-        public static bool InsertNote(UNote parent, string lyric, Insert insert, UNote pitchparent, UNote container = null)
+        public static bool InsertNote(Note parent, string lyric, Insert insert, Note pitchparent, Note container = null)
         {
-            UNote prev = GetPrevNote(parent);
-            UNote next = GetNextNote(parent);
-            UNote note = new UNote()
+            Note prev = GetPrevNote(parent);
+            Note next = GetNextNote(parent);
+            Note note = new Note()
             {
                 ParsedLyric = lyric,
                 Number = Number.INSERT,
                 NoteNum = pitchparent.NoteNum,
+                Intensity = pitchparent.Intensity,
+                Flags = pitchparent.Flags,
                 Parent = parent
             };
             if (insert == Insert.After && next != null && next.IsRest())
@@ -241,162 +168,18 @@ namespace App.Classes
 
 
 
-            List<UNote> notes = Notes.ToList();
+            List<Note> notes = Notes.ToList();
             int indParent = notes.IndexOf(parent);
             int ind = notes.IndexOf(parent) + 1 + (int)insert;
             notes.Insert(ind, note);
             Notes = notes.ToArray();
-
-            if (!SetLength(note)) return false;
-
-            if (parent != null)
-            {
-                Oto oto = Singer.Current.FindOto(note.ParsedLyric);
-                if (oto != null)
-                {
-                    int ilength = MusicMath.MillisecondToTick(oto.InnerLength, Ust.Tempo);
-                    note.Length += ilength;
-                    parent.Length -= ilength;
-                }
-            }
             return true;
         }
-
-        public static bool SetLength(UNote note)
-        {
-            UNote container = note.Parent;
-            UNote next = GetNextNote(note);
-
-            int length = PluginWindow.VCLength;
-            var nextmembers = next.ParsedLyric.Trim().Split(' ');
-            int vowelI = nextmembers.ToList().FindIndex(n => Atlas.GetAliasType(n) != "C");
-            string nextlyric = vowelI == -1 ? nextmembers[0] : nextmembers[vowelI];
-            string alias_type = Atlas.GetAliasType(note.ParsedLyric);
-            string containterAliasType = Atlas.GetAliasType(container.ParsedLyric);
-            string nextAliasType = next == null ? "" : Atlas.GetAliasType(next.ParsedLyric);
-            Oto oto = null;
-            Oto thisoto = Singer.Current.FindOto(note); ;
-            if (alias_type == "C" || alias_type == "VC")
-            {
-                if (alias_type == "C")
-                {
-                    if (nextAliasType.Contains("CV"))
-                    {
-                        string al = container.ParsedLyric;
-                        if (Atlas.VoicebankType.ToLower().Contains("cvc") && !Atlas.VoicebankType.ToLower().Contains("words"))
-                            al = Atlas.GetAlias("-CV", Atlas.GetPhonemes(nextlyric));
-                        oto = Singer.Current.FindOto(al, container.NoteNum);
-                    }
-                    else if (nextAliasType.Contains("C"))
-                    {
-                        if (containterAliasType == "" || containterAliasType == "R")
-                        {
-                            oto = Singer.Current.FindOto(nextlyric, container.NoteNum);
-                        }
-                        else
-                        {
-                            string al = Atlas.GetAlias("-C", new[] { Atlas.GetPhonemes(nextlyric)[0] });
-                            oto = Singer.Current.FindOto(al, container.NoteNum);
-                        }
-                        if (Atlas.VoicebankType.Contains("Arpasing"))
-                        {
-                            var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                            phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                            string al = Atlas.GetAlias("CC", phonemes.ToArray());
-                            oto = Singer.Current.FindOto(al, container.NoteNum);
-                        }
-                    }
-                    else if (nextAliasType.Contains("V"))
-                    {
-                        string al = container.ParsedLyric;
-                        if (Atlas.VoicebankType.ToLower().Contains("cvc") && !Atlas.VoicebankType.ToLower().Contains("words"))
-                            al = Atlas.GetAlias("-V", Atlas.GetPhonemes(nextlyric));
-                        if (Atlas.VoicebankType.Contains("Arpasing"))
-                        {
-                            var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                            phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                            al = Atlas.GetAlias("CV", phonemes.ToArray());
-                        }
-                        oto = Singer.Current.FindOto(al, container.NoteNum);
-                    }
-                }
-                else if (alias_type == "VC")
-                {
-                    oto = Singer.Current.FindOto(nextlyric, next.NoteNum);
-                }
-            }
-            else if (alias_type == "V" && Atlas.VoicebankType.Contains("Arpasing"))
-            {
-                string al = "";
-                if (nextAliasType == "C")
-                {
-                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                    al = Atlas.GetAlias("VC", phonemes.ToArray());
-                }
-                else if (nextAliasType == "V")
-                {
-                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                    al = Atlas.GetAlias("VV", phonemes.ToArray());
-                }
-                oto = Singer.Current.FindOto(al, container.NoteNum);
-            }
-            else if (alias_type == "R" && Atlas.VoicebankType.Contains("Arpasing"))
-            {
-                string al = "";
-                if (nextAliasType == "C")
-                {
-                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                    al = Atlas.GetAlias("-C", phonemes.ToArray());
-                }
-                else if (nextAliasType == "V")
-                {
-                    var phonemes = Atlas.GetPhonemes(note.ParsedLyric).ToList();
-                    phonemes.AddRange(Atlas.GetPhonemes(nextlyric));
-                    al = Atlas.GetAlias("-V", phonemes.ToArray());
-                }
-                oto = Singer.Current.FindOto(al, container.NoteNum);
-            }
-            if (oto != null)
-            {
-                length = MusicMath.MillisecondToTick(oto.Attack, Tempo);
-            }
-            length = (int) (length / PluginWindow.Velocity) + 1;
-
-            if (container.Length < length + 10)
-            {
-                if (PluginWindow.MakeShort)
-                {
-                    note.Length = container.Length / 2;
-                    container.Length -= note.Length;
-                }
-                else return false;
-            }
-            else
-            {
-                note.Length = length;
-                container.Length -= note.Length;
-            }
-            return true;
-        }
-
-        public static int[] GetLengths()
-        {
-            List<int> sizes = new List<int>();
-            foreach (UNote note in Notes)
-            {
-                sizes.Add(note.Length);
-            }
-            return sizes.ToArray();
-        }
-
 
         public static string[] GetLyrics(bool skipRest = true)
         {
             List<string> lyrics = new List<string>();
-            foreach (UNote note in Notes)
+            foreach (Note note in Notes)
             {
                 if (note.Number == Number.NEXT || note.Number == Number.PREV)
                     continue;
@@ -406,6 +189,113 @@ namespace App.Classes
                 lyrics.Add(note.ParsedLyricView);
             }
             return lyrics.ToArray();
+        }
+
+        public static int GetLength(Note note)
+        {
+            if (!PluginWindow.LengthByOto)
+                return PluginWindow.MinLength;
+            var next = GetNextNote(note);
+            if (next is null)
+                return PluginWindow.MinLength;
+            if (Atlas.IsRest(next.ParsedLyric))
+                return PluginWindow.MinLength;
+            var oto = Singer.Current.FindOto(next);
+            if (oto is null)
+                return PluginWindow.MinLength;
+            var length = MusicMath.MillisecondToTick(oto.Preutterance, Tempo) + 1;
+            return length;
+        }
+
+        public static void GetEnvelope()
+        {
+            foreach (var note in Notes)
+                if (!note.IsRest() && note.Number != Number.NEXT && note.Number != Number.PREV)
+                    note.GetEnvelope();
+        }
+
+        public static void SetLength()
+        {
+            try
+            {
+
+                //int start = Notes[0].Number == Number.PREV ? 1 : 0;
+                //int stop = Notes[Notes.Length - 1].Number == Number.NEXT ? 1 : 0;
+                int start = 0;
+                int stop = 0;
+                List<Note> parents = new List<Note>();
+                for (int i = 0; i < Notes.Length - stop; i++)
+                {
+                    var note = Notes[i];
+                    if (note.Parent is null)
+                        parents.Add(note);
+                    else
+                    {
+                        note.FinalLength = GetLength(Notes[i]) + 1;
+                        note.Parent.Children.Add(note);
+                    }
+                }
+                foreach (var note in parents)
+                {
+                    bool isRest = Atlas.IsRest(note.ParsedLyric);
+                    var minSize = isRest ? 0 : PluginWindow.MinLength;
+
+                    if (note.Children.Count == 0)
+                    {
+                        note.FinalLength = note.Length;
+                        continue;
+                    }
+
+                    int children_length = note.Children.Sum(n => n.FinalLength);
+                    if (note.FinalLength - children_length >= minSize)
+                        note.FinalLength -= children_length;
+                    else
+                    {
+                        // initial velocity
+                        double velocity = 1 / ((double)note.Length / (minSize + children_length)) * PluginWindow.CompressionRatio;
+                        // 2 kind of velocity
+                        var velocity_last = velocity;
+                        var velocity_children = velocity;
+                        var last_child = note.Children.Last();
+                        var next = GetNextNote(last_child);
+                        if (note.Children.Count > 1)
+                        {
+                            /// watch length_formula.png
+                            children_length = note.Children.Take(note.Children.Count - 1).Sum(n => n.FinalLength);
+                            var LCCR = PluginWindow.LastChildCompressionRatio;
+                            var CR = PluginWindow.CompressionRatio;
+                            velocity = (minSize + children_length * LCCR / CR + last_child.FinalLength / CR) / note.Length;
+                            velocity_last = velocity * CR;
+                            velocity_children = velocity_last / LCCR;
+                            velocity = velocity > 1 ? velocity : 1;
+                            velocity_children = velocity_children > 1 ? velocity_children : 1;
+                            velocity_last = velocity_last > 1 ? velocity_last : 1;
+                        }
+                        for (int i = 0; i < note.Children.Count - 1; i++)
+                        {
+                            note.Children[i].FinalLength = (int)((double)note.Children[i].FinalLength / velocity_children);
+                            note.Children[i].Velocity *= velocity_children + 0.1;
+                        }
+                        last_child.Velocity *= velocity_children + 0.1;
+                        last_child.FinalLength = (int)((double)last_child.FinalLength / velocity_last);
+                        next.Velocity *= velocity_last + 0.1;
+                        if (next.Parent != null)
+                            throw new Exception("Эм");
+                        children_length = note.Children.Sum(n => n.FinalLength);
+                        note.FinalLength -= children_length;
+                        if (note.FinalLength < minSize / velocity)
+                            throw new Exception("Так бля");
+                        if (note.Length != note.FinalLength + children_length)
+                            throw new Exception("Что за херня");
+                    }
+                    if (note.IsRest() && note.FinalLength < PluginWindow.MinLength)
+                        note.MergeIntoLeft();
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex, "Error on SetLength");
+            }
         }
     }
 }

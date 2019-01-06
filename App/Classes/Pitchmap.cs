@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
     public class Pitchmap
     {
@@ -22,7 +22,7 @@ namespace App.Classes
             string filename = dir;
             if (!File.Exists(filename)) filename = Path.Combine(dir, @"prefix.map");
             if (!File.Exists(filename)) return;
-            var lines = File.ReadAllLines(filename);
+            var lines = File.ReadAllLines(filename, Encoding.GetEncoding(932));
             Dir = filename;
             foreach (string line in lines)
             {

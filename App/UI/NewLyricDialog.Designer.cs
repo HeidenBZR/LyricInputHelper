@@ -1,4 +1,4 @@
-﻿namespace App.UI
+﻿namespace LyricInputHelper.UI
 {
     partial class NewLyricDialog
     {

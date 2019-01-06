@@ -3,13 +3,112 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using App.Classes;
+using LyricInputHelper.Classes;
 
-namespace App
+namespace LyricInputHelper
 {
     class Parser
     {
         public static void Split()
+        {
+            if (!Atlas.KeepCC && !Atlas.KeepWordsBeginnigs && !Atlas.KeepWordsEndings)
+            {
+                SplitFull();
+                return;
+            }
+            var note = Ust.Notes[1];
+            var next = Ust.GetNextNote(note);
+            var prev = Ust.GetPrevNote(note);
+            while (next != null)
+            {
+                if (!note.IsRest())
+                {
+                    if (note.Syllable is null)
+                        note.Syllable = new Syllable(note.ParsedLyric.Split(' '));
+                    var syll = note.Syllable;
+                    if (!syll.ContainsVowel)
+                    {
+                        if (Atlas.KeepCC)
+                            continue;
+                        // split CC
+                        note.ParsedLyric = syll.Phonemes.Last();
+                        for (int k = 0; k < syll.Phonemes.Length - 1; k++)
+                            Ust.InsertNote(note, syll.Phonemes[k], Insert.Before, note);
+                    }
+                    else
+                    {
+                        // Words beginnings
+                        if (note.Word.Name != null && !Atlas.KeepWordsBeginnigs)
+                        {
+                            if (syll.ExtraConsonantBeginning.Length > 0)
+                            {
+                                if (Atlas.KeepCC)
+                                {
+                                    Ust.InsertNote(note, Syllable.ToString(syll.ExtraConsonantBeginning), Insert.Before, prev, prev);
+                                    var ccc = Ust.GetPrevNote(note);
+                                    ccc.Syllable = new Syllable(ccc.ParsedLyric.Split(' '));
+                                    if (ccc.Syllable.Phonemes.Length == 2)
+                                        ccc.ParsedLyric = Atlas.GetAlias("CC", ccc.Syllable.Phonemes);
+                                    if (ccc.Syllable.Phonemes.Length == 3)
+                                        ccc.ParsedLyric = Atlas.GetAlias("CCC", ccc.Syllable.Phonemes);
+                                    if (ccc.Syllable.Phonemes.Length == 4)
+                                        ccc.ParsedLyric = Atlas.GetAlias("CCCC", ccc.Syllable.Phonemes);
+                                }
+                                else
+                                    for (int k = 0; k < syll.ExtraConsonantBeginning.Length - 1; k++)
+                                        Ust.InsertNote(note, syll.ExtraConsonantBeginning[k], Insert.Before, prev, prev);
+                            }
+
+                            if (!Atlas.KeepCV && syll.VowelIndex > 0)
+                                Ust.InsertNote(note, syll.CV[0], Insert.Before, prev);
+                        }
+                        // Word endings
+                        if (syll.ConsonantEnding.Length > 0)
+                        {
+                            if (Atlas.KeepCC)
+                            {
+                                Ust.InsertNote(note, Syllable.ToString(syll.ConsonantEnding), Insert.After, note);
+                                var ccc = Ust.GetNextNote(note);
+                                ccc.Syllable = new Syllable(ccc.ParsedLyric.Split(' '));
+                                if (ccc.Syllable.Phonemes.Length == 2)
+                                    ccc.ParsedLyric = Atlas.GetAlias("CC", ccc.Syllable.Phonemes);
+                                if (ccc.Syllable.Phonemes.Length == 3)
+                                    ccc.ParsedLyric = Atlas.GetAlias("CCC", ccc.Syllable.Phonemes);
+                                if (ccc.Syllable.Phonemes.Length == 4)
+                                    ccc.ParsedLyric = Atlas.GetAlias("CCCC", ccc.Syllable.Phonemes);
+                            }
+                            else
+                                for (int k = syll.ConsonantEnding.Length; k > 0; k--)
+                                    Ust.InsertNote(note, syll.ConsonantEnding[k - 1], Insert.Before, note);
+                        }
+                    }
+                    if (Atlas.KeepCV)
+                        note.Syllable = new Syllable(syll.Beginning);
+                    else
+                        note.Syllable = new Syllable(new List<string> { syll.Vowel });
+                    note.ParsedLyric = note.Syllable.ToString();
+                    if (note.Syllable.Phonemes.Length > 1)
+                    {
+                        if (note.Syllable.Beginning.Length == 2)
+                            note.ParsedLyric = Atlas.GetAlias("CV", note.Syllable.Beginning);
+                        if (note.Syllable.Beginning.Length == 3)
+                            note.ParsedLyric = Atlas.GetAlias("CCV", note.Syllable.Beginning);
+                        if (note.Syllable.Beginning.Length == 4)
+                            note.ParsedLyric = Atlas.GetAlias("CCCV", note.Syllable.Beginning);
+                        if (note.Syllable.Beginning.Length == 5)
+                            note.ParsedLyric = Atlas.GetAlias("CCCCV", note.Syllable.Beginning);
+
+                    }
+
+                }
+
+                prev = note;
+                note = next;
+                next = Ust.GetNextNote(note);
+            }
+        }
+
+        public static void SplitFull()
         {
             // int i = Ust.Notes.First().Number == Number.PREV ? 2 : 1; // always must be 1
             //int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0; // always must be 1
@@ -17,19 +116,27 @@ namespace App
             int stop = 1;
             for (; i < Ust.Notes.Length - stop; i++)
             {
-                UNote note = Ust.Notes[i];
-                UNote prev = i > 0 ? Ust.Notes[i - 1] : null;
-                UNote next = i + 1 < Ust.Notes.Length ? Ust.Notes[i + 1] : null;
+                Note note = Ust.Notes[i];
+                Note prev = i > 0 ? Ust.Notes[i - 1] : null;
+                Note next = i + 1 < Ust.Notes.Length ? Ust.Notes[i + 1] : null;
                 var members = note.ParsedLyric.Trim().Split(' ');
                 int inserted = 0;
                 if (members.Length > 1)
                 {
                     int vowelI = members.ToList().FindIndex(n => Atlas.GetAliasType(n) != "C");
-                    note.ParsedLyric = members[vowelI];
+                    if (vowelI > 0 && Atlas.KeepCV)
+                        note.Syllable = new Syllable(new List<string> { members[vowelI - 1], members[vowelI] });
+                    else 
+                        note.Syllable = new Syllable(new List<string> { members[vowelI] });
+                    note.ParsedLyric = note.Syllable.ToString();
+                    if (note.Syllable.Beginning.Length == 2)
+                        note.ParsedLyric = Atlas.GetAlias("CV", note.Syllable.Beginning);
                     if (vowelI > 0)
                     {
                         for (int k = vowelI - 1; k >= 0; k--)
                         {
+                            if (Atlas.KeepCV && k == vowelI - 1)
+                                continue;
                             if (prev != null)
                                 if (prev.IsRest())
                                     Ust.InsertNote(prev, members[k], Insert.After, note);
@@ -54,7 +161,7 @@ namespace App
                         {
                             for (int k = members.Length - 1; k > vowelI; k--)
                             {
-                                Ust.InsertNote(note, members[k], Insert.After, note);
+                                var result = Ust.InsertNote(note, members[k], Insert.After, note);
                                 i++;
                             }
                         }
@@ -65,9 +172,12 @@ namespace App
 
         public static void AtlasConverting()
         {
+
             //int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
             int i = 1; /// Всегда нужна первая нота, но будут нюансы со вставкой
-            int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            //int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
+            int stop = 0;
+
             for  (; i < Ust.Notes.Length - stop; i++)
             {
                 string lyric = Ust.Notes[i].ParsedLyric;
@@ -94,7 +204,7 @@ namespace App
                     continue;
                 }
 
-                if (rule.MustConvert)
+                if (rule.MustConvert && Ust.Notes[i].Number != Number.NEXT)
                 {
                     RuleResult result = rule.FormatConvert.GetResult(lyricPrev, lyric);
                     Ust.Notes[i].ParsedLyric = result.Alias;
@@ -113,21 +223,22 @@ namespace App
                 Console.WriteLine(Ust.Notes[i].ParsedLyric);
                 if (rule.MustInsert)
                 {
+                    var next = Ust.GetNextNote(Ust.Notes[i]);
+                    bool isRest = Atlas.IsRest(lyric);
+                    bool prevIsRest = Atlas.IsRest(lyricPrev);
                     RuleResult result = rule.FormatInsert.GetResult(lyricPrev, lyric);
-                    Insert insert =  new[] { "V-", "-C" }.Contains(result.AliasType) ? Insert.Before : Insert.After;
-                    UNote pitchparent = new[] { "-C" }.Contains(result.AliasType) ? Ust.Notes[i] : Ust.Notes[i - 1];
-                    UNote parent = new[] { "VC"}.Contains(result.AliasType) ? Ust.Notes[i - 1] : Ust.Notes[i];
+                    Note pitchparent = prevIsRest ? Ust.Notes[i] : Ust.Notes[i - 1];
+                    Insert insert = isRest  ? Insert.Before : Insert.After ;
+                    Note parent = isRest  ? Ust.Notes[i] : Ust.Notes[i - 1];
                     if (PluginWindow.MakeVR || result.AliasType != "V-")
-                    {
                         if (Ust.InsertNote(parent, result.Alias, insert, pitchparent))
-                        {
                             Console.WriteLine(Ust.Notes[i].ParsedLyric);
-                        }
-                    }
                     if (new[] { "-C" }.Contains(result.AliasType))
                         i++;
                 }
             }
+            foreach (var note in Ust.Notes)
+                note.ParsedLyric = Atlas.AliasReplace(note.ParsedLyric);
         }
 
         public static void ToCV()
@@ -228,7 +339,7 @@ namespace App
             int stop = Ust.Notes.Last().Number == Number.NEXT ? 1 : 0;
             for (; i < Ust.Notes.Length - stop; i++)
             {
-                UNote note = Ust.Notes[i];
+                Note note = Ust.Notes[i];
                 switch (Atlas.GetAliasType(note.ParsedLyric))
                 {
                     case "-V":
@@ -247,7 +358,7 @@ namespace App
                         break;
                     case "V-":
                         note.ParsedLyric = "R";
-                        UNote container = Ust.GetNextNote(note);
+                        Note container = Ust.GetNextNote(note);
                         if (container != null || container.IsRest())
                         {
                             container.Length += note.Length;

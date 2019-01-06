@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
     [StructLayout(LayoutKind.Sequential)]
     // Структура, описывающая заголовок WAV файла.

@@ -1,4 +1,8 @@
 
 App/bin/Debug/*
 App/bin/Release/*
+App/bin/Resources/*
+
+
 *.tmp
+.vs/*

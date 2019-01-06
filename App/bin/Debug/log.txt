@@ -1,6 +1,0 @@
-﻿====== Mode: Plugin ======
-1.12.2018, 15:48:55
-Ust loaded
-Atlas loaded
-Singer loaded
-All files loaded successfully

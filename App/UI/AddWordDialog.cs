@@ -1,0 +1,69 @@
+﻿using LyricInputHelper.Classes;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace LyricInputHelper.UI
+{
+    public partial class AddWordDialog : Form
+    {
+        public string Word;
+        public string Phonemes;
+        public bool IsToSendMail;
+
+
+        public AddWordDialog()
+        {
+            InitializeComponent();
+            SetLang();
+            DialogResult = DialogResult.Cancel;
+        }
+
+        public AddWordDialog(string word) : this()
+        {
+            textBoxWord.Text = word;
+        }
+
+        public AddWordDialog(string word, string phonemes) : this(word)
+        {
+            textBoxPhonemes.Text = phonemes;
+        }
+
+        void SetLang()
+        {
+            Text = Lang.Get("addword_title");
+            labelWord.Text = Lang.Get("addword_word");
+            labelPhonemes.Text = Lang.Get("addword_phonemes");
+            checkBoxSendMail.Text = Lang.Get("addword_sendmail");
+            buttonOk.Text = Lang.Get("button_ok");
+            buttonCancel.Text = Lang.Get("button_cancel");
+        }
+
+        private void buttonOk_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            if (textBoxWord.Text.Trim() == "" || textBoxPhonemes.Text.Trim() == "")
+                return;
+            Word = textBoxWord.Text;
+            Phonemes = textBoxPhonemes.Text;
+            IsToSendMail = checkBoxSendMail.Checked;
+            Close();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        public void SetStatus(string text)
+        {
+            labelStatus.Text = text;
+        }
+    }
+}

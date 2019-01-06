@@ -1,5 +1,5 @@
 ﻿
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
     class Settings
     {

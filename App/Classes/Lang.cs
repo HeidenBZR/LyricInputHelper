@@ -5,19 +5,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
     public static class Lang
     {
+        public static string[] Languages { get; set; }
         static Dictionary<string, string> messages;
+        static string _default = "ru";
+        public static string Current;
 
-        public static void Init(string lang)
+        public static void Init()
+        {
+            Languages = Directory.EnumerateFiles(Program.GetResourceFolder("LyricInputHelper", "lang"), 
+                "*.txt", SearchOption.TopDirectoryOnly).Select(n => Path.GetFileNameWithoutExtension(n)).ToArray();
+            var lang_file = Program.GetResourceFile("LyricInputHelper", "lang", "lang");
+            if (File.Exists(lang_file))
+            {
+                string filename = File.ReadAllText(lang_file).Trim(' ', '\n', '\r');
+                if (Languages.Contains(filename))
+                {
+                    Set(filename);
+                    return;
+                }
+            }
+            Set(_default);
+        }
+
+        static void Save(string filename)
+        {
+            var lang_file = Program.GetResourceFile("LyricInputHelper", "lang", "lang");
+            if (!File.Exists(lang_file))
+                File.Create(lang_file);
+            File.WriteAllText(lang_file, filename);
+
+        }
+
+        public static void Set(string lang)
         {
             messages = new Dictionary<string, string>();
             string[] lines;
             try
             {
-                lines = File.ReadAllLines($"lang/{lang}.txt");
+                lines = File.ReadAllLines(Program.GetResourceFile("LyricInputHelper", "lang", $"{lang}.txt"), Encoding.UTF8);
             }
             catch (Exception) { return; }
             foreach (var line in lines)
@@ -30,6 +59,8 @@ namespace App.Classes
                 }
                 catch (Exception) { }
             }
+            Current = lang;
+            Save(lang);
         }
 
         public static string Get(string code)
@@ -38,6 +69,11 @@ namespace App.Classes
                 return messages[code];
             else
                 return code;
+        }
+
+        public static bool Has(string code)
+        {
+            return messages.ContainsKey(code);
         }
     }
 }

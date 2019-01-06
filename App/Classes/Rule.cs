@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
     struct Format
     {
@@ -13,31 +13,40 @@ namespace App.Classes
         {
             /// line looks like -V[][0], i.e. AliasType[MembersPrev][Members]
             /// 
+            Members = new int[] { };
+            MembersPrev = new int[] { };
 
-            if (line.Count(n => n == '[') != 2 || line.Count(n => n == ']') != 2) throw new Exception("Error reading rule format");
+            if (Atlas.AliasTypes.Contains(line))
+            {
+                AliasType = line;
+                IsSamePhonemes = true;
+                return;
+            }
+            
+            IsSamePhonemes = false;
+            if (line.Count(n => n == '[') != 2 || line.Count(n => n == ']') != 2)
+                throw new Exception($"Error reading rule format: {line}");
             string[] splitted = line.Split(new char[] { '[', ']' });
             AliasType = splitted[0];
             string membersPrev = splitted[1];
             string members = splitted[3];
 
-            Members = new int[] { };
-            MembersPrev = new int[] { };
 
-            if (membersPrev.Length != 0)  MembersPrev = membersPrev.Split(':').Select(n => int.Parse(n)).ToArray();
-            if (members.Length != 0)  Members = members.Split(':').Select(n => int.Parse(n)).ToArray();
+            if (membersPrev.Length != 0)
+                MembersPrev = membersPrev.Split(',').Select(n => int.Parse(n)).ToArray();
+            if (members.Length != 0)
+                Members = members.Split(',').Select(n => int.Parse(n)).ToArray();
         }
+
         public string AliasType;
         public int[] Members;
         public int[] MembersPrev;
         public bool IsLastPhoneme(int[] phonemes) { return phonemes[0] == -1; }
         public bool IsEmptyPhoneme(int[] phonemes) { return phonemes.Length == 0; }
+        public bool IsSamePhonemes;
 
         public RuleResult GetResult(string lyricPrev, string lyric)
         {
-            if (lyricPrev == "s" && lyric == "t")
-            {
-                int i = 0;
-            }
             string[] phonemesPrev = Atlas.GetPhonemes(lyricPrev);
             string[] phonemes = Atlas.GetPhonemes(lyric);
             string[] phonemesNew = GetNewPhonemes(phonemesPrev, phonemes);
@@ -48,6 +57,8 @@ namespace App.Classes
 
         string[] GetNewPhonemes(string[] phonemesPrev, string[] phonemes)
         {
+            if (IsSamePhonemes)
+                return phonemes;
             List<string> phonemesNew = new List<string>();
             if (IsEmptyPhoneme(MembersPrev)) { }
             else if (IsLastPhoneme(MembersPrev)) phonemesNew.Add(phonemesPrev.Last());
@@ -56,7 +67,8 @@ namespace App.Classes
             if (IsEmptyPhoneme(Members)) { }
             else if (IsLastPhoneme(Members)) phonemesNew.Add(phonemes.Last());
             else foreach (int ind in Members) phonemesNew.Add(phonemes[ind]);
-            if (Members.Length + MembersPrev.Length != phonemesNew.Count) throw new Exception("Error formating phonemes");
+            if (Members.Length + MembersPrev.Length != phonemesNew.Count)
+                throw new Exception($"Error formating phonemes from [{Syllable.ToString(phonemesPrev)}] and [{Syllable.ToString(phonemes)}]");
             return phonemesNew.ToArray();
         }
     }
@@ -86,11 +98,11 @@ namespace App.Classes
 
         public Rule(string ruleline)
         {
-            if (ruleline.Contains(","))
+            if (ruleline.Contains(";"))
             {
                 MustConvert = true;
                 MustInsert = true;
-                var tl = ruleline.Split(',');
+                var tl = ruleline.Split(';');
                 string toconvert = tl[0].StartsWith("INSERT") ? tl[1] : tl[0];
                 string toinsert = tl[0].StartsWith("INSERT") ? tl[0] : tl[1];
                 toinsert = toinsert.Substring("INSERT(".Length);
@@ -120,22 +132,30 @@ namespace App.Classes
 
         public static void Read(string line)
         {
-            var t = line.Split('=');
-            if (t.Length != 2) return;
-            string subject = t[0];
-            string rule = t[1];
-
-            if (rule.StartsWith(">"))
-                FindLinks(subject, rule.Substring(1));
-            else
+            if (line.Contains("="))
+            {
+                var t = line.Split('=');
+                if (t.Length != 2) return;
+                string subject = t[0];
+                string rule = t[1];
                 Links[subject] = new Rule(rule);
+            }
+            else if (line.Contains(">"))
+            {
+                var t = line.Split('>');
+                if (t.Length != 2) return;
+                string subject = t[0];
+                string reference = t[1];
+                FindLinks(subject, reference);
+            }
         }
 
         static void FindLinks(string subject, string link)
         {
-            if (Links.ContainsKey(link)) Links[subject] = Links[link];
+            if (Links.ContainsKey(link))
+                Links[subject] = Links[link];
+            else
+                Program.Log($"Referensed rule {subject} was not defined");
         }
-
     }
-
 }

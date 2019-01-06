@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App.Classes
+namespace LyricInputHelper.Classes
 {
 
     public class Oto
