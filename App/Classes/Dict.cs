@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace LyricInputHelper.Classes
 {
     class Dict
     {
-        private Dictionary<string, string> _convert_rules;
-        private Dictionary<string, string[]> _words;
+        private ConcurrentDictionary<string, string> _convert_rules;
+        private ConcurrentDictionary<string, string[]> _words;
         private string _path;
         private bool _isMergeCV = true;
         private string _source;
@@ -35,7 +36,7 @@ namespace LyricInputHelper.Classes
                 if (!File.Exists(_path))
                     return false;
                 if (_words is null)
-                    _words = new Dictionary<string, string[]>();
+                    _words = new ConcurrentDictionary<string, string[]>();
                 string[] dicts = File.ReadAllLines(_path, Encoding.UTF8);
                 foreach (string line in dicts)
                     Add(line);
@@ -72,16 +73,22 @@ namespace LyricInputHelper.Classes
                 if (!ReadImportRules())
                     return false;
 
-                string line;
-                _words = new Dictionary<string, string[]>();
-                StreamReader file = new StreamReader(_source, Encoding.UTF8);
-                // _memory = new StringBuilder() { Capacity = _source.Length };
-                while ((line = file.ReadLine()) != null)
+                _words = new ConcurrentDictionary<string, string[]>();
+                bool was_errors = false;
+                Parallel.ForEach(File.ReadLines(_source), (line, _, lineNumber) =>
                 {
-                    Add(line, import: true);
-                }
-                file.Close();
-                // Write();
+                    try
+                    {
+                        Add(line, import: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Log($"Error on import dict.\r\n{ex.Message}\r\n{ex.StackTrace}");
+                        was_errors = true;
+                    }
+                });
+                if (was_errors)
+                    Program.Log("Some errors occured on dict import. Check the log file.");
                 return true;
             }
             catch (Exception ex)
@@ -103,7 +110,7 @@ namespace LyricInputHelper.Classes
             if (!Path.IsPathRooted(_source))
                 _source = Path.Combine(Program.GetResourceFile("atlas"), _source);
             var converts = info.Skip(1).Select(n => n.Split('\t'));
-            _convert_rules = new Dictionary<string, string>();
+            _convert_rules = new ConcurrentDictionary<string, string>();
             foreach (var pair in converts)
             {
                 if (pair.Length < 2)

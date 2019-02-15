@@ -54,6 +54,7 @@ namespace LyricInputHelper
 
             checkBoxLengthByOto.Text = Lang.Get("oto_by_length");
             checkBoxFade.Text = Lang.Get("fade");
+
         }
 
 
@@ -199,13 +200,6 @@ namespace LyricInputHelper
             ToCV();
         }
 
-        private void lyricView_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex == 2)
-                EditNote(e.RowIndex);
-
-        }
-
         private void buttonReloadResources_Click(object sender, EventArgs e)
         {
             Reload();
@@ -300,6 +294,32 @@ namespace LyricInputHelper
         private void comboBoxLanguage_MouseEnter(object sender, EventArgs e)
         {
             labelStatus.Text = Lang.Get("language_tooltip");
+        }
+
+        private void lyricView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            var i = e.RowIndex;
+                ((DataGridView)sender)[2, i].ToolTipText = Ust.Notes[i].AliasType;
+        }
+
+
+        void contextMenuStripMelisma_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void PluginWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void lyricView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 2)
+            {
+                EditNote(e.RowIndex);
+            }
+
         }
     }
 }

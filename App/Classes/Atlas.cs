@@ -20,6 +20,7 @@ namespace LyricInputHelper.Classes
         public static string[] Rests;
         public static List<string> AliasTypes;
         public static Dictionary<string, string> Format;
+        public static Dictionary<string, string> FormatRegex;
         public static List<string[]> AliasReplaces;
         public static List<string[]> PhonemeReplaces;
         public static Dict Dict;
@@ -32,7 +33,7 @@ namespace LyricInputHelper.Classes
         public static string Melisma = "&m;";
 
 
-        public static string ExampleWord = "привет";
+        public static string ExampleWord;
 
         public static bool IsLoaded = false;
         public static bool HasDict { get { return Dict.IsEnabled; } }
@@ -91,9 +92,7 @@ namespace LyricInputHelper.Classes
             if (IsConsonant(alias)) return "C";
             foreach (string alias_type in AliasTypes)
             {
-                string pattern = Format[alias_type].Replace("%V%", VowelPattern);
-                pattern = pattern.Replace("%C%", ConsonantPattern);
-                pattern = pattern.Replace("%R%", RestPattern);
+                string pattern = FormatRegex[alias_type];
                 if (Regex.IsMatch(alias, pattern))
                 {
                     var value = Regex.Match(alias, pattern).Value;
@@ -111,9 +110,7 @@ namespace LyricInputHelper.Classes
             if (IsVowel(alias) || IsConsonant(alias)) return new string[] { alias };
             foreach (string alias_type in AliasTypes)
             {
-                string pattern = Format[alias_type].Replace("%V%", VowelPattern);
-                pattern = pattern.Replace("%C%", ConsonantPattern);
-                pattern = pattern.Replace("%R%", RestPattern);
+                string pattern = FormatRegex[alias_type];
                 if (Regex.IsMatch(alias, pattern))
                 {
                     string value = Regex.Match(alias, pattern).Value;
@@ -132,10 +129,7 @@ namespace LyricInputHelper.Classes
         public static string[] GetPhonemes(string alias, string alias_type)
         {
             if (IsRest(alias)) return new string[] { };
-            string pattern = Format[alias_type];
-            pattern = pattern.Replace("%V%", VowelPattern);
-            pattern = pattern.Replace("%C%", ConsonantPattern);
-            pattern = pattern.Replace("%R%", RestPattern);
+            string pattern = FormatRegex[alias_type];
             if (Regex.IsMatch(alias, pattern))
             {
                 string attempt = Regex.Match(alias, pattern).Value;

@@ -9,6 +9,7 @@ namespace LyricInputHelper.Classes
 {
     partial class Atlas
     {
+        public const int MULTICONSONANT_LIMIT = 6;
 
         static void Load()
         {
@@ -56,9 +57,40 @@ namespace LyricInputHelper.Classes
             AliasTypes.Add(format[0]);
         }
 
+        static void ReadFormat04(string line)
+        {
+            string[] format = line.Split('=');
+            if (AliasTypes.Contains(format[0])) return;
+            if (format[0].Contains("C*") && format[1].Contains("%C%*") && format[1].Contains("|") && format[1].Contains("{") && format[1].Contains("}"))
+            {
+                string n = format[0];
+                string f = format[1].Split('|')[0];
+                string s = format[1].Split('|')[1];
+                s = s.Substring(s.IndexOf('{') + 1, s.Length - s.IndexOf('}') - 1);
+                for (int i = 0; i < MULTICONSONANT_LIMIT; i++)
+                {
+                    var final_n = n.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
+                    var final_f = f.Replace("%C%*", string.Join( s, Enumerable.Repeat("%C%", i + 1)));
+
+                    Format[final_n] = final_f;
+                    AliasTypes.Add(final_n);
+                }
+            }
+            else
+            {
+                Format[format[0]] = format[1];
+                AliasTypes.Add(format[0]);
+            }
+        }
+
         static void ReadRule(string line)
         {
             Rule.Read(line);
+        }
+
+        static void ReadRule04(string line)
+        {
+            Rule.Read04(line);
         }
 
         static void ReadAliasReplace(string line)
@@ -140,11 +172,23 @@ namespace LyricInputHelper.Classes
             BuildPatterns();
 
 
-            if (Version != "0.3")
-                throw new Exception("Current plugin version requests 0.3 atlas version.");
             // Read02();
-            Read03(atlas, i);
+            if (Version == "0.3")
+                Read03(atlas, i);
+            else if (Version == "0.4")
+                Read04(atlas, i);
+            else
+                throw new Exception($"{VoicebankType} {Version}\n\nCurrent plugin version requests 0.3 or higher atlas version.");
 
+            FormatRegex = new Dictionary<string, string>();
+            foreach (var alias_type in AliasTypes)
+            {
+                string pattern = Format[alias_type].Replace("%V%", VowelPattern);
+                pattern = pattern.Replace("%C%", ConsonantPattern);
+                pattern = pattern.Replace("%R%", RestPattern);
+                FormatRegex[alias_type] = pattern;
+            }
+            AliasTypes = AliasTypes.OrderBy(n => n.Length).ToList();
         }
 
         static void BuildPatterns()
@@ -202,6 +246,7 @@ namespace LyricInputHelper.Classes
             }
             IsLoaded = true;
         }
+
         static void Read03(string[] atlas, int i)
         {
             AliasTypes = new List<string>();
@@ -224,6 +269,45 @@ namespace LyricInputHelper.Classes
             while (atlas[i] != "[PHONEME_REPLACE]")
             {
                 ReadRule(atlas[i]);
+                i++;
+            }
+            i++;
+            PhonemeReplaces = new List<string[]>();
+            while (atlas[i] != "[ALIAS_REPLACE]")
+            {
+                ReadPhonemeReplace(atlas[i]);
+                i++;
+            }
+            AliasReplaces = new List<string[]>();
+            while (i < atlas.Length)
+            {
+                ReadAliasReplace(atlas[i]);
+                i++;
+            }
+            IsLoaded = true;
+        }
+        static void Read04(string[] atlas, int i)
+        {
+            AliasTypes = new List<string>();
+            Format = new Dictionary<string, string>();
+            i++;
+            ReadFormat("C=%C%");
+            ReadFormat("V=%V%");
+            while (atlas[i] != "[SPLIT]")
+            {
+                ReadFormat04(atlas[i]);
+                i++;
+            }
+            i++;
+            while (atlas[i] != "[CONVERT]")
+            {
+                ReadSplit(atlas[i]);
+                i++;
+            }
+            i++;
+            while (atlas[i] != "[PHONEME_REPLACE]")
+            {
+                ReadRule04(atlas[i]);
                 i++;
             }
             i++;

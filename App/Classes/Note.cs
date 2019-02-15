@@ -33,6 +33,7 @@ namespace LyricInputHelper.Classes
         public Word Word { get; set; }
         public Syllable Syllable { get; set; }
         public string WordName { get { return Word.Name; } }
+        public string AliasType { get; set; }
 
         public int Intensity = 100;
         public string Flags = "";
@@ -125,19 +126,34 @@ namespace LyricInputHelper.Classes
                     return;
                 var next = Ust.GetNextNote(this);
                 double length = MusicMath.TickToMillisecond(FinalLength, Ust.Tempo);
-                length += Singer.Current.FindOto(this).Preutterance / Velocity;
+                var oto = Singer.Current.FindOto(this);
+                if (oto != null)
+                    length += Singer.Current.FindOto(this).Preutterance / Velocity;
                 if (next != null && Singer.Current.FindOto(next) != null)
                     length -= Singer.Current.FindOto(next).StraightPreutterance / next.Velocity;
-                double this_o = Singer.Current.FindOto(this).Overlap / Velocity;
-                double next_o = next is null || Atlas.IsRest(next.parsedLyric) ? 20 : Singer.Current.FindOto(next).Overlap / next.Velocity;
+                if (Velocity < 1 || (next != null && next.Velocity < 1))
+                    throw new Exception($"Что с велосити не так блять. {Number}[{ParsedLyric}]: {Velocity}; " +
+                        $"next {next.number}[{next.ParsedLyric}]: {next.Velocity}.");
+                if (length <= 0)
+                    throw new Exception($"Got negative length on {Number}[{ParsedLyric}]. Please check oto " +
+                        $"of next {next.number}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
+                        $"Preutterance and {Singer.Current.FindOto(next).Overlap}");
+                double this_o = oto is null ? 20 : Singer.Current.FindOto(this).Overlap / Velocity;
+                double next_o = 20;
+                if (next != null && !Atlas.IsRest(next.parsedLyric))
+                {
+                    var next_oto = Singer.Current.FindOto(next.parsedLyric);
+                    if (next_oto != null)
+                        next_o = Singer.Current.FindOto(next).Overlap / next.Velocity;
+                }
                 if (this_o > length)
                     this_o = length / 2;
                 if (length < this_o + next_o)
                     next_o = length - this_o;
                 if (next_o < 0)
-                    throw new Exception($"negative next-overlap from {next.parsedLyric} on {parsedLyric}");
+                    throw new Exception($"negative next-overlap from [{next.parsedLyric}] on [{parsedLyric}]");
                 if (length < this_o + next_o)
-                    throw new Exception($"Обязательно что-то пойдет не так. Блять.");
+                    throw new Exception($"Обязательно что-то пойдет не так. Блять. Если что это отрицательная длина ноты [{parsedLyric}] пожалуйста убейте меня.");
                 var e = new double[10]
                 {
                 Math.Truncate(this_o * 100) / 100, //p1 -> self
@@ -153,7 +169,7 @@ namespace LyricInputHelper.Classes
                 };
                 envelope = $"{e[0]} {e[1]} {e[2]} {e[3]} {e[4]} {e[5]} {e[6]} % {e[7]} {e[8]} {e[9]}";
             }
-            catch (Exception ex)
+            catch (EntryPointNotFoundException ex)
             {
                 Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{parsedLyric}]");
             }
@@ -191,6 +207,11 @@ namespace LyricInputHelper.Classes
             {
                 Program.ErrorMessage(ex, $"Error on MergeIntoRight: {Number}");
             }
+        }
+
+        public void AddMelisma()
+        {
+
         }
     }
 

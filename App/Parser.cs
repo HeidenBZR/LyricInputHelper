@@ -243,7 +243,10 @@ namespace LyricInputHelper
                 }
             }
             foreach (var note in Ust.Notes)
+            {
+                note.AliasType = Atlas.GetAliasType(note.ParsedLyric);
                 note.ParsedLyric = Atlas.AliasReplace(note.ParsedLyric);
+            }
         }
 
         public static void ToCV()

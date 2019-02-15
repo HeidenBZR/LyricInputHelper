@@ -74,7 +74,7 @@
             this.labelWord.Size = new System.Drawing.Size(387, 23);
             this.labelWord.TabIndex = 3;
             this.labelWord.Text = "label_word";
-            this.labelWord.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.labelWord.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // textBoxPhonemes
             // 
@@ -90,14 +90,14 @@
             this.labelPhonemes.Size = new System.Drawing.Size(387, 23);
             this.labelPhonemes.TabIndex = 3;
             this.labelPhonemes.Text = "label_phonemes";
-            this.labelPhonemes.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.labelPhonemes.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
             // checkBoxSendMail
             // 
             this.checkBoxSendMail.AutoSize = true;
             this.checkBoxSendMail.Checked = true;
             this.checkBoxSendMail.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxSendMail.Location = new System.Drawing.Point(24, 122);
+            this.checkBoxSendMail.Location = new System.Drawing.Point(24, 136);
             this.checkBoxSendMail.Name = "checkBoxSendMail";
             this.checkBoxSendMail.Size = new System.Drawing.Size(132, 17);
             this.checkBoxSendMail.TabIndex = 4;

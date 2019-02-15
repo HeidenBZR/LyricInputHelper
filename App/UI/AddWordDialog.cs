@@ -37,9 +37,19 @@ namespace LyricInputHelper.UI
 
         void SetLang()
         {
+            if (Atlas.ExampleWord != null && Atlas.Dict.Has(Atlas.ExampleWord))
+            {
+                string word = $" ({Atlas.ExampleWord}).";
+                string phonemes = $" ({Syllable.ToString(Atlas.Dict.Get(Atlas.ExampleWord))}).";
+                labelWord.Text = Lang.Get("addword_word_example_word") + word;
+                labelPhonemes.Text = Lang.Get("addword_phonemes_example_word") + phonemes;
+            }
+            else
+            {
+                labelWord.Text = Lang.Get("addword_word");
+                labelPhonemes.Text = Lang.Get("addword_phonemes");
+            }
             Text = Lang.Get("addword_title");
-            labelWord.Text = Lang.Get("addword_word");
-            labelPhonemes.Text = Lang.Get("addword_phonemes");
             checkBoxSendMail.Text = Lang.Get("addword_sendmail");
             buttonOk.Text = Lang.Get("button_ok");
             buttonCancel.Text = Lang.Get("button_cancel");

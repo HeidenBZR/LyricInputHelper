@@ -275,18 +275,29 @@ namespace LyricInputHelper.Classes
                         {
                             note.Children[i].FinalLength = (int)((double)note.Children[i].FinalLength / velocity_children);
                             note.Children[i].Velocity *= velocity_children + 0.1;
+                            if (note.Children[i].Velocity < 1)
+                                throw new Exception($"Че блять. Velocity {note.Children[i].Number}[{note.Children[i].ParsedLyric}]: " +
+                                    $"{next.Velocity}. " +
+                                    $"\nvelocity_children: {velocity_children}");
                         }
                         last_child.Velocity *= velocity_children + 0.1;
                         last_child.FinalLength = (int)((double)last_child.FinalLength / velocity_last);
+                        if (last_child.Velocity < 1)
+                            throw new Exception($"Че блять. Velocity {last_child.Number}[{last_child.ParsedLyric}]: " +
+                                $"{next.Velocity}. " +
+                                $"\nvelocity_children: {velocity_children}");
                         next.Velocity *= velocity_last + 0.1;
-                        if (next.Parent != null)
-                            throw new Exception("Эм");
+                        if (next.Velocity < 1)
+                            throw new Exception($"Че блять. Velocity {next.Number}[{next.ParsedLyric}]: {next.Velocity}. " +
+                                $"\nvelocity_last: {velocity_last}");
+                        //if (next.Parent != null)
+                        //    throw new Exception("Эм");
                         children_length = note.Children.Sum(n => n.FinalLength);
                         note.FinalLength -= children_length;
                         if (note.FinalLength < minSize / velocity)
-                            throw new Exception("Так бля");
+                            throw new Exception($"Так бля. Это несмотря на всю магию вне хогвартса длина {note.Number}[{note.ParsedLyric}] меньше минимальной.");
                         if (note.Length != note.FinalLength + children_length)
-                            throw new Exception("Что за херня");
+                            throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.Number}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
                     }
                     if (note.IsRest() && note.FinalLength < PluginWindow.MinLength)
                         note.MergeIntoLeft();

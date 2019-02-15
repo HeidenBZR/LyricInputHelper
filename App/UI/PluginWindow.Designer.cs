@@ -34,7 +34,11 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.lyricView = new System.Windows.Forms.DataGridView();
             this.Number = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Syllable = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Word = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.buttonAtlasConvert = new System.Windows.Forms.Button();
             this.buttonSetText = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -56,6 +60,7 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.labelOfMultiplayer = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.checkBoxFade = new System.Windows.Forms.CheckBox();
             this.comboBoxLanguage = new System.Windows.Forms.ComboBox();
             this.label = new System.Windows.Forms.Label();
             this.textBoxLastChildCompressionRatio = new System.Windows.Forms.TextBox();
@@ -65,19 +70,23 @@
             this.labelOfMinLength = new System.Windows.Forms.Label();
             this.checkBoxLengthByOto = new System.Windows.Forms.CheckBox();
             this.labelStatus = new System.Windows.Forms.Label();
-            this.lyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.parsedLyricDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Syllable = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.uNoteBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.checkBoxFade = new System.Windows.Forms.CheckBox();
+            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItemMelisma = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemMergeLeft = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemMergeRight = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemInsert = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemInsertBefore = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemInsertAfter = new System.Windows.Forms.ToolStripMenuItem();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPageMain.SuspendLayout();
             this.tabPageOptions.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).BeginInit();
+            this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonOk
@@ -119,6 +128,7 @@
             this.lyricView.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.lyricView.Tag = "";
             this.lyricView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.lyricView_CellClick);
+            this.lyricView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.lyricView_CellFormatting);
             // 
             // Number
             // 
@@ -130,12 +140,38 @@
             this.Number.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Number.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
+            // lyricDataGridViewTextBoxColumn
+            // 
+            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
+            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
+            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
+            this.lyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.lyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // parsedLyricDataGridViewTextBoxColumn
+            // 
+            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
+            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
+            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
+            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
+            this.parsedLyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Syllable
+            // 
+            this.Syllable.DataPropertyName = "Syllable";
+            resources.ApplyResources(this.Syllable, "Syllable");
+            this.Syllable.Name = "Syllable";
+            // 
             // Word
             // 
             this.Word.DataPropertyName = "WordName";
             resources.ApplyResources(this.Word, "Word");
             this.Word.Name = "Word";
             this.Word.ReadOnly = true;
+            // 
+            // uNoteBindingSource
+            // 
+            this.uNoteBindingSource.DataSource = typeof(LyricInputHelper.Classes.Note);
             // 
             // buttonAtlasConvert
             // 
@@ -311,6 +347,15 @@
             resources.ApplyResources(this.panel2, "panel2");
             this.panel2.Name = "panel2";
             // 
+            // checkBoxFade
+            // 
+            resources.ApplyResources(this.checkBoxFade, "checkBoxFade");
+            this.checkBoxFade.Checked = true;
+            this.checkBoxFade.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxFade.Name = "checkBoxFade";
+            this.checkBoxFade.UseVisualStyleBackColor = true;
+            this.checkBoxFade.MouseEnter += new System.EventHandler(this.checkBoxFade_MouseEnter);
+            // 
             // comboBoxLanguage
             // 
             this.comboBoxLanguage.FormattingEnabled = true;
@@ -365,40 +410,54 @@
             resources.ApplyResources(this.labelStatus, "labelStatus");
             this.labelStatus.Name = "labelStatus";
             // 
-            // lyricDataGridViewTextBoxColumn
+            // contextMenuStrip
             // 
-            this.lyricDataGridViewTextBoxColumn.DataPropertyName = "Lyric";
-            resources.ApplyResources(this.lyricDataGridViewTextBoxColumn, "lyricDataGridViewTextBoxColumn");
-            this.lyricDataGridViewTextBoxColumn.Name = "lyricDataGridViewTextBoxColumn";
-            this.lyricDataGridViewTextBoxColumn.ReadOnly = true;
-            this.lyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemMelisma,
+            this.toolStripMenuItemMergeLeft,
+            this.toolStripMenuItemMergeRight,
+            this.toolStripMenuItemInsert});
+            this.contextMenuStrip.Name = "contextMenuStrip";
+            resources.ApplyResources(this.contextMenuStrip, "contextMenuStrip");
             // 
-            // parsedLyricDataGridViewTextBoxColumn
+            // toolStripMenuItemMelisma
             // 
-            this.parsedLyricDataGridViewTextBoxColumn.DataPropertyName = "ParsedLyricView";
-            resources.ApplyResources(this.parsedLyricDataGridViewTextBoxColumn, "parsedLyricDataGridViewTextBoxColumn");
-            this.parsedLyricDataGridViewTextBoxColumn.Name = "parsedLyricDataGridViewTextBoxColumn";
-            this.parsedLyricDataGridViewTextBoxColumn.ReadOnly = true;
-            this.parsedLyricDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.toolStripMenuItemMelisma.Name = "toolStripMenuItemMelisma";
+            resources.ApplyResources(this.toolStripMenuItemMelisma, "toolStripMenuItemMelisma");
             // 
-            // Syllable
+            // toolStripMenuItemMergeLeft
             // 
-            this.Syllable.DataPropertyName = "Syllable";
-            resources.ApplyResources(this.Syllable, "Syllable");
-            this.Syllable.Name = "Syllable";
+            this.toolStripMenuItemMergeLeft.Name = "toolStripMenuItemMergeLeft";
+            resources.ApplyResources(this.toolStripMenuItemMergeLeft, "toolStripMenuItemMergeLeft");
             // 
-            // uNoteBindingSource
+            // toolStripMenuItemMergeRight
             // 
-            this.uNoteBindingSource.DataSource = typeof(LyricInputHelper.Classes.Note);
+            this.toolStripMenuItemMergeRight.Name = "toolStripMenuItemMergeRight";
+            resources.ApplyResources(this.toolStripMenuItemMergeRight, "toolStripMenuItemMergeRight");
             // 
-            // checkBoxFade
+            // toolStripMenuItemInsert
             // 
-            resources.ApplyResources(this.checkBoxFade, "checkBoxFade");
-            this.checkBoxFade.Checked = true;
-            this.checkBoxFade.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxFade.Name = "checkBoxFade";
-            this.checkBoxFade.UseVisualStyleBackColor = true;
-            this.checkBoxFade.MouseEnter += new System.EventHandler(this.checkBoxFade_MouseEnter);
+            this.toolStripMenuItemInsert.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemInsertBefore,
+            this.toolStripMenuItemInsertAfter});
+            this.toolStripMenuItemInsert.Name = "toolStripMenuItemInsert";
+            resources.ApplyResources(this.toolStripMenuItemInsert, "toolStripMenuItemInsert");
+            // 
+            // toolStripMenuItemInsertBefore
+            // 
+            this.toolStripMenuItemInsertBefore.Name = "toolStripMenuItemInsertBefore";
+            resources.ApplyResources(this.toolStripMenuItemInsertBefore, "toolStripMenuItemInsertBefore");
+            // 
+            // toolStripMenuItemInsertAfter
+            // 
+            this.toolStripMenuItemInsertAfter.Name = "toolStripMenuItemInsertAfter";
+            resources.ApplyResources(this.toolStripMenuItemInsertAfter, "toolStripMenuItemInsertAfter");
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.DataPropertyName = "Syllable";
+            resources.ApplyResources(this.dataGridViewTextBoxColumn1, "dataGridViewTextBoxColumn1");
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             // 
             // PluginWindow
             // 
@@ -415,7 +474,9 @@
             this.MinimizeBox = false;
             this.Name = "PluginWindow";
             this.Load += new System.EventHandler(this.PluginWindow_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PluginWindow_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.lyricView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.tabControl.ResumeLayout(false);
@@ -425,7 +486,7 @@
             this.panel3.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.uNoteBindingSource)).EndInit();
+            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -462,14 +523,22 @@
         private System.Windows.Forms.TextBox textBoxLastChildCompressionRatio;
         private System.Windows.Forms.Label labelOfLastChildCompressionRatio;
         private System.Windows.Forms.CheckBox checkBoxLengthByOto;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label;
+        private System.Windows.Forms.ComboBox comboBoxLanguage;
+        private System.Windows.Forms.CheckBox checkBoxFade;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMelisma;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMergeLeft;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMergeRight;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemInsert;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemInsertBefore;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemInsertAfter;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Number;
         private System.Windows.Forms.DataGridViewTextBoxColumn lyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn parsedLyricDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn Syllable;
         private System.Windows.Forms.DataGridViewTextBoxColumn Word;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label;
-        private System.Windows.Forms.ComboBox comboBoxLanguage;
-        private System.Windows.Forms.CheckBox checkBoxFade;
     }
 }
