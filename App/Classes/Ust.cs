@@ -87,7 +87,7 @@ namespace LyricInputHelper.Classes
             int s = 0; // слог
             int w = 0; // слово
             string cc = "";
-            while ( w < words.Count && n < Notes.Length)
+            while (w < words.Count && n < Notes.Length)
             {
                 n = SkipNotes(n.Value);
                 if (!n.HasValue)

@@ -24,3 +24,16 @@ D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.GenerateResourc
 D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.CoreCompileInputs.cache
 D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.exe
 D:\Github\LyricInputHelper\App\obj\Debug\LyricInputHelper.pdb
+D:\External\Github\HeidenBZR\LyricInputHelper\App\bin\Debug\LyricInputHelper.exe.config
+D:\External\Github\HeidenBZR\LyricInputHelper\App\bin\Debug\LyricInputHelper.exe
+D:\External\Github\HeidenBZR\LyricInputHelper\App\bin\Debug\LyricInputHelper.pdb
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.csprojAssemblyReference.cache
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.AddWordDialog.resources
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.NewLyricDialog.resources
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.PluginWindow.resources
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.SetTextWindow.resources
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.UI.StandaloneWindow.resources
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.GenerateResource.cache
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.csproj.CoreCompileInputs.cache
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.exe
+D:\External\Github\HeidenBZR\LyricInputHelper\App\obj\Debug\LyricInputHelper.pdb

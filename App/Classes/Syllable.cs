@@ -20,15 +20,10 @@ namespace LyricInputHelper.Classes
         public readonly string[] CV = new string[0];
         public readonly string[] ExtraConsonantBeginning = new string[0];
         public readonly string[] ExtraConsonantEnding = new string[0];
-
-
-
-
-        public Syllable(List<string> phonemes) : this(phonemes.ToArray()) { }
-
-        public Syllable(string[] phonemes)
+                
+        public Syllable(IEnumerable<string> phonemes)
         {
-            Phonemes = phonemes;
+            Phonemes = phonemes.ToArray();
             try
             {
                 List<string> phs = phonemes.ToList();
@@ -82,7 +77,7 @@ namespace LyricInputHelper.Classes
                 return String.Join(" ", Phonemes);
         }
 
-        public static string ToString(string[] phonemes)
+        public static string ToString(IEnumerable<string> phonemes)
         {
             if (phonemes is null)
                 return "(null)";

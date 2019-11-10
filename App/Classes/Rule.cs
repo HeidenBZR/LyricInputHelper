@@ -59,6 +59,10 @@ namespace LyricInputHelper.Classes
 
         public RuleResult GetResult(string lyricPrev, string lyric)
         {
+            if (lyric == "f")
+            {
+
+            }
             string[] phonemesPrev = Atlas.GetPhonemes(lyricPrev);
             string[] phonemes = Atlas.GetPhonemes(lyric);
             string[] phonemesNew = GetNewPhonemes(phonemesPrev, phonemes);
@@ -71,20 +75,27 @@ namespace LyricInputHelper.Classes
         {
             if (UseAllPrevPhonemes && UseAllPhonemes)
                 return (string[])phonemesPrev.Concat(phonemesPrev);
-            if (UseAllPrevPhonemes)
-                return phonemesPrev;
-            if (UseAllPhonemes)
-                return phonemes;
             List<string> phonemesNew = new List<string>();
-            if (IsEmptyPhoneme(MembersPrev)) { }
-            else if (IsLastPhoneme(MembersPrev)) phonemesNew.Add(phonemesPrev.Last());
-            else foreach (int ind in MembersPrev) phonemesNew.Add(phonemesPrev[ind]);
-
-            if (IsEmptyPhoneme(Members)) { }
-            else if (IsLastPhoneme(Members)) phonemesNew.Add(phonemes.Last());
-            else foreach (int ind in Members) phonemesNew.Add(phonemes[ind]);
-            if (Members.Length + MembersPrev.Length != phonemesNew.Count)
-                throw new Exception($"Error formating phonemes from [{Syllable.ToString(phonemesPrev)}] and [{Syllable.ToString(phonemes)}]");
+            if (UseAllPrevPhonemes)
+                phonemesNew.AddRange(phonemesPrev);
+            else if (IsEmptyPhoneme(MembersPrev))
+                { }
+            else if (IsLastPhoneme(MembersPrev))
+                phonemesNew.Add(phonemesPrev.Last());
+            else
+                foreach (int ind in MembersPrev)
+                    phonemesNew.Add(phonemesPrev[ind]);
+            if (UseAllPhonemes)
+                phonemesNew.AddRange(phonemes);
+            else if (IsEmptyPhoneme(Members))
+                { }
+            else if (IsLastPhoneme(Members))
+                phonemesNew.Add(phonemes.Last());
+            else
+                foreach (int ind in Members)
+                    phonemesNew.Add(phonemes[ind]);
+            //if (Members.Length + MembersPrev.Length != phonemesNew.Count)
+            //    throw new Exception($"Error formating phonemes from [{Syllable.ToString(phonemesPrev)}] and [{Syllable.ToString(phonemes)}]");
             return phonemesNew.ToArray();
         }
     }
@@ -285,7 +296,7 @@ namespace LyricInputHelper.Classes
             if (Links.ContainsKey(link))
                 Links[subject] = Links[link];
             else
-                Program.Log($"Referensed rule {subject} was not defined");
+                Program.Log($"Referensed rule {link} for {subject} was not defined");
         }
     }
 }

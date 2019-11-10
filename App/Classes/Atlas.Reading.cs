@@ -9,7 +9,7 @@ namespace LyricInputHelper.Classes
 {
     partial class Atlas
     {
-        public const int MULTICONSONANT_LIMIT = 6;
+        public const int MULTICONSONANT_LIMIT = 8;
 
         static void Load()
         {
@@ -66,7 +66,7 @@ namespace LyricInputHelper.Classes
                 string n = format[0];
                 string f = format[1].Split('|')[0];
                 string s = format[1].Split('|')[1];
-                s = s.Substring(s.IndexOf('{') + 1, s.Length - s.IndexOf('}') - 1);
+                s = s.Substring(s.IndexOf('{') + 1, s.Length - s.IndexOf('}'));
                 for (int i = 0; i < MULTICONSONANT_LIMIT; i++)
                 {
                     var final_n = n.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));

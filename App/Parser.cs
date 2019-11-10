@@ -72,15 +72,29 @@ namespace LyricInputHelper
                         {
                             if (Atlas.KeepCC)
                             {
-                                Ust.InsertNote(note, Syllable.ToString(syll.ConsonantEnding), Insert.After, note);
-                                var ccc = Ust.GetNextNote(note);
-                                ccc.Syllable = new Syllable(ccc.ParsedLyric.Split(' '));
-                                if (ccc.Syllable.Phonemes.Length == 2)
-                                    ccc.ParsedLyric = Atlas.GetAlias("CC", ccc.Syllable.Phonemes);
-                                if (ccc.Syllable.Phonemes.Length == 3)
-                                    ccc.ParsedLyric = Atlas.GetAlias("CCC", ccc.Syllable.Phonemes);
-                                if (ccc.Syllable.Phonemes.Length == 4)
-                                    ccc.ParsedLyric = Atlas.GetAlias("CCCC", ccc.Syllable.Phonemes);
+                                //Ust.InsertNote(note, Syllable.ToString(syll.ConsonantEnding), Insert.After, note);
+                                var nextNotes = syll.ConsonantEnding.Select(n => n).ToList();
+                                if (!next.IsRest())
+                                {
+                                    nextNotes.AddRange(next.ParsedLyric.Split(' '));
+                                    next.Syllable = new Syllable(nextNotes);
+                                    next.ParsedLyric = next.Syllable.ToString();
+                                }
+                                else
+                                {
+                                    var newSyll = new Syllable(nextNotes);
+                                    Ust.InsertNote(note, newSyll.ToString(), Insert.After, note);
+                                    var newNote = Ust.GetNextNote(note);
+                                    newNote.Syllable = newSyll;
+                                }
+                                //var ccc = Ust.GetNextNote(note);
+                                //ccc.Syllable = new Syllable(ccc.ParsedLyric.Split(' '));
+                                //if (ccc.Syllable.Phonemes.Length == 2)
+                                //    ccc.ParsedLyric = Atlas.GetAlias("CC", ccc.Syllable.Phonemes);
+                                //if (ccc.Syllable.Phonemes.Length == 3)
+                                //    ccc.ParsedLyric = Atlas.GetAlias("CCC", ccc.Syllable.Phonemes);
+                                //if (ccc.Syllable.Phonemes.Length == 4)
+                                //    ccc.ParsedLyric = Atlas.GetAlias("CCCC", ccc.Syllable.Phonemes);
                             }
                             else
                                 for (int k = syll.ConsonantEnding.Length; k > 0; k--)
