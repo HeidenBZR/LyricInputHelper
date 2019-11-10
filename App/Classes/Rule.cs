@@ -59,10 +59,6 @@ namespace LyricInputHelper.Classes
 
         public RuleResult GetResult(string lyricPrev, string lyric)
         {
-            if (lyric == "f")
-            {
-
-            }
             string[] phonemesPrev = Atlas.GetPhonemes(lyricPrev);
             string[] phonemes = Atlas.GetPhonemes(lyric);
             string[] phonemesNew = GetNewPhonemes(phonemesPrev, phonemes);
