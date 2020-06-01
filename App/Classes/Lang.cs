@@ -34,10 +34,16 @@ namespace LyricInputHelper.Classes
         static void Save(string filename)
         {
             var lang_file = Program.GetResourceFile("LyricInputHelper", "lang", "lang");
-            if (!File.Exists(lang_file))
-                File.Create(lang_file);
-            File.WriteAllText(lang_file, filename);
-
+            try
+            {
+                if (!File.Exists(lang_file))
+                    File.Create(lang_file);
+                File.WriteAllText(lang_file, filename);
+            }
+            catch (Exception ex)
+            {
+                Program.Log($"Failed to save lang file. \n\n{ex.Message}\n{ex.StackTrace}");
+            }
         }
 
         public static void Set(string lang)

@@ -82,7 +82,7 @@ namespace LyricInputHelper.Classes
 
             Console.WriteLine("Read UST successfully");
             IsLoaded = true;
-            Console.WriteLine(String.Join("\r\n", GetText()));
+            // Console.WriteLine(String.Join("\r\n", GetText()));
         }
 
         public static string[] GetText()

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms.VisualStyles;
 
 namespace LyricInputHelper
 {
@@ -40,9 +41,81 @@ namespace LyricInputHelper
             }
         }
 
-        [STAThread]
-        static void Main(string[] args)
+        static void Debug()
         {
+            isDebug = true;
+            DebugLog("Debug started");
+            DebugLog("Checking log dir...");
+            if (File.Exists(LOG_DIR))
+            {
+                DebugLog("Log file exists.");
+            }
+            else
+            {
+                DebugLog("Log file doesn't exist, abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Checking write permissions...");
+            try
+            {
+                File.AppendAllText(LOG_DIR, "Debug log");
+                DebugLog("Write permissions are ok.");
+            }
+            catch (Exception ex)
+            {
+                DebugLog($"Write permissions are bad! Exception handled:");
+                DebugLog();
+                DebugLog(ex.Message);
+                DebugLog();
+                DebugLog(ex.StackTrace);
+                DebugLog();
+                DebugLog("Abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Checking atlas access...");
+            Atlas.VoicebankType = "CVC RUS";
+            try
+            {
+                Atlas.ReadAtlas();
+                DebugLog("Atlas access is ok.");
+            }
+            catch (Exception ex)
+            {
+                DebugLog($"Atlas access is bad! Exception handled:");
+                DebugLog();
+                DebugLog(ex.Message);
+                DebugLog();
+                DebugLog(ex.StackTrace);
+                DebugLog();
+                DebugLog("Abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Debug finished.");
+        }
+
+        static void DebugLog(string message = "")
+        {
+            if (isDebug)
+                Console.WriteLine(message);
+        }
+
+        private static bool isDebug;
+
+        [STAThread]
+        static void Main(string[] initialArgs)
+        {
+            var args = initialArgs;
+            if (args.Length > 0 && args[0] == "-debug")
+            {
+                Debug();
+                if (args.Length > 0 && args[0] == "-debug")
+                {
+                    args = initialArgs.Skip(1).ToArray();
+                }
+            }
             InitLang();
             try
             {
@@ -74,6 +147,7 @@ namespace LyricInputHelper
 
         static void CheckFolder(params string[] path)
         {
+            DebugLog("CheckFolder: " + string.Join(", ", path));
             try
             {
                 string dir;
@@ -94,6 +168,7 @@ namespace LyricInputHelper
 
         public static string GetResourceFile(params string[] path)
         {
+            DebugLog("GetResourceFile: " + string.Join(", ", path));
             var root = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             path = path.ToList().Prepend(root).ToArray();
             CheckFolder(path);
@@ -102,6 +177,7 @@ namespace LyricInputHelper
 
         public static string GetResourceFolder(params string[] path)
         {
+            DebugLog("GetResourceFolder: " + string.Join(", ", path));
             var root = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             path = path.ToList().Prepend(root).ToArray();
             CheckFolder(path);
@@ -113,6 +189,7 @@ namespace LyricInputHelper
 
         public static string GetTempFile(params string[] path)
         {
+            DebugLog("GetTempFile: " + string.Join(", ", path));
             var root = Path.GetTempPath();
             path = path.ToList().Prepend(root).ToArray();
             CheckFolder(path);
@@ -121,6 +198,7 @@ namespace LyricInputHelper
 
         public static string GetTempFolder(params string[] path)
         {
+            DebugLog("GetTempFolder: " + string.Join(", ", path));
             var root = Path.GetTempPath();
             path = path.ToList().Prepend(root).ToArray();
             CheckFolder(path);
@@ -142,6 +220,7 @@ namespace LyricInputHelper
 
         static void Init()
         {
+            DebugLog("Init");
             switch (mode)
             {
                 case Mode.Plugin:
@@ -215,9 +294,10 @@ namespace LyricInputHelper
 
         public static void ErrorMessage (Exception ex, string name = "Error")
         {
-            Log(ex.Message);
-            MessageBox.Show(ex.TargetSite + ": " + ex.Message +"\r\n" + ex.StackTrace, name, 
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            var error = $"{name}: {ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.StackTrace}\r\n";
+            Log(error);
+            DebugLog(error);
+            MessageBox.Show(error, name);
         }
 
         static void StandaloneModeInit()
@@ -260,6 +340,7 @@ namespace LyricInputHelper
 
         static void InitLog(string type)
         {
+            DebugLog("InitLog");
             try
             {
                 if (!File.Exists(LOG_DIR))
@@ -280,6 +361,7 @@ namespace LyricInputHelper
 
         public static void Log(string text, bool saveUST = true, bool appendTextbox = false)
         {
+            DebugLog("File log attempt: " + text);
             try
             {
                 using (StreamWriter log = new StreamWriter(LOG_DIR, true, System.Text.Encoding.UTF8))
@@ -301,31 +383,39 @@ namespace LyricInputHelper
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
-                    $"{ex.StackTrace}\r\n", "Error");
+                var error = $"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.StackTrace}\r\n";
+                DebugLog(error);
+                MessageBox.Show(error, "Error");
             }
 
             try
             {
                 if (saveUST && Ust.IsLoaded)
                 {
+                    DebugLog("Save debug ust attempt");
                     File.Copy(args[0], GetTempFile("autocvc", "ust.tmp"), true);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
-                    $"{ex.StackTrace}\r\n", "Error");
+                var error = $"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.StackTrace}\r\n";
+                DebugLog(error);
+                MessageBox.Show(error, "Error");
             }
 
             try
             {
-                PluginWindow.SetStatus(text, appendTextbox);
+                if (mode == Mode.Plugin)
+                {
+                    DebugLog("Set Status attempt");
+                    PluginWindow.SetStatus(text, appendTextbox);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n" +
-                    $"{ex.StackTrace}\r\n", "Error");
+                var error = $"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.StackTrace}\r\n";
+                DebugLog(error);
+                MessageBox.Show(error, "Error");
             }
 
         }

@@ -22,7 +22,7 @@ namespace LyricInputHelper
         public static int MinLength;
         public static string LOG_Dir = @"log.txt";
         public static Dictionary<string, string> parents = new Dictionary<string, string>();
-        public static Version VERSION = new Version(0, 4, 1, 0);
+        public static Version VERSION = new Version(0, 4, 2, 0);
         public static double CompressionRatio = 1;
         public static double LastChildCompressionRatio = 1;
         public static bool LengthByOto = false;

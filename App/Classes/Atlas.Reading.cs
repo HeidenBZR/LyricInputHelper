@@ -148,7 +148,7 @@ namespace LyricInputHelper.Classes
                 KeepCV = line.Substring("KeepCV=".Length).ToLower() == "true";
         }
 
-        static void ReadAtlas()
+        public static void ReadAtlas()
         {
             string[] atlas = File.ReadAllLines(AtlasPath, Encoding.UTF8);
             int i = 0;
