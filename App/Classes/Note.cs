@@ -59,7 +59,8 @@ namespace LyricInputHelper.Classes
 
         public void SetParsedLyric(Atlas atlas, string lyric)
         {
-            ParsedLyric = ValidateLyric(atlas, lyric);
+            // TODO: Wtf is parsed lyric and why normal lyric is not parsed??? Make better
+            ParsedLyric = atlas.ValidateLyric(lyric);
             if (!atlas.IsLoaded)
                 IsRest = false;
             else if (ParsedLyric != null)
@@ -116,18 +117,6 @@ namespace LyricInputHelper.Classes
             if (envelope != null)
                 text.Add($"Envelope={envelope}");
             return text.ToArray();
-        }
-
-        public string ValidateLyric(Atlas atlas, string lyric)
-        {
-            if (!atlas.IsLoaded)
-                return lyric;
-            if (atlas.IsRest(lyric))
-                return " ";
-            if (lyric == "rr")
-                return "r";
-            else
-                return lyric;
         }
 
 

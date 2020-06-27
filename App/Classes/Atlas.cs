@@ -188,7 +188,7 @@ namespace LyricInputHelper.Classes
                     format = f.Replace(format, phonemes[i], 1);
                     i++;
                 }
-                else throw new Exception($"Wrong phonemes [ {String.Join(" ", phonemes)} ] to format alias {alias_type} for {Singer.Current.VoicebankType}");
+                else throw new Exception($"Wrong phonemes [ {string.Join(" ", phonemes)} ] to format alias {alias_type} for {Singer.Current.VoicebankType}");
             }
 
             return format;
@@ -262,7 +262,7 @@ namespace LyricInputHelper.Classes
             }
             int vs = aliases.Select(n => GetAliasType(n) != "C").ToArray().Length;
             if (vs == 1)
-                return new[] { String.Join(" ", Dict.Get(l)) };
+                return new[] { string.Join(" ", Dict.Get(l)) };
             var sylls = new List<string>();
             int lastv = aliases.Select(n => GetAliasType(n) != "C").ToList().FindLastIndex(n => n);
             int prevv = -1;
@@ -276,17 +276,29 @@ namespace LyricInputHelper.Classes
                 }
                 if (ph == lastv)
                 {
-                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, aliases.Count - 1 - prevv)));
+                    sylls.Add(string.Join(" ", aliases.ToList().GetRange(prevv + 1, aliases.Count - 1 - prevv)));
                     prevv = ph;
                 }
                 else
                 {
-                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, ph - prevv)));
+                    sylls.Add(string.Join(" ", aliases.ToList().GetRange(prevv + 1, ph - prevv)));
                     prevv = ph;
                 }
             }
-            string t = String.Join(" ", sylls);
+            string t = string.Join(" ", sylls);
             return sylls.ToArray();
+        }
+
+        public string ValidateLyric(string lyric)
+        {
+            if (!IsLoaded)
+                return lyric;
+            if (IsRest(lyric))
+                return " ";
+            if (lyric == "rr")
+                return "r";
+            else
+                return lyric;
         }
 
         public int FindVowel(string[] aliases)
@@ -321,7 +333,7 @@ namespace LyricInputHelper.Classes
                 string old_phonemes = "";
                 bool wasInDict = Dict.Has(word);
                 if (wasInDict)
-                    old_phonemes = String.Join(" ", Dict.Get(word));
+                    old_phonemes = string.Join(" ", Dict.Get(word));
                 if (Dict.Add(line))
                 {
                     if (!wasInDict || old_phonemes != phonemes)
