@@ -2,7 +2,7 @@
 App/bin/Debug/*
 App/bin/Release/*
 App/bin/Resources/*
-
+App/obj/*
 
 *.tmp
 .vs/*
