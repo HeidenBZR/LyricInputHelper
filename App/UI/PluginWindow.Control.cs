@@ -28,8 +28,15 @@ namespace LyricInputHelper
         public static bool LengthByOto = false;
         public static bool MakeFade = false;
 
-        void Init()
+        public Ust Ust;
+        public Atlas Atlas;
+        public Parser Parser;
+
+        public void Init(Ust ust, Atlas atlas)
         {
+            Atlas = atlas;
+            Ust = ust;
+            Parser = new Parser(Atlas, Ust);
             MinLengthDefault = 110 * (int)Ust.Tempo / 120;
             MinLength = MinLengthDefault;
             textBoxMinLength.Text = MinLength.ToString();
@@ -39,7 +46,7 @@ namespace LyricInputHelper
             comboBoxLanguage.SelectedItem = Lang.Current;
             SetLyric();
             buttonSetText.Enabled = false;
-            SetTextWindow = new SetTextWindow();
+            SetTextWindow = new SetTextWindow(Atlas, Ust);
             if (Singer.Current.IsLoaded)
                 checkBoxLengthByOto.Checked = true;
         }
@@ -55,7 +62,7 @@ namespace LyricInputHelper
         {
             try
             {
-                Atlas.Dict = new Dict(Atlas.DictPath);
+                Atlas.Dict = new Dict(Atlas.GetDictPath(), Atlas);
                 Atlas.Dict.OnDictLoadEnd += (bool success) =>
                 {
                     if (success)
@@ -187,8 +194,8 @@ namespace LyricInputHelper
             var dialog = new NewLyricDialog(Ust.Notes[i].ParsedLyric);
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                Ust.Notes[i].Syllable = new Syllable(dialog.NewLyric.Trim().Split(' '));
-                Ust.Notes[i].ParsedLyric = Ust.Notes[i].Syllable.ToString();
+                Ust.Notes[i].Syllable = new Syllable(dialog.NewLyric.Trim().Split(' '), Atlas);
+                Ust.Notes[i].SetParsedLyric(Atlas, Ust.Notes[i].Syllable.ToString());
                 SetLyric();
             }
         }
@@ -205,7 +212,7 @@ namespace LyricInputHelper
         {
             try
             {
-                var window = new AddWordDialog();
+                var window = new AddWordDialog(Atlas);
                 window.ShowDialog();
                 if (window.DialogResult == DialogResult.OK)
                 {

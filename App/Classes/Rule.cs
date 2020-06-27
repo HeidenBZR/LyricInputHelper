@@ -9,7 +9,7 @@ namespace LyricInputHelper.Classes
 {
     struct Format
     {
-        public Format(string line)
+        public Format(string line, bool isInAliasTypes)
         {
             /// line looks like -V[][0], i.e. AliasType[MembersPrev][Members]
             /// 
@@ -17,7 +17,7 @@ namespace LyricInputHelper.Classes
             MembersPrev = new int[] { };
             UseAllPrevPhonemes = false;
 
-            if (Atlas.AliasTypes.Contains(line))
+            if (isInAliasTypes)
             {
                 AliasType = line;
                 UseAllPhonemes = true;
@@ -57,12 +57,12 @@ namespace LyricInputHelper.Classes
         public bool UseAllPhonemes;
         public bool UseAllPrevPhonemes;
 
-        public RuleResult GetResult(string lyricPrev, string lyric)
+        public RuleResult GetResult(Atlas atlas, string lyricPrev, string lyric)
         {
-            string[] phonemesPrev = Atlas.GetPhonemes(lyricPrev);
-            string[] phonemes = Atlas.GetPhonemes(lyric);
+            string[] phonemesPrev = atlas.GetPhonemes(lyricPrev);
+            string[] phonemes = atlas.GetPhonemes(lyric);
             string[] phonemesNew = GetNewPhonemes(phonemesPrev, phonemes);
-            string alias = Atlas.GetAlias(AliasType, phonemesNew);
+            string alias = atlas.GetAlias(AliasType, phonemesNew);
             RuleResult ruleResult = new RuleResult(alias, AliasType);
             return ruleResult;
         }
@@ -119,7 +119,7 @@ namespace LyricInputHelper.Classes
 
         private static Dictionary<string, Rule> Links = new Dictionary<string, Rule>();
 
-        public Rule(string ruleline)
+        public Rule(string ruleline, Atlas atlas)
         {
             if (ruleline.Contains(";"))
             {
@@ -130,20 +130,20 @@ namespace LyricInputHelper.Classes
                 string toinsert = tl[0].StartsWith("INSERT") ? tl[0] : tl[1];
                 toinsert = toinsert.Substring("INSERT(".Length);
                 toinsert = toinsert.TrimEnd(')');
-                FormatConvert = new Format( toconvert);
-                FormatInsert = new Format(toinsert);
+                FormatConvert = new Format(toconvert, atlas.AliasTypes.Contains(toconvert));
+                FormatInsert = new Format(toinsert, atlas.AliasTypes.Contains(toconvert));
             }
             else if (ruleline.StartsWith("INSERT"))
             {
                 MustInsert = true;
                 string toinsert = ruleline.Substring("INSERT(".Length);
                 toinsert = toinsert.TrimEnd(')');
-                FormatInsert = new Format(toinsert);
+                FormatInsert = new Format(toinsert, atlas.AliasTypes.Contains(toinsert));
             }
             else
             {
                 MustConvert = true;
-                FormatConvert = new Format(ruleline);
+                FormatConvert = new Format(ruleline, atlas.AliasTypes.Contains(ruleline));
             }
         }
 
@@ -153,7 +153,7 @@ namespace LyricInputHelper.Classes
             return Links[subject];
         }
 
-        public static void Read(string line)
+        public static void Read(string line, Atlas atlas)
         {
             if (line.Contains("="))
             {
@@ -161,7 +161,7 @@ namespace LyricInputHelper.Classes
                 if (t.Length != 2) return;
                 string subject = t[0];
                 string rule = t[1];
-                Links[subject] = new Rule(rule);
+                Links[subject] = new Rule(rule, atlas);
             }
             else if (line.Contains(">"))
             {
@@ -173,7 +173,7 @@ namespace LyricInputHelper.Classes
             }
         }
 
-        public static void Read04(string line)
+        public static void Read04(string line, Atlas atlas)
         {
             if (line.Contains("="))
             {
@@ -198,7 +198,7 @@ namespace LyricInputHelper.Classes
                                 var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
                                 var final_r = r.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
 
-                                Links[$"{final_s1},{final_s2}"] = new Rule(final_r);
+                                Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
                             }
                         }
                     }
@@ -210,7 +210,7 @@ namespace LyricInputHelper.Classes
                             var final_s2 = s2;
                             var final_r = r;
 
-                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r);
+                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
                         }
                     }
                     else if (s2.Contains("C*"))
@@ -221,13 +221,13 @@ namespace LyricInputHelper.Classes
                             var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
                             var final_r = r.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
 
-                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r);
+                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
                         }
                     }
                 }
                 else
                 {
-                    Links[subject] = new Rule(rule);
+                    Links[subject] = new Rule(rule, atlas);
                 }
             }
             else if (line.Contains(">"))

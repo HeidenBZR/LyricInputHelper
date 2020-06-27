@@ -14,19 +14,19 @@ namespace LyricInputHelper.Classes
 
         public string[] Phonemes { get => _phonemes; set => _phonemes = value; }
 
-        public Word(string name, string[] phonemes)
+        public Word( string name, string[] phonemes, Atlas atlas)
         {
             Name = name;
             _phonemes = null;
             Syllables = null;
-            SetPhonemes(phonemes);
+            SetPhonemes(phonemes, atlas);
         }
 
-        void SetPhonemes(string[] phonemes)
+        void SetPhonemes(string[] phonemes, Atlas atlas)
         {
             if (phonemes is null)
                 return;
-            Syllables = Atlas.GetSyllables(phonemes);
+            Syllables = atlas.GetSyllables(phonemes);
             _phonemes = phonemes;
         }
     }

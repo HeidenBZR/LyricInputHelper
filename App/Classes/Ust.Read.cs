@@ -10,13 +10,13 @@ namespace LyricInputHelper.Classes
 {
     public partial class Ust
     {
-        public static void TakeOut(string line, string name, out string value) { value = line.Substring(name.Length + 1); }
-        public static void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
+        public void TakeOut(string line, string name, out string value) { value = line.Substring(name.Length + 1); }
+        public void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
+        public void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
+        public string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
 
 
-        private static void Read()
+        private void Read()
         {
             string[] lines = System.IO.File.ReadAllLines(Dir, Encoding.GetEncoding(932));
             int i = 0;
@@ -44,7 +44,7 @@ namespace LyricInputHelper.Classes
             while (i + 1 < lines.Length)
             {
                 note = new Note();
-                note.Number = lines[i];
+                note.NoteNumber = lines[i];
                 i++;
                 while (!Number.IsNote(lines[i]))
                 {
@@ -85,7 +85,7 @@ namespace LyricInputHelper.Classes
             // Console.WriteLine(String.Join("\r\n", GetText()));
         }
 
-        public static string[] GetText()
+        public string[] GetText()
         {
             List<string> text = new List<string> { };
             if (Version == 1.2)
@@ -101,13 +101,14 @@ namespace LyricInputHelper.Classes
             }
             text.Add(TakeIn("Tempo", Tempo));
             text.Add(TakeIn("VoiceDir", VoiceDir));
-            foreach (Note note in Notes) text.AddRange(note.GetText());
+            foreach (Note note in Notes)
+                text.AddRange(note.GetText(Atlas));
             return text.ToArray();
         }
 
 
 
-        public static string[] Save()
+        public string[] Save()
         {
             SetLength();
             if (PluginWindow.MakeFade)
@@ -118,7 +119,7 @@ namespace LyricInputHelper.Classes
             return text;
         }
 
-        public static void Save(string dir)
+        public void Save(string dir)
         {
             SetLength();
             string[] text = GetText();

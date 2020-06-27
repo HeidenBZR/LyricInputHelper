@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LyricInputHelper.Classes
 {
-    class Dict
+    public class Dict
     {
         private ConcurrentDictionary<string, string> _convert_rules;
         private ConcurrentDictionary<string, string[]> _words;
@@ -22,10 +22,12 @@ namespace LyricInputHelper.Classes
 
         public delegate void DictLoadEndHandler(bool enabled);
         public event DictLoadEndHandler OnDictLoadEnd;
+        public Atlas Atlas;
 
-        public Dict(string path)
+        public Dict(string path, Atlas atlas)
         {
             _path = path;
+            Atlas = atlas;
             OnDictLoadEnd += (bool x) => { IsGenerated = true;  };
         }
 
@@ -108,7 +110,7 @@ namespace LyricInputHelper.Classes
             string[] info = File.ReadAllLines(generate_file, Encoding.UTF8);
             _source = info[0].Substring("source=".Length).Replace("\r\n", "");
             if (!Path.IsPathRooted(_source))
-                _source = Path.Combine(Program.GetResourceFile("atlas"), _source);
+                _source = Path.Combine(Program.GetResourceFile("Atlas"), _source);
             var converts = info.Skip(1).Select(n => n.Split('\t'));
             _convert_rules = new ConcurrentDictionary<string, string>();
             foreach (var pair in converts)

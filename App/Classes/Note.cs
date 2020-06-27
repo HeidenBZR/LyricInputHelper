@@ -25,7 +25,7 @@ namespace LyricInputHelper.Classes
                 Children = null;
             }
         }
-        private string number;
+        private string noteNumber;
         private string lyric;
         private string parsedLyric = "";
         private string envelope;
@@ -43,10 +43,10 @@ namespace LyricInputHelper.Classes
         public List<Note> Children;
         private double _velocity = 1;
 
-        public string Lyric { get => lyric; set => lyric = ValidateLyric(value); }
-        public string Number { get => number; set => number = value; }
+        public string Lyric { get => lyric; set => lyric = value; }
+        public string NoteNumber { get => noteNumber; set => noteNumber = value; }
         public double Velocity { get => _velocity; set { _velocity = value; HadVelocity = true; } }
-        public string ParsedLyric { get => parsedLyric; set => parsedLyric = ValidateLyric(value); }
+        public string ParsedLyric { get => parsedLyric; set => parsedLyric = value; }
         public string ParsedLyricView
         {
             get
@@ -58,9 +58,18 @@ namespace LyricInputHelper.Classes
             }
         }
 
+        // TEMP
+        private Atlas atlas;  
+
         public Note()
         {
             Children = new List<Note>();
+        }
+
+        public void SetAtlas(Atlas atlas)
+        {
+            Program.Assert(atlas != null);
+            this.atlas = atlas;
         }
 
         public override string ToString()
@@ -68,30 +77,42 @@ namespace LyricInputHelper.Classes
             return ParsedLyricView;
         }
 
-        public string[] GetText()
+        public void SetParsedLyric(Atlas atlas, string lyric)
+        {
+            parsedLyric = ValidateLyric(atlas, lyric);
+        }
+
+        public void MarkAsDelete()
+        {
+            parsedLyric = Number.DELETE;
+            NoteNumber = Number.DELETE;
+            Length = 0;
+        }
+
+        public string[] GetText(Atlas atlas)
         {
             string lyric = Lyric != ParsedLyric && ParsedLyric == "" ? Lyric : ParsedLyric;
-            if (Atlas.IsLoaded && Atlas.IsRest(lyric)) lyric = "R";
+            if (atlas.IsLoaded && atlas.IsRest(lyric)) lyric = "R";
             if (lyric == "r") lyric = "rr";
             if (lyric == Classes.Number.DELETE) lyric = "";
             var note = this;
             if (FinalLength == 0)
-                Number = Classes.Number.DELETE;
+                NoteNumber = Classes.Number.DELETE;
             List<string> text = new List<string>
             {
-                Number,
+                NoteNumber,
                 $"Length={FinalLength}",
                 $"Lyric={lyric}",
                 $"NoteNum={NoteNum}",
             };
-            if (Atlas.IsLoaded && !Atlas.IsRest(parsedLyric))
+            if (atlas.IsLoaded && !atlas.IsRest(parsedLyric))
             {
                 text.Add($"Intensity={Intensity}");
-                if (Number == Classes.Number.INSERT) text.Add("Modulation=0");
+                if (NoteNumber == Classes.Number.INSERT) text.Add("Modulation=0");
                 var velocity = (int)(Velocity * 100);
                 if (HadVelocity || Velocity != 1)
                     text.Add($"Velocity={(velocity > 200 ? 200 : velocity)}");
-                string alias_type = Atlas.GetAliasType(ParsedLyric);
+                string alias_type = atlas.GetAliasType(ParsedLyric);
                 //text.Add($"Flags={Flags}{(alias_type is null || alias_type.Contains("V") ? "" : "P10" ) }");
             }
             if (envelope != null)
@@ -99,48 +120,48 @@ namespace LyricInputHelper.Classes
             return text.ToArray();
         }
 
-        public string ValidateLyric(string lyric)
+        public string ValidateLyric(Atlas atlas, string lyric)
         {
-            if (!Atlas.IsLoaded) return lyric;
-            if (Atlas.IsRest(lyric)) return " ";
-            if (lyric == "rr") return "r";
-            else return lyric;
+            if (!atlas.IsLoaded)
+                return lyric;
+            if (atlas.IsRest(lyric))
+                return " ";
+            if (lyric == "rr")
+                return "r";
+            else
+                return lyric;
         }
 
         public bool IsRest()
         {
-            if (!Atlas.IsLoaded)
+            if (!atlas.IsLoaded)
                 return false;
             else if (parsedLyric != null)
-                return Atlas.IsRest(ParsedLyric);
+                return atlas.IsRest(ParsedLyric);
             else
                 return false;
         }
 
-        public void GetEnvelope()
+        public void GetEnvelope(Note next, double tempo, bool isNextRest)
         {
             try
             {
-
-                if (!Ust.IsLoaded || Singer.Current is null || !Atlas.IsLoaded || Atlas.IsRest(ParsedLyric))
-                    return;
-                var next = Ust.GetNextNote(this);
-                double length = MusicMath.TickToMillisecond(FinalLength, Ust.Tempo);
+                double length = MusicMath.TickToMillisecond(FinalLength, tempo);
                 var oto = Singer.Current.FindOto(this);
                 if (oto != null)
                     length += Singer.Current.FindOto(this).Preutterance / Velocity;
                 if (next != null && Singer.Current.FindOto(next) != null)
                     length -= Singer.Current.FindOto(next).StraightPreutterance / next.Velocity;
                 if (Velocity < 1 || (next != null && next.Velocity < 1))
-                    throw new Exception($"Что с велосити не так блять. {Number}[{ParsedLyric}]: {Velocity}; " +
-                        $"next {next.number}[{next.ParsedLyric}]: {next.Velocity}.");
+                    throw new Exception($"Что с велосити не так блять. {NoteNumber}[{ParsedLyric}]: {Velocity}; " +
+                        $"next {next.noteNumber}[{next.ParsedLyric}]: {next.Velocity}.");
                 if (length <= 0)
-                    throw new Exception($"Got negative length on {Number}[{ParsedLyric}]. Please check oto " +
-                        $"of next {next.number}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
+                    throw new Exception($"Got negative length on {NoteNumber}[{ParsedLyric}]. Please check oto " +
+                        $"of next {next.noteNumber}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
                         $"Preutterance and {Singer.Current.FindOto(next).Overlap}");
                 double this_o = oto is null ? 20 : Singer.Current.FindOto(this).Overlap / Velocity;
                 double next_o = 20;
-                if (next != null && !Atlas.IsRest(next.parsedLyric))
+                if (next != null && !isNextRest)
                 {
                     var next_oto = Singer.Current.FindOto(next.parsedLyric);
                     if (next_oto != null)
@@ -171,47 +192,40 @@ namespace LyricInputHelper.Classes
             }
             catch (EntryPointNotFoundException ex)
             {
-                Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{parsedLyric}]");
+                Program.ErrorMessage(ex, $"Error on GetEnvelope for {NoteNumber} [{parsedLyric}]");
             }
         }
 
-        public void MergeIntoLeft()
+        public void MergeIntoLeft(Note prev)
         {
             try
             {
-                var prev = Ust.GetPrevNote(this);
                 if (prev is null)
                     return;
-                Number = Classes.Number.DELETE;
+                NoteNumber = Classes.Number.DELETE;
                 prev.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoLeft: {Number}");
+                Program.ErrorMessage(ex, $"Error on MergeIntoLeft: {NoteNumber}");
             }
         }
 
-        public void MergeIntoRight()
+        public void MergeIntoRight(Note next)
         {
             try
             {
-                var next = Ust.GetNextNote(this);
                 if (next is null)
                     return;
-                Number = Classes.Number.DELETE;
+                NoteNumber = Classes.Number.DELETE;
                 next.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoRight: {Number}");
+                Program.ErrorMessage(ex, $"Error on MergeIntoRight: {NoteNumber}");
             }
-        }
-
-        public void AddMelisma()
-        {
-
         }
     }
 

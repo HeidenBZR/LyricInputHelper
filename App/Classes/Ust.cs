@@ -14,13 +14,15 @@ namespace LyricInputHelper.Classes
 
     public partial class Ust
     {
-        public static string VoiceDir;
-        public static double Tempo;
-        public static double Version;
-        public static Note[] Notes { get; set; }
+        public string VoiceDir;
+        public double Tempo;
+        public double Version;
+        public Note[] Notes { get; set; }
 
-        public static bool IsLoaded = false;
-        public static string Dir;
+        public bool IsLoaded = false;
+        public string Dir;
+
+        public Atlas Atlas;
         
         public Ust(string dir)
         {
@@ -28,38 +30,29 @@ namespace LyricInputHelper.Classes
             Read();
         }
 
-        public static void Reload()
+        public void Reload()
         {
             Read();
         }
 
-
-        public static void ValidateLyrics()
+        public void SetAtlas(Atlas atlas)
         {
-            foreach (Note note in Notes) note.Lyric = note.Lyric;
-        }
-
-        public static bool IsTempUst(string Dir)
-        {
-            string filename = Dir.Split('\\').Last();
-            return filename.StartsWith("tmp") && filename.EndsWith("tmp");
-        }
-
-        static int? SkipNotes(int k, bool skipRest = true)
-        {
-            while (Notes[k].Number == Number.DELETE ||
-                skipRest && Atlas.IsRest(Notes[k].ParsedLyric))
+            Atlas = atlas;
+            foreach (var note in Notes)
             {
-                k++;
-                if (k >= Notes.Length)
-                    return null;
+                note.SetAtlas(atlas);
+                note.Lyric = note.ValidateLyric(Atlas, note.Lyric);
+                note.SetParsedLyric(Atlas, note.ParsedLyric);
             }
-            return k;
         }
 
-        public static void SetLyric(List<Syllable> syllables, bool skipRest = true)
+        public void ValidateLyrics()
         {
-            int? n = Notes[0].Number == Number.PREV ? 1 : 0; // нота
+        }
+
+        public void SetLyric(List<Syllable> syllables, bool skipRest = true)
+        {
+            int? n = Notes[0].NoteNumber == Number.PREV ? 1 : 0; // нота
             int s = 0; // слог
             string cc = "";
             while (s < syllables.Count && n < Notes.Length)
@@ -69,7 +62,7 @@ namespace LyricInputHelper.Classes
                     break;
 
 
-                Notes[n.Value].ParsedLyric = syllables[s].ToString();
+                Notes[n.Value].SetParsedLyric(Atlas, syllables[s].ToString());
                 Notes[n.Value].Syllable = syllables[s];
                 n++;
                 s++;
@@ -78,12 +71,12 @@ namespace LyricInputHelper.Classes
                 System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенных слогов. Часть слогов была утеряна.", "Предупреждение");
 
             foreach (var note in Notes)
-                note.ParsedLyric = Atlas.PhonemeReplace(note.ParsedLyric);
+                note.SetParsedLyric(Atlas, Atlas.PhonemeReplace(note.ParsedLyric));
         }
 
-        public static void SetLyric(List<Word> words, bool skipRest = true)
+        public void SetLyric(List<Word> words, bool skipRest = true)
         {
-            int? n = Notes[0].Number == Number.PREV ? 1 : 0; // нота
+            int? n = Notes[0].NoteNumber == Number.PREV ? 1 : 0; // нота
             int s = 0; // слог
             int w = 0; // слово
             string cc = "";
@@ -103,9 +96,9 @@ namespace LyricInputHelper.Classes
                 }
 
                 if (cc.Length > 0)
-                    Notes[n.Value].ParsedLyric = $"{cc} {words[w].Syllables[s]}";
+                    Notes[n.Value].SetParsedLyric(Atlas, $"{cc} {words[w].Syllables[s]}");
                 else
-                    Notes[n.Value].ParsedLyric = words[w].Syllables[s].ToString();
+                    Notes[n.Value].SetParsedLyric(Atlas, words[w].Syllables[s].ToString());
                 Notes[n.Value].Syllable = words[w].Syllables[s];
                 if (s == 0)
                     Notes[n.Value].Word = words[w];
@@ -124,10 +117,10 @@ namespace LyricInputHelper.Classes
                 System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
 
             foreach (var note in Notes)
-                note.ParsedLyric = Atlas.PhonemeReplace(note.ParsedLyric);
+                note.SetParsedLyric(Atlas, Atlas.PhonemeReplace(note.ParsedLyric));
         }
 
-        public static Note GetNextNote(Note note)
+        public Note GetNextNote(Note note)
         {
             List<Note> notes = Notes.ToList();
             int ind = notes.IndexOf(note);
@@ -137,7 +130,7 @@ namespace LyricInputHelper.Classes
             return notes[newInd];
         }
 
-        public static Note GetPrevNote(Note note)
+        public Note GetPrevNote(Note note)
         {
             List<Note> notes = Notes.ToList();
             int ind = notes.IndexOf(note);
@@ -147,19 +140,20 @@ namespace LyricInputHelper.Classes
             return notes[newInd];
         }
 
-        public static bool InsertNote(Note parent, string lyric, Insert insert, Note pitchparent, Note container = null)
+        public bool InsertNote(Note parent, string lyric, Insert insert, Note pitchparent, Note container = null)
         {
             Note prev = GetPrevNote(parent);
             Note next = GetNextNote(parent);
             Note note = new Note()
             {
-                ParsedLyric = lyric,
-                Number = Number.INSERT,
+                NoteNumber = Number.INSERT,
                 NoteNum = pitchparent.NoteNum,
                 Intensity = pitchparent.Intensity,
                 Flags = pitchparent.Flags,
                 Parent = parent
             };
+            note.SetAtlas(Atlas);
+            note.SetParsedLyric(Atlas, lyric);
             if (insert == Insert.After && next != null && next.IsRest())
                 note.Parent = next;
             if (insert == Insert.Before && prev != null &&  prev.IsRest())
@@ -176,12 +170,12 @@ namespace LyricInputHelper.Classes
             return true;
         }
 
-        public static string[] GetLyrics(bool skipRest = true)
+        public string[] GetLyrics(bool skipRest = true)
         {
             List<string> lyrics = new List<string>();
             foreach (Note note in Notes)
             {
-                if (note.Number == Number.NEXT || note.Number == Number.PREV)
+                if (note.NoteNumber == Number.NEXT || note.NoteNumber == Number.PREV)
                     continue;
                 if (skipRest && Atlas.IsRest(note.Lyric))
                     continue;
@@ -191,7 +185,7 @@ namespace LyricInputHelper.Classes
             return lyrics.ToArray();
         }
 
-        public static int GetLength(Note note)
+        public int GetLength(Note note)
         {
             if (!PluginWindow.LengthByOto)
                 return PluginWindow.MinLength;
@@ -207,14 +201,24 @@ namespace LyricInputHelper.Classes
             return length;
         }
 
-        public static void GetEnvelope()
+        public void GetEnvelope()
         {
-            foreach (var note in Notes)
-                if (!note.IsRest() && note.Number != Number.NEXT && note.Number != Number.PREV)
-                    note.GetEnvelope();
+            if (!IsLoaded || Singer.Current is null || !Atlas.IsLoaded)
+                return;
+            for (var index = 0; index < Notes.Length; index++)
+            {
+                var note = Notes[index];
+                var next = Notes.ElementAtOrDefault(index + 1);
+                if (!note.IsRest() && note.NoteNumber != Number.NEXT && note.NoteNumber != Number.PREV &&
+                    !Atlas.IsRest(note.ParsedLyric))
+                {
+                    var isNextRest = next != null && Atlas.IsRest(next.ParsedLyric);
+                    note.GetEnvelope(next, Tempo, isNextRest);
+                }
+            }
         }
 
-        public static void SetLength()
+        public void SetLength()
         {
             try
             {
@@ -276,31 +280,35 @@ namespace LyricInputHelper.Classes
                             note.Children[i].FinalLength = (int)((double)note.Children[i].FinalLength / velocity_children);
                             note.Children[i].Velocity *= velocity_children + 0.1;
                             if (note.Children[i].Velocity < 1)
-                                throw new Exception($"Че блять. Velocity {note.Children[i].Number}[{note.Children[i].ParsedLyric}]: " +
+                                throw new Exception($"Че блять. Velocity {note.Children[i].NoteNumber}[{note.Children[i].ParsedLyric}]: " +
                                     $"{next.Velocity}. " +
                                     $"\nvelocity_children: {velocity_children}");
                         }
                         last_child.Velocity *= velocity_children + 0.1;
                         last_child.FinalLength = (int)((double)last_child.FinalLength / velocity_last);
                         if (last_child.Velocity < 1)
-                            throw new Exception($"Че блять. Velocity {last_child.Number}[{last_child.ParsedLyric}]: " +
+                            throw new Exception($"Че блять. Velocity {last_child.NoteNumber}[{last_child.ParsedLyric}]: " +
                                 $"{next.Velocity}. " +
                                 $"\nvelocity_children: {velocity_children}");
                         next.Velocity *= velocity_last + 0.1;
                         if (next.Velocity < 1)
-                            throw new Exception($"Че блять. Velocity {next.Number}[{next.ParsedLyric}]: {next.Velocity}. " +
+                            throw new Exception($"Че блять. Velocity {next.NoteNumber}[{next.ParsedLyric}]: {next.Velocity}. " +
                                 $"\nvelocity_last: {velocity_last}");
                         //if (next.Parent != null)
                         //    throw new Exception("Эм");
                         children_length = note.Children.Sum(n => n.FinalLength);
                         note.FinalLength -= children_length;
                         if (note.FinalLength < minSize / velocity)
-                            throw new Exception($"Так бля. Это несмотря на всю магию вне хогвартса длина {note.Number}[{note.ParsedLyric}] меньше минимальной.");
+                            throw new Exception($"Так бля. Это несмотря на всю магию вне хогвартса длина {note.NoteNumber}[{note.ParsedLyric}] меньше минимальной.");
                         if (note.Length != note.FinalLength + children_length)
-                            throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.Number}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
+                            throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.NoteNumber}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
                     }
+
                     if (note.IsRest() && note.FinalLength < PluginWindow.MinLength)
-                        note.MergeIntoLeft();
+                    {
+                        var prev = GetPrevNote(note);
+                        note.MergeIntoLeft(prev);
+                    }
                 }
             }
             catch (Exception ex)
@@ -308,5 +316,21 @@ namespace LyricInputHelper.Classes
                 Program.ErrorMessage(ex, "Error on SetLength");
             }
         }
+
+        #region private
+
+        private int? SkipNotes(int k, bool skipRest = true)
+        {
+            while (Notes[k].NoteNumber == Number.DELETE ||
+                   skipRest && Atlas.IsRest(Notes[k].ParsedLyric))
+            {
+                k++;
+                if (k >= Notes.Length)
+                    return null;
+            }
+            return k;
+        }
+
+        #endregion
     }
 }

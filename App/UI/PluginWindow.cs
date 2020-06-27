@@ -19,7 +19,6 @@ namespace LyricInputHelper
         {
             InitializeComponent();
             window = this;
-            Init();
         }
 
         void SetTitle()
@@ -76,7 +75,7 @@ namespace LyricInputHelper
             MakeFade = checkBoxFade.Checked;
         }
 
-        public static void Recolor(DataGridView lyricView)
+        public void Recolor(DataGridView lyricView)
         {
             Color SelectionForeColor = Color.DarkGray;
             Color LightColor = Color.FromArgb(220, 230, 240);
@@ -114,7 +113,7 @@ namespace LyricInputHelper
             for (int y = 0; y < lyricView.Rows.Count; y++)
             {
                 Note note = Ust.Notes[y];
-                if (note.Number == Classes.Number.INSERT)
+                if (note.NoteNumber == Classes.Number.INSERT)
                 {
                     for (int x = 1; x < 3; x++)
                         lyricView[x, y].Style = insertCellStyle;
@@ -124,7 +123,7 @@ namespace LyricInputHelper
                     for (int x = 0; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = darkCellStyle;
                 }
-                if (note.Number == Classes.Number.DELETE)
+                if (note.NoteNumber == Classes.Number.DELETE)
                 {
                     for (int x = 1; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = deleteCellStyle;
@@ -166,7 +165,6 @@ namespace LyricInputHelper
 
         private void PluginWindow_Load(object sender, EventArgs e)
         {
-            Init();
             Recolor(lyricView);
         }
 
