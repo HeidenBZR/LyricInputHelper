@@ -58,7 +58,7 @@ namespace LyricInputHelper.Classes
                     if (lines[i].StartsWith("Velocity="))
                         if (double.TryParse(lines[i].Substring("Velocity=".Length), out double velocity))
                             if (velocity > 1)
-                                note.Velocity = velocity / 100;
+                                note.SetVelocity(velocity / 100);
                     if (lines[i].StartsWith("Intensity="))
                         if (int.TryParse(lines[i].Substring("Intensity=".Length), out int intensity))
                             note.Intensity = intensity;

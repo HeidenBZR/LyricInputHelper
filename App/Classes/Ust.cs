@@ -41,7 +41,7 @@ namespace LyricInputHelper.Classes
             foreach (var note in Notes)
             {
                 note.Lyric = note.ValidateLyric(Atlas, note.Lyric);
-                note.SetParsedLyric(Atlas, note.ParsedLyric);
+                note.ParsedLyric = note.Lyric;
             }
         }
 
@@ -276,19 +276,19 @@ namespace LyricInputHelper.Classes
                         for (int i = 0; i < note.Children.Count - 1; i++)
                         {
                             note.Children[i].FinalLength = (int)((double)note.Children[i].FinalLength / velocity_children);
-                            note.Children[i].Velocity *= velocity_children + 0.1;
+                            note.Children[i].MultiplyVelocity(velocity_children + 0.1);
                             if (note.Children[i].Velocity < 1)
                                 throw new Exception($"Че блять. Velocity {note.Children[i].Number}[{note.Children[i].ParsedLyric}]: " +
                                     $"{next.Velocity}. " +
                                     $"\nvelocity_children: {velocity_children}");
                         }
-                        last_child.Velocity *= velocity_children + 0.1;
+                        last_child.MultiplyVelocity(velocity_children + 0.1);
                         last_child.FinalLength = (int)((double)last_child.FinalLength / velocity_last);
                         if (last_child.Velocity < 1)
                             throw new Exception($"Че блять. Velocity {last_child.Number}[{last_child.ParsedLyric}]: " +
                                 $"{next.Velocity}. " +
                                 $"\nvelocity_children: {velocity_children}");
-                        next.Velocity *= velocity_last + 0.1;
+                        next.MultiplyVelocity(velocity_last + 0.1);
                         if (next.Velocity < 1)
                             throw new Exception($"Че блять. Velocity {next.Number}[{next.ParsedLyric}]: {next.Velocity}. " +
                                 $"\nvelocity_last: {velocity_last}");

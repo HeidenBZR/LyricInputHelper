@@ -25,9 +25,7 @@ namespace LyricInputHelper.Classes
                 Children = null;
             }
         }
-        private string noteNumber;
-        private string lyric;
-        private string parsedLyric = "";
+
         private string envelope;
 
         public Word Word { get; set; }
@@ -41,13 +39,12 @@ namespace LyricInputHelper.Classes
         public bool HadVelocity = false;
 
         public List<Note> Children;
-        private double _velocity = 1;
 
-        public string Lyric { get => lyric; set => lyric = value; }
-        public string Number { get => noteNumber; set => noteNumber = value; }
-        public double Velocity { get => _velocity; set { _velocity = value; HadVelocity = true; } }
-        public string ParsedLyric { get => parsedLyric; set => parsedLyric = value; }
-        public string ParsedLyricView => IsRest ? "" : parsedLyric;
+        public string Lyric { get; set; }
+        public string Number { get; set; }
+        public double Velocity { get; private set; } = 1;
+        public string ParsedLyric { get ; set; }
+        public string ParsedLyricView => IsRest ? "" : ParsedLyric;
         public bool IsRest { get; set; }
 
         public Note()
@@ -62,18 +59,30 @@ namespace LyricInputHelper.Classes
 
         public void SetParsedLyric(Atlas atlas, string lyric)
         {
-            parsedLyric = ValidateLyric(atlas, lyric);
+            ParsedLyric = ValidateLyric(atlas, lyric);
             if (!atlas.IsLoaded)
                 IsRest = false;
-            else if (parsedLyric != null)
+            else if (ParsedLyric != null)
                 IsRest = atlas.IsRest(ParsedLyric);
             else
                 IsRest = false;
         }
 
+        public void SetVelocity(double velocity)
+        {
+            Velocity = velocity;
+            HadVelocity = true;
+        }
+
+        public void MultiplyVelocity(double value)
+        {
+            Velocity *= value;
+            HadVelocity = true;
+        }
+
         public void MarkAsDelete()
         {
-            parsedLyric = NumberManager.DELETE;
+            ParsedLyric = NumberManager.DELETE;
             Number = NumberManager.DELETE;
             Length = 0;
         }
@@ -94,7 +103,7 @@ namespace LyricInputHelper.Classes
                 $"Lyric={lyric}",
                 $"NoteNum={NoteNum}",
             };
-            if (atlas.IsLoaded && !atlas.IsRest(parsedLyric))
+            if (atlas.IsLoaded && !atlas.IsRest(ParsedLyric))
             {
                 text.Add($"Intensity={Intensity}");
                 if (Number == Classes.NumberManager.INSERT) text.Add("Modulation=0");
@@ -134,16 +143,16 @@ namespace LyricInputHelper.Classes
                     length -= Singer.Current.FindOto(next).StraightPreutterance / next.Velocity;
                 if (Velocity < 1 || (next != null && next.Velocity < 1))
                     throw new Exception($"Что с велосити не так блять. {Number}[{ParsedLyric}]: {Velocity}; " +
-                        $"next {next.noteNumber}[{next.ParsedLyric}]: {next.Velocity}.");
+                        $"next {next.Number}[{next.ParsedLyric}]: {next.Velocity}.");
                 if (length <= 0)
                     throw new Exception($"Got negative length on {Number}[{ParsedLyric}]. Please check oto " +
-                        $"of next {next.noteNumber}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
+                        $"of next {next.Number}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
                         $"Preutterance and {Singer.Current.FindOto(next).Overlap}");
                 double this_o = oto is null ? 20 : Singer.Current.FindOto(this).Overlap / Velocity;
                 double next_o = 20;
                 if (next != null && !isNextRest)
                 {
-                    var next_oto = Singer.Current.FindOto(next.parsedLyric);
+                    var next_oto = Singer.Current.FindOto(next.ParsedLyric);
                     if (next_oto != null)
                         next_o = Singer.Current.FindOto(next).Overlap / next.Velocity;
                 }
@@ -152,9 +161,9 @@ namespace LyricInputHelper.Classes
                 if (length < this_o + next_o)
                     next_o = length - this_o;
                 if (next_o < 0)
-                    throw new Exception($"negative next-overlap from [{next.parsedLyric}] on [{parsedLyric}]");
+                    throw new Exception($"negative next-overlap from [{next.ParsedLyric}] on [{ParsedLyric}]");
                 if (length < this_o + next_o)
-                    throw new Exception($"Обязательно что-то пойдет не так. Блять. Если что это отрицательная длина ноты [{parsedLyric}] пожалуйста убейте меня.");
+                    throw new Exception($"Обязательно что-то пойдет не так. Блять. Если что это отрицательная длина ноты [{ParsedLyric}] пожалуйста убейте меня.");
                 var e = new double[10]
                 {
                 Math.Truncate(this_o * 100) / 100, //p1 -> self
@@ -172,7 +181,7 @@ namespace LyricInputHelper.Classes
             }
             catch (EntryPointNotFoundException ex)
             {
-                Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{parsedLyric}]");
+                Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{ParsedLyric}]");
             }
         }
 
