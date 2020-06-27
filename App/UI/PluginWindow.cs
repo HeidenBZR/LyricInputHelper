@@ -118,7 +118,7 @@ namespace LyricInputHelper
                     for (int x = 1; x < 3; x++)
                         lyricView[x, y].Style = insertCellStyle;
                 }
-                if (note.IsRest())
+                if (note.IsRest)
                 {
                     for (int x = 0; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = darkCellStyle;

@@ -29,7 +29,7 @@ namespace LyricInputHelper
             var prev = Ust.GetPrevNote(note);
             while (next != null)
             {
-                if (!note.IsRest())
+                if (!note.IsRest)
                 {
                     if (note.Syllable is null)
                         note.Syllable = new Syllable(note.ParsedLyric.Split(' '), Atlas);
@@ -82,7 +82,7 @@ namespace LyricInputHelper
                             {
                                 //Ust.InsertNote(note, Syllable.ToString(syll.ConsonantEnding), Insert.After, note);
                                 var nextNotes = syll.ConsonantEnding.Select(n => n).ToList();
-                                if (!next.IsRest())
+                                if (!next.IsRest)
                                 {
                                     nextNotes.AddRange(next.ParsedLyric.Split(' '));
                                     next.Syllable = new Syllable(nextNotes, Atlas);
@@ -165,7 +165,7 @@ namespace LyricInputHelper
                             if (Atlas.KeepCV && k == vowelI - 1)
                                 continue;
                             if (prev != null)
-                                if (prev.IsRest())
+                                if (prev.IsRest)
                                     Ust.InsertNote(prev, members[k], Insert.After, note);
                                 else
                                     Ust.InsertNote(prev, members[k], Insert.After, prev);
@@ -176,7 +176,7 @@ namespace LyricInputHelper
                     i += inserted;
                     if (vowelI < members.Length - 1)
                     {
-                        if (Ust.Notes[i + 1].IsRest())
+                        if (Ust.Notes[i + 1].IsRest)
                         {
                             for (int k = members.Length - 1; k > vowelI; k--)
                             {
@@ -289,7 +289,7 @@ namespace LyricInputHelper
                     if (doit)
                     {
                         c_left = true;
-                        if (i > 0 && Ust.Notes[i - 1].IsRest())
+                        if (i > 0 && Ust.Notes[i - 1].IsRest)
                         {
                             /// R [-C] -CV
                             if (Ust.Notes[i + 1].ParsedLyric == NumberManager.DELETE)
@@ -305,7 +305,7 @@ namespace LyricInputHelper
                             }
                             Ust.Notes[i].MarkAsDelete();
                         }
-                        else if (Ust.Notes[i + 1].IsRest())
+                        else if (Ust.Notes[i + 1].IsRest)
                         {
                             /// VC- [C] R
                             if (Ust.Notes[i - 1].ParsedLyric == NumberManager.DELETE)
@@ -332,7 +332,7 @@ namespace LyricInputHelper
                         {
                             int k = 1;
                             while (Ust.Notes[i - k].Number == NumberManager.DELETE) k++;
-                            if (Ust.Notes[i - k].IsRest())
+                            if (Ust.Notes[i - k].IsRest)
                             {
                                 /// (R) (С)* [C] (!R)
                                 Ust.Notes[i - k].Length += Ust.Notes[i].Length;
@@ -375,7 +375,7 @@ namespace LyricInputHelper
                     case "V-":
                         note.ParsedLyric = "R";
                         Note container = Ust.GetNextNote(note);
-                        if (container != null || container.IsRest())
+                        if (container != null || container.IsRest)
                         {
                             container.Length += note.Length;
                             note.MarkAsDelete();

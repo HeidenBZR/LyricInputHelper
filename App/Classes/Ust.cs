@@ -154,9 +154,9 @@ namespace LyricInputHelper.Classes
             };
             note.SetAtlas(Atlas);
             note.SetParsedLyric(Atlas, lyric);
-            if (insert == Insert.After && next != null && next.IsRest())
+            if (insert == Insert.After && next != null && next.IsRest)
                 note.Parent = next;
-            if (insert == Insert.Before && prev != null &&  prev.IsRest())
+            if (insert == Insert.Before && prev != null &&  prev.IsRest)
                 note.Parent = prev;
             if (container != null) note.Parent = container;
 
@@ -209,7 +209,7 @@ namespace LyricInputHelper.Classes
             {
                 var note = Notes[index];
                 var next = Notes.ElementAtOrDefault(index + 1);
-                if (!note.IsRest() && note.Number != NumberManager.NEXT && note.Number != NumberManager.PREV &&
+                if (!note.IsRest && note.Number != NumberManager.NEXT && note.Number != NumberManager.PREV &&
                     !Atlas.IsRest(note.ParsedLyric))
                 {
                     var isNextRest = next != null && Atlas.IsRest(next.ParsedLyric);
@@ -304,7 +304,7 @@ namespace LyricInputHelper.Classes
                             throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.Number}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
                     }
 
-                    if (note.IsRest() && note.FinalLength < PluginWindow.MinLength)
+                    if (note.IsRest && note.FinalLength < PluginWindow.MinLength)
                     {
                         var prev = GetPrevNote(note);
                         note.MergeIntoLeft(prev);

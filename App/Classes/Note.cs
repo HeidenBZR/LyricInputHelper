@@ -47,16 +47,8 @@ namespace LyricInputHelper.Classes
         public string Number { get => noteNumber; set => noteNumber = value; }
         public double Velocity { get => _velocity; set { _velocity = value; HadVelocity = true; } }
         public string ParsedLyric { get => parsedLyric; set => parsedLyric = value; }
-        public string ParsedLyricView
-        {
-            get
-            {
-                if (IsRest())
-                    return "";
-                else
-                    return parsedLyric;
-            }
-        }
+        public string ParsedLyricView => IsRest ? "" : parsedLyric;
+        public bool IsRest { get; set; }
 
         // TEMP
         private Atlas atlas;  
@@ -80,6 +72,12 @@ namespace LyricInputHelper.Classes
         public void SetParsedLyric(Atlas atlas, string lyric)
         {
             parsedLyric = ValidateLyric(atlas, lyric);
+            if (!atlas.IsLoaded)
+                IsRest = false;
+            else if (parsedLyric != null)
+                IsRest = atlas.IsRest(ParsedLyric);
+            else
+                IsRest = false;
         }
 
         public void MarkAsDelete()
@@ -132,15 +130,6 @@ namespace LyricInputHelper.Classes
                 return lyric;
         }
 
-        public bool IsRest()
-        {
-            if (!atlas.IsLoaded)
-                return false;
-            else if (parsedLyric != null)
-                return atlas.IsRest(ParsedLyric);
-            else
-                return false;
-        }
 
         public void GetEnvelope(Note next, double tempo, bool isNextRest)
         {
