@@ -141,15 +141,6 @@ namespace LyricInputHelper.Classes
             }
         }
 
-        private void ReadRule(string line)
-        {
-            Rule.Read(line, this);
-        }
-
-        private void ReadRule04(string line)
-        {
-            Rule.Read04(line, this);
-        }
 
         private void ReadAliasReplace(string line)
         {
@@ -243,7 +234,7 @@ namespace LyricInputHelper.Classes
             i++;
             while (atlas[i] != "[REPLACE]")
             {
-                ReadRule(atlas[i]);
+                RuleManager.ReadRule(atlas[i]);
                 i++;
             }
             i++;
@@ -283,7 +274,7 @@ namespace LyricInputHelper.Classes
             i++;
             while (atlas[i] != "[PHONEME_REPLACE]")
             {
-                ReadRule(atlas[i]);
+                RuleManager.ReadRule(atlas[i]);
                 i++;
             }
             i++;
@@ -323,7 +314,7 @@ namespace LyricInputHelper.Classes
             i++;
             while (atlas[i] != "[PHONEME_REPLACE]")
             {
-                ReadRule04(atlas[i]);
+                RuleManager.ReadRule04(atlas[i]);
                 i++;
             }
             i++;

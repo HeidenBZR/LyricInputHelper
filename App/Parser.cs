@@ -224,7 +224,7 @@ namespace LyricInputHelper
                 if (lyricPrev == "b'e" && lyric == "po")
                     Console.WriteLine();
 
-                Classes.Rule rule = Classes.Rule.GetRule($"{aliasTypePrev},{aliasType}");
+                Classes.Rule rule = Atlas.RuleManager.GetRule($"{aliasTypePrev},{aliasType}");
                 if (rule == null)
                 {
                     Ust.Notes[i].SetParsedLyric(Atlas, lyric);
@@ -233,7 +233,7 @@ namespace LyricInputHelper
 
                 if (rule.MustConvert && Ust.Notes[i].NoteNumber != Number.NEXT)
                 {
-                    RuleResult result = rule.FormatConvert.GetResult(Atlas, lyricPrev, lyric);
+                    RuleResult result = Atlas.GetRuleResult(rule.FormatConvert, lyricPrev, lyric);
                     Ust.Notes[i].SetParsedLyric(Atlas, result.Alias);
                     if (Ust.Notes[i].Parent != null)
                     {
@@ -253,7 +253,7 @@ namespace LyricInputHelper
                     var next = Ust.GetNextNote(Ust.Notes[i]);
                     bool isRest = Atlas.IsRest(lyric);
                     bool prevIsRest = Atlas.IsRest(lyricPrev);
-                    RuleResult result = rule.FormatInsert.GetResult(Atlas, lyricPrev, lyric);
+                    RuleResult result = Atlas.GetRuleResult(rule.FormatInsert, lyricPrev, lyric);
                     Note pitchparent = prevIsRest ? Ust.Notes[i] : Ust.Notes[i - 1];
                     Insert insert = isRest  ? Insert.Before : Insert.After ;
                     Note parent = isRest  ? Ust.Notes[i] : Ust.Notes[i - 1];

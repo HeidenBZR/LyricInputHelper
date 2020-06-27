@@ -7,8 +7,25 @@ using System.Threading.Tasks;
 
 namespace LyricInputHelper.Classes
 {
-    struct Format
+    public class Rule
     {
+        public bool MustConvert = false;
+        public bool MustInsert = false;
+
+        // for converting
+        public Format FormatConvert;
+        public Format FormatInsert;
+    }
+
+    public struct Format
+    {
+
+        public string AliasType;
+        public int[] Members;
+        public int[] MembersPrev;
+        public bool UseAllPhonemes;
+        public bool UseAllPrevPhonemes;
+
         public Format(string line, bool isInAliasTypes)
         {
             /// line looks like -V[][0], i.e. AliasType[MembersPrev][Members]
@@ -49,25 +66,7 @@ namespace LyricInputHelper.Classes
             }
         }
 
-        public string AliasType;
-        public int[] Members;
-        public int[] MembersPrev;
-        public bool IsLastPhoneme(int[] phonemes) { return phonemes[0] == -1; }
-        public bool IsEmptyPhoneme(int[] phonemes) { return phonemes.Length == 0; }
-        public bool UseAllPhonemes;
-        public bool UseAllPrevPhonemes;
-
-        public RuleResult GetResult(Atlas atlas, string lyricPrev, string lyric)
-        {
-            string[] phonemesPrev = atlas.GetPhonemes(lyricPrev);
-            string[] phonemes = atlas.GetPhonemes(lyric);
-            string[] phonemesNew = GetNewPhonemes(phonemesPrev, phonemes);
-            string alias = atlas.GetAlias(AliasType, phonemesNew);
-            RuleResult ruleResult = new RuleResult(alias, AliasType);
-            return ruleResult;
-        }
-
-        string[] GetNewPhonemes(string[] phonemesPrev, string[] phonemes)
+        public string[] GetNewPhonemes(string[] phonemesPrev, string[] phonemes)
         {
             if (UseAllPrevPhonemes && UseAllPhonemes)
                 return (string[])phonemesPrev.Concat(phonemesPrev);
@@ -94,9 +93,19 @@ namespace LyricInputHelper.Classes
             //    throw new Exception($"Error formating phonemes from [{Syllable.ToString(phonemesPrev)}] and [{Syllable.ToString(phonemes)}]");
             return phonemesNew.ToArray();
         }
+
+        public bool IsLastPhoneme(int[] phonemes) 
+        { 
+            return phonemes[0] == -1; 
+        }
+
+        public bool IsEmptyPhoneme(int[] phonemes) 
+        { 
+            return phonemes.Length == 0; 
+        }
     }
 
-    struct RuleResult
+    public struct RuleResult
     {
         public string Alias;
         public string AliasType;
@@ -108,191 +117,4 @@ namespace LyricInputHelper.Classes
         }
     }
 
-    class Rule
-    {
-        public bool MustConvert = false;
-        public bool MustInsert = false;
-
-        // for converting
-        public Format FormatConvert;
-        public Format FormatInsert;
-
-        private static Dictionary<string, Rule> Links = new Dictionary<string, Rule>();
-
-        public Rule(string ruleline, Atlas atlas)
-        {
-            if (ruleline.Contains(";"))
-            {
-                MustConvert = true;
-                MustInsert = true;
-                var tl = ruleline.Split(';');
-                string toconvert = tl[0].StartsWith("INSERT") ? tl[1] : tl[0];
-                string toinsert = tl[0].StartsWith("INSERT") ? tl[0] : tl[1];
-                toinsert = toinsert.Substring("INSERT(".Length);
-                toinsert = toinsert.TrimEnd(')');
-                FormatConvert = new Format(toconvert, atlas.AliasTypes.Contains(toconvert));
-                FormatInsert = new Format(toinsert, atlas.AliasTypes.Contains(toconvert));
-            }
-            else if (ruleline.StartsWith("INSERT"))
-            {
-                MustInsert = true;
-                string toinsert = ruleline.Substring("INSERT(".Length);
-                toinsert = toinsert.TrimEnd(')');
-                FormatInsert = new Format(toinsert, atlas.AliasTypes.Contains(toinsert));
-            }
-            else
-            {
-                MustConvert = true;
-                FormatConvert = new Format(ruleline, atlas.AliasTypes.Contains(ruleline));
-            }
-        }
-
-        public static Rule GetRule(string subject)
-        {
-            if (!Links.ContainsKey(subject)) return null;
-            return Links[subject];
-        }
-
-        public static void Read(string line, Atlas atlas)
-        {
-            if (line.Contains("="))
-            {
-                var t = line.Split('=');
-                if (t.Length != 2) return;
-                string subject = t[0];
-                string rule = t[1];
-                Links[subject] = new Rule(rule, atlas);
-            }
-            else if (line.Contains(">"))
-            {
-                var t = line.Split('>');
-                if (t.Length != 2) return;
-                string subject = t[0];
-                string reference = t[1];
-                FindLinks(subject, reference);
-            }
-        }
-
-        public static void Read04(string line, Atlas atlas)
-        {
-            if (line.Contains("="))
-            {
-                var t = line.Split('=');
-                if (t.Length != 2) return;
-                string subject = t[0];
-                string rule = t[1];
-
-                if (subject.Contains("C*") || rule.Contains("C*"))
-                {
-                    string r = rule;
-                    string s1 = subject.Split(',')[0];
-                    string s2 = subject.Split(',')[1];
-
-                    if (s1.Contains("C*") && s2.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        { 
-                            for (int k = 0; k < Atlas.MULTICONSONANT_LIMIT; k++)
-                            {
-                                var final_s1 = s1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                                var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
-                                var final_r = r.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
-
-                                Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
-                            }
-                        }
-                    }
-                    else if (s1.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        {
-                            var final_s1 = s1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                            var final_s2 = s2;
-                            var final_r = r;
-
-                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
-                        }
-                    }
-                    else if (s2.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        {
-                            var final_s1 = s1;
-                            var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                            var final_r = r.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-
-                            Links[$"{final_s1},{final_s2}"] = new Rule(final_r, atlas);
-                        }
-                    }
-                }
-                else
-                {
-                    Links[subject] = new Rule(rule, atlas);
-                }
-            }
-            else if (line.Contains(">"))
-            {
-                var t = line.Split('>');
-                if (t.Length != 2) return;
-                string subject = t[0];
-                string reference = t[1];
-                if (subject.Contains("C*"))
-                {
-                    string s1 = subject.Split(',')[0];
-                    string s2 = subject.Split(',')[1];
-                    string r1 = reference.Split(',')[0];
-                    string r2 = reference.Split(',')[1];
-
-                    if (s1.Contains("C*") && s2.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        {
-                            for (int k = 0; k < Atlas.MULTICONSONANT_LIMIT; k++)
-                            {
-                                var final_s1 = s1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                                var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
-                                var final_r1 = r1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                                var final_r2 = r2.Replace("C*", String.Concat(Enumerable.Repeat("C", k + 1)));
-
-                                FindLinks($"{final_s1},{final_s2}", $"{final_r1},{final_r2}");
-                            }
-                        }
-                    }
-                    else if (s1.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        {
-                            var final_s1 = s1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                            var final_s2 = s2;
-                            var final_r1 = r1.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                            var final_r2 = r2.Replace("C*", "C");
-
-                            FindLinks($"{final_s1},{final_s2}", $"{final_r1},{final_r2}");
-                        }
-                    }
-                    else if (s2.Contains("C*"))
-                    {
-                        for (int i = 0; i < Atlas.MULTICONSONANT_LIMIT; i++)
-                        {
-                            var final_s1 = s1;
-                            var final_s2 = s2.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-                            var final_r1 = r1.Replace("C*", "C");
-                            var final_r2 = r2.Replace("C*", String.Concat(Enumerable.Repeat("C", i + 1)));
-
-                            FindLinks($"{final_s1},{final_s2}", $"{final_r1},{final_r2}");
-                        }
-                    }
-                }
-                else
-                    FindLinks(subject, reference.Replace("C*", "C"));
-            }
-        }
-        static void FindLinks(string subject, string link)
-        {
-            if (Links.ContainsKey(link))
-                Links[subject] = Links[link];
-            else
-                Program.Log($"Referensed rule {link} for {subject} was not defined");
-        }
-    }
 }

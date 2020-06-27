@@ -80,6 +80,7 @@
     <Compile Include="Classes\Oto.cs" />
     <Compile Include="Classes\Pitchmap.cs" />
     <Compile Include="Classes\Rule.cs" />
+    <Compile Include="Classes\RuleManager.cs" />
     <Compile Include="Classes\Settings.cs" />
     <Compile Include="Classes\Singer.cs" />
     <Compile Include="Classes\Note.cs" />

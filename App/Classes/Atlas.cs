@@ -24,6 +24,7 @@ namespace LyricInputHelper.Classes
         public List<string[]> AliasReplaces;
         public List<string[]> PhonemeReplaces;
         public Dict Dict;
+        public RuleManager RuleManager;
 
         public bool KeepWordsEndings = false;
         public bool KeepWordsBeginnigs = false;
@@ -56,6 +57,7 @@ namespace LyricInputHelper.Classes
         {
             _dir = dir;
             Current = this;
+            RuleManager = new RuleManager(this);
             Load();
         }
 
@@ -294,6 +296,16 @@ namespace LyricInputHelper.Classes
                 if (IsVowel(aliases[i])) return i;
             }
             return 0;
+        }
+
+        public RuleResult GetRuleResult(Format format, string lyricPrev, string lyric)
+        {
+            string[] phonemesPrev = GetPhonemes(lyricPrev);
+            string[] phonemes = GetPhonemes(lyric);
+            string[] phonemesNew = format.GetNewPhonemes(phonemesPrev, phonemes);
+            string alias = GetAlias(format.AliasType, phonemesNew);
+            RuleResult ruleResult = new RuleResult(alias, format.AliasType);
+            return ruleResult;
         }
 
         public int VowelsCount(string[] aliases)
