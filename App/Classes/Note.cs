@@ -50,18 +50,9 @@ namespace LyricInputHelper.Classes
         public string ParsedLyricView => IsRest ? "" : parsedLyric;
         public bool IsRest { get; set; }
 
-        // TEMP
-        private Atlas atlas;  
-
         public Note()
         {
             Children = new List<Note>();
-        }
-
-        public void SetAtlas(Atlas atlas)
-        {
-            Program.Assert(atlas != null);
-            this.atlas = atlas;
         }
 
         public override string ToString()

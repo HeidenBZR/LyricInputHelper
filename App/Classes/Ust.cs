@@ -40,7 +40,6 @@ namespace LyricInputHelper.Classes
             Atlas = atlas;
             foreach (var note in Notes)
             {
-                note.SetAtlas(atlas);
                 note.Lyric = note.ValidateLyric(Atlas, note.Lyric);
                 note.SetParsedLyric(Atlas, note.ParsedLyric);
             }
@@ -152,7 +151,6 @@ namespace LyricInputHelper.Classes
                 Flags = pitchparent.Flags,
                 Parent = parent
             };
-            note.SetAtlas(Atlas);
             note.SetParsedLyric(Atlas, lyric);
             if (insert == Insert.After && next != null && next.IsRest)
                 note.Parent = next;
