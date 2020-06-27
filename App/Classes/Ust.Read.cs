@@ -21,17 +21,17 @@ namespace LyricInputHelper.Classes
             string[] lines = System.IO.File.ReadAllLines(Dir, Encoding.GetEncoding(932));
             int i = 0;
             // Reading version
-            if (lines[0] == Number.VERSION)
+            if (lines[0] == NumberManager.VERSION)
             {
                 Version = 1.2;
                 i++;
                 i++;
             }
-            if (lines[i] != Number.SETTING)
+            if (lines[i] != NumberManager.SETTING)
                 throw new Exception("Error UST reading");
             else i++;
 
-            while (i < lines.Length && !Number.IsNote(lines[i]))
+            while (i < lines.Length && !NumberManager.IsNote(lines[i]))
             {
                 if (lines[i].StartsWith("UstVersion")) TakeOut(lines[i], "UstVersion", out Version);
                 if (lines[i].StartsWith("Tempo")) TakeOut(lines[i], "Tempo", out Tempo);
@@ -44,9 +44,9 @@ namespace LyricInputHelper.Classes
             while (i + 1 < lines.Length)
             {
                 note = new Note();
-                note.NoteNumber = lines[i];
+                note.Number = lines[i];
                 i++;
-                while (!Number.IsNote(lines[i]))
+                while (!NumberManager.IsNote(lines[i]))
                 {
                     string line = lines[i];
                     if (lines[i].StartsWith("Length"))
@@ -90,13 +90,13 @@ namespace LyricInputHelper.Classes
             List<string> text = new List<string> { };
             if (Version == 1.2)
             {
-                text.Add(Number.VERSION);
+                text.Add(NumberManager.VERSION);
                 text.Add("UST Version " + Version.ToString());
-                text.Add(Number.SETTING);
+                text.Add(NumberManager.SETTING);
             }
             else
             {
-                text.Add(Number.SETTING);
+                text.Add(NumberManager.SETTING);
                 text.Add(TakeIn("Version", Version));
             }
             text.Add(TakeIn("Tempo", Tempo));

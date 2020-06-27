@@ -44,7 +44,7 @@ namespace LyricInputHelper.Classes
         private double _velocity = 1;
 
         public string Lyric { get => lyric; set => lyric = value; }
-        public string NoteNumber { get => noteNumber; set => noteNumber = value; }
+        public string Number { get => noteNumber; set => noteNumber = value; }
         public double Velocity { get => _velocity; set { _velocity = value; HadVelocity = true; } }
         public string ParsedLyric { get => parsedLyric; set => parsedLyric = value; }
         public string ParsedLyricView
@@ -84,8 +84,8 @@ namespace LyricInputHelper.Classes
 
         public void MarkAsDelete()
         {
-            parsedLyric = Number.DELETE;
-            NoteNumber = Number.DELETE;
+            parsedLyric = NumberManager.DELETE;
+            Number = NumberManager.DELETE;
             Length = 0;
         }
 
@@ -94,13 +94,13 @@ namespace LyricInputHelper.Classes
             string lyric = Lyric != ParsedLyric && ParsedLyric == "" ? Lyric : ParsedLyric;
             if (atlas.IsLoaded && atlas.IsRest(lyric)) lyric = "R";
             if (lyric == "r") lyric = "rr";
-            if (lyric == Classes.Number.DELETE) lyric = "";
+            if (lyric == Classes.NumberManager.DELETE) lyric = "";
             var note = this;
             if (FinalLength == 0)
-                NoteNumber = Classes.Number.DELETE;
+                Number = Classes.NumberManager.DELETE;
             List<string> text = new List<string>
             {
-                NoteNumber,
+                Number,
                 $"Length={FinalLength}",
                 $"Lyric={lyric}",
                 $"NoteNum={NoteNum}",
@@ -108,7 +108,7 @@ namespace LyricInputHelper.Classes
             if (atlas.IsLoaded && !atlas.IsRest(parsedLyric))
             {
                 text.Add($"Intensity={Intensity}");
-                if (NoteNumber == Classes.Number.INSERT) text.Add("Modulation=0");
+                if (Number == Classes.NumberManager.INSERT) text.Add("Modulation=0");
                 var velocity = (int)(Velocity * 100);
                 if (HadVelocity || Velocity != 1)
                     text.Add($"Velocity={(velocity > 200 ? 200 : velocity)}");
@@ -153,10 +153,10 @@ namespace LyricInputHelper.Classes
                 if (next != null && Singer.Current.FindOto(next) != null)
                     length -= Singer.Current.FindOto(next).StraightPreutterance / next.Velocity;
                 if (Velocity < 1 || (next != null && next.Velocity < 1))
-                    throw new Exception($"Что с велосити не так блять. {NoteNumber}[{ParsedLyric}]: {Velocity}; " +
+                    throw new Exception($"Что с велосити не так блять. {Number}[{ParsedLyric}]: {Velocity}; " +
                         $"next {next.noteNumber}[{next.ParsedLyric}]: {next.Velocity}.");
                 if (length <= 0)
-                    throw new Exception($"Got negative length on {NoteNumber}[{ParsedLyric}]. Please check oto " +
+                    throw new Exception($"Got negative length on {Number}[{ParsedLyric}]. Please check oto " +
                         $"of next {next.noteNumber}[{next.ParsedLyric}]. It has {Singer.Current.FindOto(next).Preutterance} " +
                         $"Preutterance and {Singer.Current.FindOto(next).Overlap}");
                 double this_o = oto is null ? 20 : Singer.Current.FindOto(this).Overlap / Velocity;
@@ -192,7 +192,7 @@ namespace LyricInputHelper.Classes
             }
             catch (EntryPointNotFoundException ex)
             {
-                Program.ErrorMessage(ex, $"Error on GetEnvelope for {NoteNumber} [{parsedLyric}]");
+                Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{parsedLyric}]");
             }
         }
 
@@ -202,13 +202,13 @@ namespace LyricInputHelper.Classes
             {
                 if (prev is null)
                     return;
-                NoteNumber = Classes.Number.DELETE;
+                Number = Classes.NumberManager.DELETE;
                 prev.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoLeft: {NoteNumber}");
+                Program.ErrorMessage(ex, $"Error on MergeIntoLeft: {Number}");
             }
         }
 
@@ -218,13 +218,13 @@ namespace LyricInputHelper.Classes
             {
                 if (next is null)
                     return;
-                NoteNumber = Classes.Number.DELETE;
+                Number = Classes.NumberManager.DELETE;
                 next.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoRight: {NoteNumber}");
+                Program.ErrorMessage(ex, $"Error on MergeIntoRight: {Number}");
             }
         }
     }

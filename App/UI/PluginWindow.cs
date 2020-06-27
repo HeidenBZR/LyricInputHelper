@@ -113,7 +113,7 @@ namespace LyricInputHelper
             for (int y = 0; y < lyricView.Rows.Count; y++)
             {
                 Note note = Ust.Notes[y];
-                if (note.NoteNumber == Classes.Number.INSERT)
+                if (note.Number == Classes.NumberManager.INSERT)
                 {
                     for (int x = 1; x < 3; x++)
                         lyricView[x, y].Style = insertCellStyle;
@@ -123,7 +123,7 @@ namespace LyricInputHelper
                     for (int x = 0; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = darkCellStyle;
                 }
-                if (note.NoteNumber == Classes.Number.DELETE)
+                if (note.Number == Classes.NumberManager.DELETE)
                 {
                     for (int x = 1; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = deleteCellStyle;

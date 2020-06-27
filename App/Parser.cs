@@ -231,7 +231,7 @@ namespace LyricInputHelper
                     continue;
                 }
 
-                if (rule.MustConvert && Ust.Notes[i].NoteNumber != Number.NEXT)
+                if (rule.MustConvert && Ust.Notes[i].Number != NumberManager.NEXT)
                 {
                     RuleResult result = Atlas.GetRuleResult(rule.FormatConvert, lyricPrev, lyric);
                     Ust.Notes[i].SetParsedLyric(Atlas, result.Alias);
@@ -279,8 +279,8 @@ namespace LyricInputHelper
             while (c_left)
             {
                 c_left = false;
-                int i = Ust.Notes.First().NoteNumber == Number.PREV ? 1 : 0;
-                int stop = Ust.Notes.Last().NoteNumber == Number.NEXT ? 1 : 0;
+                int i = Ust.Notes.First().Number == NumberManager.PREV ? 1 : 0;
+                int stop = Ust.Notes.Last().Number == NumberManager.NEXT ? 1 : 0;
                 for (; i < Ust.Notes.Length - stop; i++)
                 {
                     // remove C
@@ -292,7 +292,7 @@ namespace LyricInputHelper
                         if (i > 0 && Ust.Notes[i - 1].IsRest())
                         {
                             /// R [-C] -CV
-                            if (Ust.Notes[i + 1].ParsedLyric == Number.DELETE)
+                            if (Ust.Notes[i + 1].ParsedLyric == NumberManager.DELETE)
                             {
                                 /// R [-C] -C -CV
                                 Ust.Notes[i + 1].SetParsedLyric(Atlas, Ust.Notes[i].ParsedLyric);
@@ -308,7 +308,7 @@ namespace LyricInputHelper
                         else if (Ust.Notes[i + 1].IsRest())
                         {
                             /// VC- [C] R
-                            if (Ust.Notes[i - 1].ParsedLyric == Number.DELETE)
+                            if (Ust.Notes[i - 1].ParsedLyric == NumberManager.DELETE)
                             {
                                 /// VC- C [C] R
                                 Ust.Notes[i - 1].SetParsedLyric(Atlas, Ust.Notes[i].ParsedLyric);
@@ -331,7 +331,7 @@ namespace LyricInputHelper
                         else
                         {
                             int k = 1;
-                            while (Ust.Notes[i - k].NoteNumber == Number.DELETE) k++;
+                            while (Ust.Notes[i - k].Number == NumberManager.DELETE) k++;
                             if (Ust.Notes[i - k].IsRest())
                             {
                                 /// (R) (С)* [C] (!R)
@@ -355,8 +355,8 @@ namespace LyricInputHelper
 
         public void ToCVC()
         {
-            int i = Ust.Notes.First().NoteNumber == Number.PREV ? 1 : 0;
-            int stop = Ust.Notes.Last().NoteNumber == Number.NEXT ? 1 : 0;
+            int i = Ust.Notes.First().Number == NumberManager.PREV ? 1 : 0;
+            int stop = Ust.Notes.Last().Number == NumberManager.NEXT ? 1 : 0;
             for (; i < Ust.Notes.Length - stop; i++)
             {
                 Note note = Ust.Notes[i];
@@ -394,8 +394,8 @@ namespace LyricInputHelper
                         if (i > 0)
                         {
                             Ust.Notes[i - 1].Length += note.Length;
-                            note.ParsedLyric = Number.DELETE;
-                            note.NoteNumber = Number.DELETE;
+                            note.ParsedLyric = NumberManager.DELETE;
+                            note.Number = NumberManager.DELETE;
                         }
                         break;
                 }

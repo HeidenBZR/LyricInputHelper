@@ -52,7 +52,7 @@ namespace LyricInputHelper.Classes
 
         public void SetLyric(List<Syllable> syllables, bool skipRest = true)
         {
-            int? n = Notes[0].NoteNumber == Number.PREV ? 1 : 0; // нота
+            int? n = Notes[0].Number == NumberManager.PREV ? 1 : 0; // нота
             int s = 0; // слог
             string cc = "";
             while (s < syllables.Count && n < Notes.Length)
@@ -76,7 +76,7 @@ namespace LyricInputHelper.Classes
 
         public void SetLyric(List<Word> words, bool skipRest = true)
         {
-            int? n = Notes[0].NoteNumber == Number.PREV ? 1 : 0; // нота
+            int? n = Notes[0].Number == NumberManager.PREV ? 1 : 0; // нота
             int s = 0; // слог
             int w = 0; // слово
             string cc = "";
@@ -146,7 +146,7 @@ namespace LyricInputHelper.Classes
             Note next = GetNextNote(parent);
             Note note = new Note()
             {
-                NoteNumber = Number.INSERT,
+                Number = NumberManager.INSERT,
                 NoteNum = pitchparent.NoteNum,
                 Intensity = pitchparent.Intensity,
                 Flags = pitchparent.Flags,
@@ -175,7 +175,7 @@ namespace LyricInputHelper.Classes
             List<string> lyrics = new List<string>();
             foreach (Note note in Notes)
             {
-                if (note.NoteNumber == Number.NEXT || note.NoteNumber == Number.PREV)
+                if (note.Number == NumberManager.NEXT || note.Number == NumberManager.PREV)
                     continue;
                 if (skipRest && Atlas.IsRest(note.Lyric))
                     continue;
@@ -209,7 +209,7 @@ namespace LyricInputHelper.Classes
             {
                 var note = Notes[index];
                 var next = Notes.ElementAtOrDefault(index + 1);
-                if (!note.IsRest() && note.NoteNumber != Number.NEXT && note.NoteNumber != Number.PREV &&
+                if (!note.IsRest() && note.Number != NumberManager.NEXT && note.Number != NumberManager.PREV &&
                     !Atlas.IsRest(note.ParsedLyric))
                 {
                     var isNextRest = next != null && Atlas.IsRest(next.ParsedLyric);
@@ -280,28 +280,28 @@ namespace LyricInputHelper.Classes
                             note.Children[i].FinalLength = (int)((double)note.Children[i].FinalLength / velocity_children);
                             note.Children[i].Velocity *= velocity_children + 0.1;
                             if (note.Children[i].Velocity < 1)
-                                throw new Exception($"Че блять. Velocity {note.Children[i].NoteNumber}[{note.Children[i].ParsedLyric}]: " +
+                                throw new Exception($"Че блять. Velocity {note.Children[i].Number}[{note.Children[i].ParsedLyric}]: " +
                                     $"{next.Velocity}. " +
                                     $"\nvelocity_children: {velocity_children}");
                         }
                         last_child.Velocity *= velocity_children + 0.1;
                         last_child.FinalLength = (int)((double)last_child.FinalLength / velocity_last);
                         if (last_child.Velocity < 1)
-                            throw new Exception($"Че блять. Velocity {last_child.NoteNumber}[{last_child.ParsedLyric}]: " +
+                            throw new Exception($"Че блять. Velocity {last_child.Number}[{last_child.ParsedLyric}]: " +
                                 $"{next.Velocity}. " +
                                 $"\nvelocity_children: {velocity_children}");
                         next.Velocity *= velocity_last + 0.1;
                         if (next.Velocity < 1)
-                            throw new Exception($"Че блять. Velocity {next.NoteNumber}[{next.ParsedLyric}]: {next.Velocity}. " +
+                            throw new Exception($"Че блять. Velocity {next.Number}[{next.ParsedLyric}]: {next.Velocity}. " +
                                 $"\nvelocity_last: {velocity_last}");
                         //if (next.Parent != null)
                         //    throw new Exception("Эм");
                         children_length = note.Children.Sum(n => n.FinalLength);
                         note.FinalLength -= children_length;
                         if (note.FinalLength < minSize / velocity)
-                            throw new Exception($"Так бля. Это несмотря на всю магию вне хогвартса длина {note.NoteNumber}[{note.ParsedLyric}] меньше минимальной.");
+                            throw new Exception($"Так бля. Это несмотря на всю магию вне хогвартса длина {note.Number}[{note.ParsedLyric}] меньше минимальной.");
                         if (note.Length != note.FinalLength + children_length)
-                            throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.NoteNumber}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
+                            throw new Exception($"Что за херня. Это несмотря на всю магию вне хогвартса длина ноты {note.Number}[{note.ParsedLyric}] не равна сумме ее итоговой длины и длин ее деток ДА ЭТО ПРОСТО НЕВОЗМОЖНО");
                     }
 
                     if (note.IsRest() && note.FinalLength < PluginWindow.MinLength)
@@ -321,7 +321,7 @@ namespace LyricInputHelper.Classes
 
         private int? SkipNotes(int k, bool skipRest = true)
         {
-            while (Notes[k].NoteNumber == Number.DELETE ||
+            while (Notes[k].Number == NumberManager.DELETE ||
                    skipRest && Atlas.IsRest(Notes[k].ParsedLyric))
             {
                 k++;

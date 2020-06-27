@@ -96,7 +96,7 @@ namespace LyricInputHelper.Classes
 
         public string GetAliasType(string alias)
         {
-            if (alias == Number.DELETE) return "";
+            if (alias == NumberManager.DELETE) return "";
             if (IsRest(alias)) return "R";
             if (IsVowel(alias)) return "V";
             if (IsConsonant(alias)) return "C";
