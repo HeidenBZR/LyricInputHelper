@@ -7,6 +7,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms.VisualStyles;
+using System.Threading;
+using System.Diagnostics;
 
 namespace LyricInputHelper
 {
@@ -19,7 +21,8 @@ namespace LyricInputHelper
             Standalone,
             Plugin,
             Resampler,
-            Wavtool
+            Wavtool,
+            Presamp
         };
         public static Mode ProgramMode;
         public static Ust Ust;
@@ -27,7 +30,8 @@ namespace LyricInputHelper
         public static string LOG_DIR { get { return GetTempFile("LyricInputHelper", @"log.txt"); } }
         public static string[] args;
         public static NumberFormatInfo NFI;
-        public static Settings settings;
+        public static Settings Settings;
+        static Mutex Mutex;
 
         static void InitLang()
         {
@@ -47,7 +51,7 @@ namespace LyricInputHelper
         static void Main(string[] args)
         {
 #if DEBUG
-            Debug();
+                Debug();
 #endif
             InitLang();
             try
@@ -60,7 +64,7 @@ namespace LyricInputHelper
             {
                 try
                 {
-                    File.WriteAllText(LOG_DIR,
+                    File.AppendAllText(LOG_DIR,
                         $"{ex.Message}\r\n{ex.Source}\r\n{ex.TargetSite.ToString()}\r\n{ex.Message}\r\n",
                         Encoding.UTF8
                         );
@@ -151,31 +155,109 @@ namespace LyricInputHelper
             Log(text);
         }
 
+        static Mode DetectMode()
+        {
+            Mode mode;
+            switch (args.Length)
+            {
+                case 0:
+                    mode = Mode.Standalone;
+                    break;
+                case 1:
+                    if (IsTempUst(args[0]))
+                    {
+                        mode = Mode.Plugin;
+                    }
+                    else if (IsBat(args[0]))
+                    {
+                        mode = Mode.Presamp;
+                    }
+                    else
+                    {
+                        mode = Mode.Unknown;
+                    }
+                    break;
+                case 6:
+                case 11:
+                    mode = Mode.Wavtool;
+                    break;
+                case 12:
+                    mode = Mode.Resampler;
+                    break;
+                default:
+                    mode = Mode.Unknown;
+                    break;
+            }
+            Console.WriteLine($"{mode} ProgramMode");
+            Mutex = CreateMutex(ProgramMode);
+            return mode;
+        }
+
         static void Init()
         {
             DebugLog("Init");
-            switch (ProgramMode)
+            InitLog(ProgramMode.ToString());
+            if (isDebug)
+                Log($"args[{args.Length}]: {string.Join(", ", args)}");
+
+            if (ProgramMode == Mode.Plugin)
+                PluginModeInit();
+
+            if (ProgramMode == Mode.Standalone)
+                StandaloneModeInit();
+
+            if (ProgramMode == Mode.Wavtool || ProgramMode == Mode.Resampler)
             {
-                case Mode.Plugin:
-                    InitLog("Plugin");
-                    PluginModeInit();
-                    break;
-                case Mode.Resampler:
-                    InitLog("Resampler");
-                    break;
-                case Mode.Wavtool:
-                    InitLog("Wavtool");
-                    break;
-                case Mode.Standalone:
-                    InitLog("Standalone");
-                    StandaloneModeInit();
-                    break;
-                case Mode.Unknown:
-                    InitLog("Unknown mode");
-                    Log($"args[{args.Length}]: {string.Join(", ", args)}");
-                    break;
+                Log("Try to create presamp");
+                if (!MutexCheck(CreateMutex(Mode.Presamp)))
+                {
+                    Log("presamp is running");
+                    return;
+                }
+                RunPresamp();
             }
+
+            Log("Init finished");
         }
+
+        static bool MutexCheck(Mutex mutex)
+        {
+            if (!mutex.WaitOne(TimeSpan.FromSeconds(1), false))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        static void RunPresamp()
+        {
+            Log("starting presamp");
+            var batPath = GetBatPath();
+            if (batPath == null)
+            {
+                Log("Bat path is not found");
+                return;
+            }
+            ProcessStartInfo Info = new ProcessStartInfo();
+            Info.Arguments = $"/C ping 127.0.0.1 -n 2 && \"{Application.ExecutablePath}\" {batPath}";
+            Info.WindowStyle = ProcessWindowStyle.Hidden;
+            Info.CreateNoWindow = true;
+            Info.FileName = "cmd.exe";
+            Process.Start(Info);
+            Application.Exit();
+        }
+
+        static string GetBatPath()
+        {
+            var dirs = Directory.GetDirectories(GetTempFolder());
+            foreach (var dir in dirs)
+            {
+                if (Path.GetFileName(dir).StartsWith("utau"))
+                    return Path.Combine(dir, "temp.bat");
+            }
+            return null;
+        }
+
 
         public static void Try(Action action, string errorMessage = "An error occured.")
         {
@@ -256,44 +338,20 @@ namespace LyricInputHelper
 
         }
 
-        static Mode DetectMode()
+        static Mutex CreateMutex(Mode mode)
         {
-            Mode mode;
-            switch (args.Length)
-            {
-                case 0:
-                    mode = Mode.Unknown;
-                    break;
-                case 1:
-                    if (IsTempUst(args[0]))
-                    {
-                        mode = Mode.Plugin;
-                    } else
-                    {
-                        mode = Mode.Unknown;
-                    }
-                    break;
-                case 6:
-                case 11:
-                case 12:
-                    mode = Mode.Wavtool;
-                    break;
-                case 13:
-                    mode = Mode.Resampler;
-                    break;
-                default:
-                    mode = Mode.Unknown;
-                    break;
-            }
-            Console.WriteLine($"{mode} ProgramMode");
-            return mode;
-
+            return new Mutex(false, $"Heiden.BZR LyricInputHelper {mode}");
         }
 
         static bool IsTempUst(string dir)
         {
             string filename = dir.Split('\\').Last();
             return filename.StartsWith("tmp") && filename.EndsWith("tmp");
+        }
+
+        static bool IsBat(string dir)
+        {
+            return dir.EndsWith(dir);
         }
 
         static void InitLog(string type)
@@ -303,9 +361,9 @@ namespace LyricInputHelper
             {
                 if (!File.Exists(LOG_DIR))
                     File.Create(LOG_DIR).Close();
-                using (StreamWriter log = new StreamWriter(LOG_DIR, false, System.Text.Encoding.UTF8))
+                using (StreamWriter log = new StreamWriter(LOG_DIR, true, System.Text.Encoding.UTF8))
                 {
-                    log.WriteLine($"====== Mode: {type} ======");
+                    log.WriteLine($"\n\n====== New instance. Mode: {type} ======");
                     log.WriteLine(DateTime.Now.ToString(format: "d.MMM.yyyy, HH:mm:ss"));
                     log.Close();
                 }
@@ -396,7 +454,7 @@ namespace LyricInputHelper
             DebugLog("Checking write permissions...");
             try
             {
-                File.AppendAllText(LOG_DIR, "Debug log");
+                File.AppendAllText(LOG_DIR, "");
                 DebugLog("Write permissions are ok.");
             }
             catch (Exception ex)

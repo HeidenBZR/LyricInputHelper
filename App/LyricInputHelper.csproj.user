@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>tmp000.tmp</StartArguments>
+    <StartArguments>"C:\Users\Heiden\AppData\Local\Temp\utau1\temp.wav" "C:\Users\Heiden\AppData\Local\Temp\utau1\temp.cache\1_test3_B3_TYo5fV.wav" 0 480%40120+.0 0 5 35 0 100 100 0</StartArguments>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
   </PropertyGroup>
