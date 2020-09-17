@@ -131,7 +131,7 @@ namespace LyricInputHelper.Classes
                 if (next != null && Singer.Current.FindOto(next) != null)
                     length -= Singer.Current.FindOto(next).StraightPreutterance / next.Velocity;
                 if (Velocity < 1 || (next != null && next.Velocity < 1))
-                    throw new Exception($"Что с велосити не так блять. {Number}[{ParsedLyric}]: {Velocity}; " +
+                    throw new Exception($"Something is wrong with velocity. {Number}[{ParsedLyric}]: {Velocity}; " +
                         $"next {next.Number}[{next.ParsedLyric}]: {next.Velocity}.");
                 if (length <= 0)
                     throw new Exception($"Got negative length on {Number}[{ParsedLyric}]. Please check oto " +
@@ -152,7 +152,7 @@ namespace LyricInputHelper.Classes
                 if (next_o < 0)
                     throw new Exception($"negative next-overlap from [{next.ParsedLyric}] on [{ParsedLyric}]");
                 if (length < this_o + next_o)
-                    throw new Exception($"Обязательно что-то пойдет не так. Блять. Если что это отрицательная длина ноты [{ParsedLyric}] пожалуйста убейте меня.");
+                    throw new Exception($"Note [{ParsedLyric}] has negative length. Please, check the oto. If it's ok, temporally lower the BGM (tempo) and run the plugin again.");
                 var e = new double[10]
                 {
                 Math.Truncate(this_o * 100) / 100, //p1 -> self
