@@ -15,9 +15,10 @@ namespace LyricInputHelper
     {
         public enum Mode
         {
+            Unknown = -1,
             Standalone,
             Plugin,
-            Resampler=12,
+            Resampler,
             Wavtool
         };
         public static Mode ProgramMode;
@@ -161,12 +162,17 @@ namespace LyricInputHelper
                     break;
                 case Mode.Resampler:
                     InitLog("Resampler");
-                    Console.WriteLine("Hi stranger");
-                    Console.WriteLine("It's been a while");
+                    break;
+                case Mode.Wavtool:
+                    InitLog("Wavtool");
                     break;
                 case Mode.Standalone:
                     InitLog("Standalone");
                     StandaloneModeInit();
+                    break;
+                case Mode.Unknown:
+                    InitLog("Unknown mode");
+                    Log($"args[{args.Length}]: {string.Join(", ", args)}");
                     break;
             }
         }
@@ -255,16 +261,20 @@ namespace LyricInputHelper
             Mode mode;
             switch (args.Length)
             {
+                case 0:
+                    mode = Mode.Unknown;
+                    break;
                 case 1:
                     if (IsTempUst(args[0]))
                     {
                         mode = Mode.Plugin;
                     } else
                     {
-                        mode = Mode.Standalone;
+                        mode = Mode.Unknown;
                     }
                     break;
                 case 6:
+                case 11:
                 case 12:
                     mode = Mode.Wavtool;
                     break;
@@ -272,7 +282,7 @@ namespace LyricInputHelper
                     mode = Mode.Resampler;
                     break;
                 default:
-                    mode = Mode.Standalone;
+                    mode = Mode.Unknown;
                     break;
             }
             Console.WriteLine($"{mode} ProgramMode");
