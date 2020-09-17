@@ -15,15 +15,15 @@ namespace LyricInputHelper
     {
         public enum Mode
         {
+            Unknown = -1,
             Standalone,
             Plugin,
-            Resampler=12,
+            Resampler,
             Wavtool
         };
-        public static Mode mode;
-        public static Ust ust;
-        public static Oto oto;
-        public static Atlas atlas;
+        public static Mode ProgramMode;
+        public static Ust Ust;
+        public static Atlas Atlas;
         public static string LOG_DIR { get { return GetTempFile("LyricInputHelper", @"log.txt"); } }
         public static string[] args;
         public static NumberFormatInfo NFI;
@@ -41,87 +41,20 @@ namespace LyricInputHelper
             }
         }
 
-        static void Debug()
-        {
-            isDebug = true;
-            DebugLog("Debug started");
-            DebugLog("Checking log dir...");
-            if (File.Exists(LOG_DIR))
-            {
-                DebugLog("Log file exists.");
-            }
-            else
-            {
-                DebugLog("Log file doesn't exist, abort.");
-                return;
-            }
-            DebugLog();
-            DebugLog("Checking write permissions...");
-            try
-            {
-                File.AppendAllText(LOG_DIR, "Debug log");
-                DebugLog("Write permissions are ok.");
-            }
-            catch (Exception ex)
-            {
-                DebugLog($"Write permissions are bad! Exception handled:");
-                DebugLog();
-                DebugLog(ex.Message);
-                DebugLog();
-                DebugLog(ex.StackTrace);
-                DebugLog();
-                DebugLog("Abort.");
-                return;
-            }
-            DebugLog();
-            DebugLog("Checking atlas access...");
-            Atlas.VoicebankType = "CVC RUS";
-            try
-            {
-                Atlas.ReadAtlas();
-                DebugLog("Atlas access is ok.");
-            }
-            catch (Exception ex)
-            {
-                DebugLog($"Atlas access is bad! Exception handled:");
-                DebugLog();
-                DebugLog(ex.Message);
-                DebugLog();
-                DebugLog(ex.StackTrace);
-                DebugLog();
-                DebugLog("Abort.");
-                return;
-            }
-            DebugLog();
-            DebugLog("Debug finished.");
-        }
-
-        static void DebugLog(string message = "")
-        {
-            if (isDebug)
-                Console.WriteLine(message);
-        }
-
         private static bool isDebug;
 
         [STAThread]
-        static void Main(string[] initialArgs)
+        static void Main(string[] args)
         {
-            var args = initialArgs;
-            if (args.Length > 0 && args[0] == "-debug")
-            {
-                Debug();
-                if (args.Length > 0 && args[0] == "-debug")
-                {
-                    args = initialArgs.Skip(1).ToArray();
-                }
-            }
+#if DEBUG
+            Debug();
+#endif
             InitLang();
             try
             {
                 NFI = new CultureInfo("en-US", false).NumberFormat;
                 Program.args = args;
-                mode = DetectMode();
+                ProgramMode = DetectMode();
             }
             catch (Exception ex)
             {
@@ -221,7 +154,7 @@ namespace LyricInputHelper
         static void Init()
         {
             DebugLog("Init");
-            switch (mode)
+            switch (ProgramMode)
             {
                 case Mode.Plugin:
                     InitLog("Plugin");
@@ -229,66 +162,81 @@ namespace LyricInputHelper
                     break;
                 case Mode.Resampler:
                     InitLog("Resampler");
-                    Console.WriteLine("Hi stranger");
-                    Console.WriteLine("It's been a while");
+                    break;
+                case Mode.Wavtool:
+                    InitLog("Wavtool");
                     break;
                 case Mode.Standalone:
                     InitLog("Standalone");
                     StandaloneModeInit();
                     break;
+                case Mode.Unknown:
+                    InitLog("Unknown mode");
+                    Log($"args[{args.Length}]: {string.Join(", ", args)}");
+                    break;
             }
+        }
+
+        public static void Try(Action action, string errorMessage = "An error occured.")
+        {
+#if !DEBUG
+            try
+            {
+#endif
+                action.Invoke();
+#if !DEBUG
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage(ex, message);
+            }
+#endif
         }
 
         static void PluginModeInit()
         {
-            try
+            Try(() =>
             {
-                ust = new Ust(args[0]);
+                Ust = new Ust(args[0]);
+                Ust.SetAtlas(Atlas);
                 if (Ust.IsLoaded)
                     Log("Ust loaded");
-                else Log($"Error reading UST");
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage(ex, "Error on reading ust");
-                return;
-            }
-            try
+                else
+                    Log($"Error reading UST");
+            }, "Error on reading Ust");
+
+            Try(() =>
             {
                 if (Ust.IsLoaded)
-                    atlas = new Atlas(Ust.VoiceDir);
+                {
+                    Atlas = new Atlas(Ust.VoiceDir);
+                    Ust.SetAtlas(Atlas);
+                }
                 if (Atlas.IsLoaded)
                     Log("Atlas loaded");
                 else
-                    Log($"Error reading atlas {Atlas.AtlasPath}");
-            }
-            catch (Exception ex)
+                    Log("Error reading Atlas");
+            }, "Error on reading Atlas");
+
+            Try(() =>
             {
-                ErrorMessage(ex, $"Error on reading atlas {Atlas.AtlasPath}");
-                return;
-            }
-            try
-            {
-                var Singer = new Singer(Ust.VoiceDir);
-                if (Singer.IsLoaded) Log("Singer loaded"); else Log($"Error reading singer {Ust.VoiceDir}");
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage(ex, "Error on reading singer");
-                return;
-            }
+                var singer = new Singer(Ust.VoiceDir);
+                if (singer.IsLoaded)
+                    Log("Singer loaded");
+                else
+                    Log($"Error reading singer {Ust.VoiceDir}");
+            }, "Error on reading Singer");
+
             Log("All files loaded successfully");
-            try
+
+            Try(() =>
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage(ex, "Error on end init");
-                return;
-            }
+            }, "Error on end init");
+
             var window = new PluginWindow();
+            window.Init(Ust, Atlas);
             Application.Run(window);
         }
 
@@ -313,16 +261,20 @@ namespace LyricInputHelper
             Mode mode;
             switch (args.Length)
             {
+                case 0:
+                    mode = Mode.Unknown;
+                    break;
                 case 1:
-                    if (Ust.IsTempUst(args[0]))
+                    if (IsTempUst(args[0]))
                     {
                         mode = Mode.Plugin;
                     } else
                     {
-                        mode = Mode.Standalone;
+                        mode = Mode.Unknown;
                     }
                     break;
                 case 6:
+                case 11:
                 case 12:
                     mode = Mode.Wavtool;
                     break;
@@ -330,12 +282,18 @@ namespace LyricInputHelper
                     mode = Mode.Resampler;
                     break;
                 default:
-                    mode = Mode.Standalone;
+                    mode = Mode.Unknown;
                     break;
             }
-            Console.WriteLine($"{mode} mode");
+            Console.WriteLine($"{mode} ProgramMode");
             return mode;
 
+        }
+
+        static bool IsTempUst(string dir)
+        {
+            string filename = dir.Split('\\').Last();
+            return filename.StartsWith("tmp") && filename.EndsWith("tmp");
         }
 
         static void InitLog(string type)
@@ -373,7 +331,7 @@ namespace LyricInputHelper
                             type = "wavtool for R";
                             break;
                         default:
-                            type = mode.ToString();
+                            type = ProgramMode.ToString();
                             break;
                     }
                     log.WriteLine(text);
@@ -390,10 +348,10 @@ namespace LyricInputHelper
 
             try
             {
-                if (saveUST && Ust.IsLoaded)
+                if (saveUST && Ust != null && Ust.IsLoaded)
                 {
-                    DebugLog("Save debug ust attempt");
-                    File.Copy(args[0], GetTempFile("autocvc", "ust.tmp"), true);
+                    DebugLog("Save debug Ust attempt");
+                    File.Copy(args[0], GetTempFile("autocvc", "Ust.tmp"), true);
                 }
             }
             catch (Exception ex)
@@ -405,7 +363,7 @@ namespace LyricInputHelper
 
             try
             {
-                if (mode == Mode.Plugin)
+                if (ProgramMode == Mode.Plugin)
                 {
                     DebugLog("Set Status attempt");
                     PluginWindow.SetStatus(text, appendTextbox);
@@ -418,6 +376,75 @@ namespace LyricInputHelper
                 MessageBox.Show(error, "Error");
             }
 
+        }
+
+        private static void Debug()
+        {
+            isDebug = true;
+            DebugLog("Debug started");
+            DebugLog("Checking log dir...");
+            if (File.Exists(LOG_DIR))
+            {
+                DebugLog("Log file exists.");
+            }
+            else
+            {
+                DebugLog("Log file doesn't exist, abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Checking write permissions...");
+            try
+            {
+                File.AppendAllText(LOG_DIR, "Debug log");
+                DebugLog("Write permissions are ok.");
+            }
+            catch (Exception ex)
+            {
+                DebugLog($"Write permissions are bad! Exception handled:");
+                DebugLog();
+                DebugLog(ex.Message);
+                DebugLog();
+                DebugLog(ex.StackTrace);
+                DebugLog();
+                DebugLog("Abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Checking Atlas access...");
+            Atlas = new Atlas(Atlas.GetAtlasPath("CVC RUS"));
+            try
+            {
+                Atlas.ReadAtlas();
+                DebugLog("Atlas access is ok.");
+            }
+            catch (Exception ex)
+            {
+                DebugLog($"Atlas access is bad! Exception handled:");
+                DebugLog();
+                DebugLog(ex.Message);
+                DebugLog();
+                DebugLog(ex.StackTrace);
+                DebugLog();
+                DebugLog("Abort.");
+                return;
+            }
+            DebugLog();
+            DebugLog("Debug finished.");
+        }
+
+        public static void DebugLog(string message = "")
+        {
+            if (isDebug)
+                Console.WriteLine(message);
+        }
+
+        public static void Assert(bool passed, string message = "")
+        {
+#if DEBUG
+            if (!passed)
+                throw new Exception(message);
+#endif
         }
 
     }

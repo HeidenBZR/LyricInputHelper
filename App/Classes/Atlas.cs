@@ -11,53 +11,41 @@ using System.Text;
 namespace LyricInputHelper.Classes
 {
 
-    partial class Atlas
+    public partial class Atlas
     {
         #region Variables
-        public static string Version;
-        public static string[] Vowels;
-        public static string[] Consonants;
-        public static string[] Rests;
-        public static List<string> AliasTypes;
-        public static Dictionary<string, string> Format;
-        public static Dictionary<string, string> FormatRegex;
-        public static List<string[]> AliasReplaces;
-        public static List<string[]> PhonemeReplaces;
-        public static Dict Dict;
+        public string Version;
+        public string[] Vowels;
+        public string[] Consonants;
+        public string[] Rests;
+        public List<string> AliasTypes;
+        public Dictionary<string, string> Format;
+        public Dictionary<string, string> FormatRegex;
+        public List<string[]> AliasReplaces;
+        public List<string[]> PhonemeReplaces;
+        public Dict Dict;
+        public RuleManager RuleManager;
 
-        public static bool KeepWordsEndings = false;
-        public static bool KeepWordsBeginnigs = false;
-        public static bool KeepCC = false;
-        public static bool KeepCV = true;
+        public bool KeepWordsEndings = false;
+        public bool KeepWordsBeginnigs = false;
+        public bool KeepCC = false;
+        public bool KeepCV = true;
 
-        public static string Melisma = "&m;";
+        public string Melisma = "&m;";
 
 
-        public static string ExampleWord;
+        public string ExampleWord;
 
-        public static bool IsLoaded = false;
-        public static bool HasDict { get { return Dict.IsEnabled; } }
-        public static bool IsDefault = false;
-        public static string DefaultVoicebankType { get { return "CVC RUS"; } }
-        public static string VoicebankType;
-        public static string DictPath
-        {
-            get
-            {
-                return Program.GetResourceFile(Path.Combine(@"atlas", VoicebankType + ".dict"));
-            }
-        }
-        public static string AtlasPath
-        {
-            get
-            {
-                return Program.GetResourceFile(Path.Combine(@"atlas", VoicebankType + ".atlas"));
-            }
-        }
+        public bool IsLoaded = false;
+        public bool HasDict { get { return Dict.IsEnabled; } }
+        public bool IsDefault = false;
+        public string VoicebankType;
 
-        private static string VowelPattern;
-        private static string ConsonantPattern;
-        private static string RestPattern;
+        private string VowelPattern;
+        private string ConsonantPattern;
+        private string RestPattern;
+
+        public static string DefaultVoicebankType => "CVC RUS";
 
         public static Atlas Current;
 
@@ -69,24 +57,46 @@ namespace LyricInputHelper.Classes
         {
             _dir = dir;
             Current = this;
+            RuleManager = new RuleManager(this);
             Load();
-            Ust.ValidateLyrics();
         }
 
-        public static void Reload()
+        public void Reload()
         {
             Load();
         }
 
-        public static bool IsRest(string phoneme) { return Rests.Contains(phoneme) || phoneme == "R" || phoneme.Trim(' ') == ""; }
-        public static bool IsConsonant(string phoneme) { return Consonants.Contains(phoneme); }
-        public static bool IsVowel(string phoneme) { return Vowels.Contains(phoneme); }
-
-        public static bool IsAtlasPhoneme(string phoneme) { return Rests.Contains(phoneme) || Consonants.Contains(phoneme) || Vowels.Contains(phoneme); }
-
-        public static string GetAliasType(string alias)
+        public bool IsRest(string phoneme) { return Rests.Contains(phoneme) || phoneme == "R" || phoneme.Trim(' ') == ""; }
+        public bool IsConsonant(string phoneme) { return Consonants.Contains(phoneme); }
+        public bool IsVowel(string phoneme)
         {
-            if (alias == Number.DELETE) return "";
+            return Vowels.Contains(phoneme);
+        }
+
+        public bool IsAtlasPhoneme(string phoneme)
+        {
+            return Rests.Contains(phoneme) || Consonants.Contains(phoneme) || Vowels.Contains(phoneme); 
+
+        }
+
+        public string GetDictPath()
+        {
+            return Program.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".dict"));
+        }
+
+        public string GetAtlasPath()
+        {
+            return Program.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".Atlas"));
+        }
+
+        public static string GetAtlasPath(string voicebankType)
+        {
+            return Program.GetResourceFile(Path.Combine(@"Atlas", voicebankType + ".Atlas"));
+        }
+
+        public string GetAliasType(string alias)
+        {
+            if (alias == NumberManager.DELETE) return "";
             if (IsRest(alias)) return "R";
             if (IsVowel(alias)) return "V";
             if (IsConsonant(alias)) return "C";
@@ -104,7 +114,7 @@ namespace LyricInputHelper.Classes
             //throw new Exception("Это говно какое-то а не алиас ясно?");
         }
 
-        public static string[] GetPhonemes(string alias)
+        public string[] GetPhonemes(string alias)
         {
             if (IsRest(alias)) return new string[] {};
             if (IsVowel(alias) || IsConsonant(alias)) return new string[] { alias };
@@ -126,7 +136,7 @@ namespace LyricInputHelper.Classes
             throw new Exception($"Can't extract phonemes from [{alias}]");
         }
 
-        public static string[] GetPhonemes(string alias, string alias_type)
+        public string[] GetPhonemes(string alias, string alias_type)
         {
             if (IsRest(alias)) return new string[] { };
             string pattern = FormatRegex[alias_type];
@@ -144,7 +154,7 @@ namespace LyricInputHelper.Classes
             throw new Exception($"Can't extract phonemes from {alias}");
         }
 
-        public static bool MatchPhonemeType(string PhonemeType, string phoneme)
+        public bool MatchPhonemeType(string PhonemeType, string phoneme)
         {
             switch (PhonemeType)
             {
@@ -159,7 +169,7 @@ namespace LyricInputHelper.Classes
             }
         }
 
-        public static string GetAlias(string alias_type, string[] phonemes)
+        public string GetAlias(string alias_type, string[] phonemes)
         {
             if (alias_type == "R") return " ";
             string ph = "%.%";
@@ -178,13 +188,13 @@ namespace LyricInputHelper.Classes
                     format = f.Replace(format, phonemes[i], 1);
                     i++;
                 }
-                else throw new Exception($"Wrong phonemes [ {String.Join(" ", phonemes)} ] to format alias {alias_type} for {Singer.Current.VoicebankType}");
+                else throw new Exception($"Wrong phonemes [ {string.Join(" ", phonemes)} ] to format alias {alias_type} for {Singer.Current.VoicebankType}");
             }
 
             return format;
         }
 
-        public static string AliasReplace(string line)
+        public string AliasReplace(string line)
         {
             foreach (string[] pair in AliasReplaces)
             {
@@ -204,7 +214,7 @@ namespace LyricInputHelper.Classes
             return line;
         }
 
-        public static string PhonemeReplace(string phonemes)
+        public string PhonemeReplace(string phonemes)
         {
             foreach (string[] pair in PhonemeReplaces)
             {
@@ -216,14 +226,13 @@ namespace LyricInputHelper.Classes
             return phonemes;
         }
 
-        public static Syllable PhonemeReplace(Syllable syllable)
+        public Syllable PhonemeReplace(Syllable syllable)
         {
             var phonemes = PhonemeReplace(syllable.ToString());
-            return new Syllable(phonemes.Split(' '));
+            return new Syllable(phonemes.Split(' '), this);
         }
 
-
-        public static string[] DictAnalysis(string lyric)
+        public string[] DictAnalysis(string lyric)
         {
             // DEPRECATED
             List<string> aliases = new List<string>();
@@ -253,7 +262,7 @@ namespace LyricInputHelper.Classes
             }
             int vs = aliases.Select(n => GetAliasType(n) != "C").ToArray().Length;
             if (vs == 1)
-                return new[] { String.Join(" ", Dict.Get(l)) };
+                return new[] { string.Join(" ", Dict.Get(l)) };
             var sylls = new List<string>();
             int lastv = aliases.Select(n => GetAliasType(n) != "C").ToList().FindLastIndex(n => n);
             int prevv = -1;
@@ -267,20 +276,32 @@ namespace LyricInputHelper.Classes
                 }
                 if (ph == lastv)
                 {
-                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, aliases.Count - 1 - prevv)));
+                    sylls.Add(string.Join(" ", aliases.ToList().GetRange(prevv + 1, aliases.Count - 1 - prevv)));
                     prevv = ph;
                 }
                 else
                 {
-                    sylls.Add(String.Join(" ", aliases.ToList().GetRange(prevv + 1, ph - prevv)));
+                    sylls.Add(string.Join(" ", aliases.ToList().GetRange(prevv + 1, ph - prevv)));
                     prevv = ph;
                 }
             }
-            string t = String.Join(" ", sylls);
+            string t = string.Join(" ", sylls);
             return sylls.ToArray();
         }
 
-        public static int FindVowel(string[] aliases)
+        public string ValidateLyric(string lyric)
+        {
+            if (!IsLoaded)
+                return lyric;
+            if (IsRest(lyric))
+                return " ";
+            if (lyric == "rr")
+                return "r";
+            else
+                return lyric;
+        }
+
+        public int FindVowel(string[] aliases)
         {
             for (int i = 0; i < aliases.Length; i++)
             {
@@ -289,12 +310,22 @@ namespace LyricInputHelper.Classes
             return 0;
         }
 
-        public static int VowelsCount(string[] aliases)
+        public RuleResult GetRuleResult(Format format, string lyricPrev, string lyric)
+        {
+            string[] phonemesPrev = GetPhonemes(lyricPrev);
+            string[] phonemes = GetPhonemes(lyric);
+            string[] phonemesNew = format.GetNewPhonemes(phonemesPrev, phonemes);
+            string alias = GetAlias(format.AliasType, phonemesNew);
+            RuleResult ruleResult = new RuleResult(alias, format.AliasType);
+            return ruleResult;
+        }
+
+        public int VowelsCount(string[] aliases)
         {
             return aliases.Count(n => new[] { "CV", "V", "-CV", "`V", "-V"}.Contains(GetAliasType(n)));
         }
 
-        public static bool AddWord(string word, string phonemes, bool toSendMail = false)
+        public bool AddWord(string word, string phonemes, bool toSendMail = false)
         {
             if (HasDict)
             {
@@ -302,15 +333,15 @@ namespace LyricInputHelper.Classes
                 string old_phonemes = "";
                 bool wasInDict = Dict.Has(word);
                 if (wasInDict)
-                    old_phonemes = String.Join(" ", Dict.Get(word));
+                    old_phonemes = string.Join(" ", Dict.Get(word));
                 if (Dict.Add(line))
                 {
                     if (!wasInDict || old_phonemes != phonemes)
                     {
-                        writeWord(line, wasInDict);
+                        WriteWord(line, wasInDict);
                         if (toSendMail)
                         {
-                            sendMail(word, phonemes, wasInDict);
+                            SendMail(word, phonemes, wasInDict);
                         }
                     }
                     return true;
@@ -319,55 +350,7 @@ namespace LyricInputHelper.Classes
             return false;
         }
 
-        static void writeWord(string line, bool wasInDict)
-        {
-            if (wasInDict)
-            {
-                // Better not
-                try
-                {
-                    File.AppendAllText(DictPath, line + "\r\n");
-                }
-                catch (Exception ex)
-                {
-                    Program.ErrorMessage(ex, "Cant modify dict file");
-                }
-            }
-            else
-            {
-                try
-                {
-                    File.AppendAllText(DictPath, line + "\r\n");
-                }
-                catch (Exception ex)
-                {
-                    Program.ErrorMessage(ex, "Cant modify dict file");
-                }
-            }
-        }
-
-        static void sendMail(string word, string phonemes, bool wasInDict)
-        {
-            try
-            {
-                MailAddress from = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
-                MailAddress to = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
-                MailMessage m = new MailMessage(from, to);
-                m.Subject = (wasInDict ? "Word correction " : "New word") + $" [{word}]";
-                m.Body = $"<h1>{VoicebankType}</h1><p>{word}={phonemes}</p>";
-                m.IsBodyHtml = true;
-                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-                smtp.Credentials = new NetworkCredential("wavconfigtool@gmail.com", "wavconfig99231");
-                smtp.EnableSsl = true;
-                smtp.Send(m);
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex, "Error on sending mail");
-            }
-        }
-
-        public static List<Syllable> GetSyllables(string[] phonemes)
+        public List<Syllable> GetSyllables(string[] phonemes)
         {
             var sylls = new List<Syllable>();
             var syll_phonemes = new List<string>();
@@ -375,9 +358,9 @@ namespace LyricInputHelper.Classes
 
             // non-vowel or 1 vowel word
             if (!phonemes.Any(n => IsVowel(n)) || phonemes.Count(n => IsVowel(n)) == 1)
-                return new[] { new Syllable(phonemes) }.ToList();
+                return new[] { new Syllable(phonemes, this) }.ToList();
 
-            for (; i < phonemes.Length; )
+            for (; i < phonemes.Length;)
             {
                 // add beginning CC
                 for (; IsConsonant(phonemes[i]); i++)
@@ -402,10 +385,64 @@ namespace LyricInputHelper.Classes
                     }
                 }
 
-                sylls.Add(new Syllable(syll_phonemes));
+                sylls.Add(new Syllable(syll_phonemes, this));
                 syll_phonemes = new List<string>();
             }
             return sylls;
         }
+
+        #region private
+
+        private void WriteWord(string line, bool wasInDict)
+        {
+            var dictPath = GetDictPath();
+            if (wasInDict)
+            {
+                // Better not
+                try
+                {
+                    File.AppendAllText(dictPath, line + "\r\n");
+                }
+                catch (Exception ex)
+                {
+                    Program.ErrorMessage(ex, "Cant modify dict file");
+                }
+            }
+            else
+            {
+                try
+                {
+                    File.AppendAllText(dictPath, line + "\r\n");
+                }
+                catch (Exception ex)
+                {
+                    Program.ErrorMessage(ex, "Cant modify dict file");
+                }
+            }
+        }
+
+        private void SendMail(string word, string phonemes, bool wasInDict)
+        {
+            return; //disable this shit
+            try
+            {
+                MailAddress from = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
+                MailAddress to = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
+                MailMessage m = new MailMessage(from, to);
+                m.Subject = (wasInDict ? "Word correction " : "New word") + $" [{word}]";
+                m.Body = $"<h1>{VoicebankType}</h1><p>{word}={phonemes}</p>";
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                smtp.Credentials = new NetworkCredential("wavconfigtool@gmail.com", "wavconfig99231");
+                smtp.EnableSsl = true;
+                smtp.Send(m);
+            }
+            catch (Exception ex)
+            {
+                Program.ErrorMessage(ex, "Error on sending mail");
+            }
+        }
+
+        #endregion
     }
 }

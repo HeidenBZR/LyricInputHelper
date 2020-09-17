@@ -16,21 +16,22 @@ namespace LyricInputHelper.UI
         public string Word;
         public string Phonemes;
         public bool IsToSendMail;
+        public Atlas Atlas;
 
-
-        public AddWordDialog()
+        public AddWordDialog(Atlas atlas)
         {
+            Atlas = atlas;
             InitializeComponent();
             SetLang();
             DialogResult = DialogResult.Cancel;
         }
 
-        public AddWordDialog(string word) : this()
+        public AddWordDialog(Atlas atlas, string word) : this(atlas)
         {
             textBoxWord.Text = word;
         }
 
-        public AddWordDialog(string word, string phonemes) : this(word)
+        public AddWordDialog(Atlas atlas, string word, string phonemes) : this(atlas, word)
         {
             textBoxPhonemes.Text = phonemes;
         }
@@ -50,7 +51,6 @@ namespace LyricInputHelper.UI
                 labelPhonemes.Text = Lang.Get("addword_phonemes");
             }
             Text = Lang.Get("addword_title");
-            checkBoxSendMail.Text = Lang.Get("addword_sendmail");
             buttonOk.Text = Lang.Get("button_ok");
             buttonCancel.Text = Lang.Get("button_cancel");
         }
@@ -62,7 +62,6 @@ namespace LyricInputHelper.UI
                 return;
             Word = textBoxWord.Text;
             Phonemes = textBoxPhonemes.Text;
-            IsToSendMail = checkBoxSendMail.Checked;
             Close();
         }
 

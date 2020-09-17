@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LyricInputHelper.Classes
 {
-    class Number
+    public class NumberManager
     {
 
         public const string NEXT = "[#NEXT]";
@@ -18,9 +18,12 @@ namespace LyricInputHelper.Classes
 
         public static bool IsNote(string number)
         {
-            if (number.Length < 6) return false;
-            if (number == NEXT) return true;
-            if (number == PREV) return true;
+            if (number.Length < 6) 
+                return false;
+            if (number == NEXT) 
+                return true;
+            if (number == PREV) 
+                return true;
             return int.TryParse(number.Substring(2, 4), out int i);
         }
 
@@ -29,10 +32,12 @@ namespace LyricInputHelper.Classes
             return $"[#{i.ToString().PadLeft(4, '0')}]";
         }
 
-        public static int GetInt(string number)
+        public static int GetInt(string number, Ust ust)
         {
-            if (number == "[#NEXT]") return Ust.Notes.Count();
-            return int.Parse(number.Substring(2, 4));
+            if (number == "[#NEXT]")
+                return ust.Notes.Count();
+            return 
+                int.Parse(number.Substring(2, 4));
         }
     }
 

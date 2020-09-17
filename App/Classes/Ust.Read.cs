@@ -10,28 +10,28 @@ namespace LyricInputHelper.Classes
 {
     public partial class Ust
     {
-        public static void TakeOut(string line, string name, out string value) { value = line.Substring(name.Length + 1); }
-        public static void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
-        public static string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
+        public void TakeOut(string line, string name, out string value) { value = line.Substring(name.Length + 1); }
+        public void TakeOut(string line, string name, out int value) { value = int.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
+        public void TakeOut(string line, string name, out double value) { value = double.Parse(line.Substring(name.Length + 1), new CultureInfo("ja-JP")); }
+        public string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
 
 
-        private static void Read()
+        private void Read()
         {
             string[] lines = System.IO.File.ReadAllLines(Dir, Encoding.GetEncoding(932));
             int i = 0;
             // Reading version
-            if (lines[0] == Number.VERSION)
+            if (lines[0] == NumberManager.VERSION)
             {
                 Version = 1.2;
                 i++;
                 i++;
             }
-            if (lines[i] != Number.SETTING)
+            if (lines[i] != NumberManager.SETTING)
                 throw new Exception("Error UST reading");
             else i++;
 
-            while (i < lines.Length && !Number.IsNote(lines[i]))
+            while (i < lines.Length && !NumberManager.IsNote(lines[i]))
             {
                 if (lines[i].StartsWith("UstVersion")) TakeOut(lines[i], "UstVersion", out Version);
                 if (lines[i].StartsWith("Tempo")) TakeOut(lines[i], "Tempo", out Tempo);
@@ -46,7 +46,7 @@ namespace LyricInputHelper.Classes
                 note = new Note();
                 note.Number = lines[i];
                 i++;
-                while (!Number.IsNote(lines[i]))
+                while (!NumberManager.IsNote(lines[i]))
                 {
                     string line = lines[i];
                     if (lines[i].StartsWith("Length"))
@@ -55,10 +55,6 @@ namespace LyricInputHelper.Classes
                             note.Length = length;
                             note.FinalLength = length;
                         }
-                    if (lines[i].StartsWith("Velocity="))
-                        if (double.TryParse(lines[i].Substring("Velocity=".Length), out double velocity))
-                            if (velocity > 1)
-                                note.Velocity = velocity / 100;
                     if (lines[i].StartsWith("Intensity="))
                         if (int.TryParse(lines[i].Substring("Intensity=".Length), out int intensity))
                             note.Intensity = intensity;
@@ -73,7 +69,6 @@ namespace LyricInputHelper.Classes
                         note.ParsedLyric = note.Lyric;
                     }
                     i++;
-                    Console.WriteLine(i);
                     if (i == lines.Length) break;
                 }
                 notes.Add(note);
@@ -85,29 +80,30 @@ namespace LyricInputHelper.Classes
             // Console.WriteLine(String.Join("\r\n", GetText()));
         }
 
-        public static string[] GetText()
+        public string[] GetText()
         {
             List<string> text = new List<string> { };
             if (Version == 1.2)
             {
-                text.Add(Number.VERSION);
+                text.Add(NumberManager.VERSION);
                 text.Add("UST Version " + Version.ToString());
-                text.Add(Number.SETTING);
+                text.Add(NumberManager.SETTING);
             }
             else
             {
-                text.Add(Number.SETTING);
+                text.Add(NumberManager.SETTING);
                 text.Add(TakeIn("Version", Version));
             }
             text.Add(TakeIn("Tempo", Tempo));
             text.Add(TakeIn("VoiceDir", VoiceDir));
-            foreach (Note note in Notes) text.AddRange(note.GetText());
+            foreach (Note note in Notes)
+                text.AddRange(note.GetText(Atlas));
             return text.ToArray();
         }
 
 
 
-        public static string[] Save()
+        public string[] Save()
         {
             SetLength();
             if (PluginWindow.MakeFade)
@@ -118,7 +114,7 @@ namespace LyricInputHelper.Classes
             return text;
         }
 
-        public static void Save(string dir)
+        public void Save(string dir)
         {
             SetLength();
             string[] text = GetText();

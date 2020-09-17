@@ -35,7 +35,8 @@ namespace LyricInputHelper.Classes
             Current = this;
             Dir = dir;
             CheckVoicebank();
-            if (!IsEnabled) return;
+            if (!IsEnabled) 
+                return;
             CharLoad();
             Pitchmap = new Pitchmap(Dir);
             Load();

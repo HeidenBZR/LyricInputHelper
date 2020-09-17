@@ -76,10 +76,11 @@
     <Compile Include="Classes\Ini.cs" />
     <Compile Include="Classes\Lang.cs" />
     <Compile Include="Classes\MusicMath.cs" />
-    <Compile Include="Classes\Number.cs" />
+    <Compile Include="Classes\NumberManager.cs" />
     <Compile Include="Classes\Oto.cs" />
     <Compile Include="Classes\Pitchmap.cs" />
     <Compile Include="Classes\Rule.cs" />
+    <Compile Include="Classes\RuleManager.cs" />
     <Compile Include="Classes\Settings.cs" />
     <Compile Include="Classes\Singer.cs" />
     <Compile Include="Classes\Note.cs" />

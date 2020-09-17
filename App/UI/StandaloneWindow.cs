@@ -28,16 +28,16 @@ namespace LyricInputHelper.UI
         {
             try
             {
-                Program.GetResourceFolder("atlas");
-                if (Directory.Exists("atlas"))
+                Program.GetResourceFolder("Atlas");
+                if (Directory.Exists("Atlas"))
                 {
-                    foreach (var filename in Directory.GetFiles("atlas"))
+                    foreach (var filename in Directory.GetFiles("Atlas"))
                         if (!File.Exists(Program.GetResourceFile(filename)))
                             File.Move(filename, Program.GetResourceFile(filename));
                         else
                             File.Delete(filename);
 
-                    Directory.Delete("atlas");
+                    Directory.Delete("Atlas");
                 }
                 labelSetupAtlas.Text = "Atlases are successfully installed.";
                 return true;
@@ -85,8 +85,8 @@ namespace LyricInputHelper.UI
                 Program.GetTempFolder("LyricInputHelper");
                 if (!File.Exists(Program.GetTempFile("LyricInputHelper", "log.txt")))
                     File.Create(Program.GetTempFile("LyricInputHelper", "log.txt")).Close();
-                if (!File.Exists(Program.GetTempFile("LyricInputHelper", "ust.tmp")))
-                    File.Create(Program.GetTempFile("LyricInputHelper", "ust.tmp")).Close();
+                if (!File.Exists(Program.GetTempFile("LyricInputHelper", "Ust.tmp")))
+                    File.Create(Program.GetTempFile("LyricInputHelper", "Ust.tmp")).Close();
                 //labelSetupTemp.Text = "Temp folder  successfully created.";
                 return true;
             }

@@ -21,16 +21,16 @@ namespace LyricInputHelper.Classes
         public readonly string[] ExtraConsonantBeginning = new string[0];
         public readonly string[] ExtraConsonantEnding = new string[0];
                 
-        public Syllable(IEnumerable<string> phonemes)
+        public Syllable(IEnumerable<string> phonemes, Atlas atlas)
         {
             Phonemes = phonemes.ToArray();
             try
             {
                 List<string> phs = phonemes.ToList();
-                if (Phonemes.Any(n => Atlas.IsVowel(n)))
+                if (Phonemes.Any(n => atlas.IsVowel(n)))
                 {
                     ContainsVowel = true;
-                    int v = phs.FindIndex(n => Atlas.IsVowel(n));
+                    int v = phs.FindIndex(n => atlas.IsVowel(n));
                     VowelIndex = v;
                     Vowel = phs[v];
                     int count = phs.Count;

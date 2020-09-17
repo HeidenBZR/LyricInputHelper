@@ -25,8 +25,13 @@ namespace LyricInputHelper.UI
         public bool Cancel = true;
         public InputMode InputMode { get; set; } = InputMode.LyricInput;
 
-        public SetTextWindow()
+        public Atlas Atlas;
+        public Ust Ust;
+
+        public SetTextWindow(Atlas atlas, Ust ust)
         {
+            Atlas = atlas;
+            Ust = ust;
             InitializeComponent();
             SetLang();
 
@@ -73,14 +78,14 @@ namespace LyricInputHelper.UI
             Words = new List<Word>();
             for (int i = 0; i < texts.Count; i++)
             {
-                Word word = new Word(texts[i], Atlas.Dict.Get(texts[i]));
+                Word word = new Word(texts[i], Atlas.Dict.Get(texts[i]), Atlas);
                 while (word.Phonemes is null)
                 {
                     // добавление слова
                     bool success = false;
                     while (!success)
                     {
-                        var window = new AddWordDialog(texts[i]);
+                        var window = new AddWordDialog(Atlas, texts[i]);
                         window.SetStatus($"Слово \"{texts[i]}\" отсутствует в словаре. Добавьте слово");
                         window.ShowDialog();
                         if (window.DialogResult == DialogResult.OK)
@@ -88,7 +93,7 @@ namespace LyricInputHelper.UI
                             if (Atlas.AddWord(window.Word, window.Phonemes, window.IsToSendMail))
                             {
                                 window.SetStatus($"Слово \"{window.Word}\" успешно добавлено.");
-                                word = new Word(texts[i], Atlas.Dict.Get(texts[i]));
+                                word = new Word(texts[i], Atlas.Dict.Get(texts[i]), Atlas);
                                 success = true;
                             }
                             else
@@ -100,7 +105,7 @@ namespace LyricInputHelper.UI
                 }
                 Words.Add(word);
             }
-            Syllables = texts.Select(n => new Syllable(n.Split(' '))).ToList();
+            Syllables = texts.Select(n => new Syllable(n.Split(' '), Atlas)).ToList();
             return true;
         }
 
@@ -221,7 +226,7 @@ namespace LyricInputHelper.UI
                 {
                     text = EcranPhonetics(text);
                     texts = text.Split('\n').ToList();
-                    Syllables = texts.Select(n => new Syllable(n.Split(' '))).ToList();
+                    Syllables = texts.Select(n => new Syllable(n.Split(' '), Atlas)).ToList();
                     for (int i = 0; i < Syllables.Count; i++)
                         Syllables[i] = Atlas.PhonemeReplace(Syllables[i]);
                     Cancel = false;
