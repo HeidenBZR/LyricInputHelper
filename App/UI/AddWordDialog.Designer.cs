@@ -34,7 +34,6 @@
             this.labelWord = new System.Windows.Forms.Label();
             this.textBoxPhonemes = new System.Windows.Forms.TextBox();
             this.labelPhonemes = new System.Windows.Forms.Label();
-            this.checkBoxSendMail = new System.Windows.Forms.CheckBox();
             this.labelStatus = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -92,18 +91,6 @@
             this.labelPhonemes.Text = "label_phonemes";
             this.labelPhonemes.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
             // 
-            // checkBoxSendMail
-            // 
-            this.checkBoxSendMail.AutoSize = true;
-            this.checkBoxSendMail.Checked = true;
-            this.checkBoxSendMail.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxSendMail.Location = new System.Drawing.Point(24, 136);
-            this.checkBoxSendMail.Name = "checkBoxSendMail";
-            this.checkBoxSendMail.Size = new System.Drawing.Size(132, 17);
-            this.checkBoxSendMail.TabIndex = 4;
-            this.checkBoxSendMail.Text = "checkbox_send_email";
-            this.checkBoxSendMail.UseVisualStyleBackColor = true;
-            // 
             // labelStatus
             // 
             this.labelStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -119,7 +106,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(423, 226);
-            this.Controls.Add(this.checkBoxSendMail);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.labelPhonemes);
             this.Controls.Add(this.labelWord);
@@ -144,7 +130,6 @@
         private System.Windows.Forms.Label labelWord;
         private System.Windows.Forms.TextBox textBoxPhonemes;
         private System.Windows.Forms.Label labelPhonemes;
-        private System.Windows.Forms.CheckBox checkBoxSendMail;
         private System.Windows.Forms.Label labelStatus;
     }
 }

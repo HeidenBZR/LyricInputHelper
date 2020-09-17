@@ -51,7 +51,6 @@ namespace LyricInputHelper.UI
                 labelPhonemes.Text = Lang.Get("addword_phonemes");
             }
             Text = Lang.Get("addword_title");
-            checkBoxSendMail.Text = Lang.Get("addword_sendmail");
             buttonOk.Text = Lang.Get("button_ok");
             buttonCancel.Text = Lang.Get("button_cancel");
         }
@@ -63,7 +62,6 @@ namespace LyricInputHelper.UI
                 return;
             Word = textBoxWord.Text;
             Phonemes = textBoxPhonemes.Text;
-            IsToSendMail = checkBoxSendMail.Checked;
             Close();
         }
 
