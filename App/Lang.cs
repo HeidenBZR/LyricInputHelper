@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VAtlas;
 
-namespace LyricInputHelper.Classes
+namespace LyricInputHelper
 {
     public static class Lang
     {
@@ -16,9 +17,9 @@ namespace LyricInputHelper.Classes
 
         public static void Init()
         {
-            Languages = Directory.EnumerateFiles(Program.GetResourceFolder("LyricInputHelper", "lang"), 
+            Languages = Directory.EnumerateFiles(PathResolver.GetResourceFolder("LyricInputHelper", "lang"), 
                 "*.txt", SearchOption.TopDirectoryOnly).Select(n => Path.GetFileNameWithoutExtension(n)).ToArray();
-            var lang_file = Program.GetResourceFile("LyricInputHelper", "lang", "lang");
+            var lang_file = PathResolver.GetResourceFile("LyricInputHelper", "lang", "lang");
             if (File.Exists(lang_file))
             {
                 string filename = File.ReadAllText(lang_file).Trim(' ', '\n', '\r');
@@ -33,7 +34,7 @@ namespace LyricInputHelper.Classes
 
         static void Save(string filename)
         {
-            var lang_file = Program.GetResourceFile("LyricInputHelper", "lang", "lang");
+            var lang_file = PathResolver.GetResourceFile("LyricInputHelper", "lang", "lang");
             try
             {
                 if (!File.Exists(lang_file))
@@ -42,7 +43,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.Log($"Failed to save lang file. \n\n{ex.Message}\n{ex.StackTrace}");
+                Errors.Log($"Failed to save lang file. \n\n{ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -52,7 +53,7 @@ namespace LyricInputHelper.Classes
             string[] lines;
             try
             {
-                lines = File.ReadAllLines(Program.GetResourceFile("LyricInputHelper", "lang", $"{lang}.txt"), Encoding.UTF8);
+                lines = File.ReadAllLines(PathResolver.GetResourceFile("LyricInputHelper", "lang", $"{lang}.txt"), Encoding.UTF8);
             }
             catch (Exception) { return; }
             foreach (var line in lines)

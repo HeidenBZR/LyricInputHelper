@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using LyricInputHelper.Classes;
+using VAtlas;
 
 namespace LyricInputHelper.UI
 {
@@ -90,7 +90,7 @@ namespace LyricInputHelper.UI
                         window.ShowDialog();
                         if (window.DialogResult == DialogResult.OK)
                         {
-                            if (Atlas.AddWord(window.Word, window.Phonemes, window.IsToSendMail))
+                            if (Atlas.AddWord(window.Word, window.Phonemes))
                             {
                                 window.SetStatus($"Слово \"{window.Word}\" успешно добавлено.");
                                 word = new Word(texts[i], Atlas.Dict.Get(texts[i]), Atlas);

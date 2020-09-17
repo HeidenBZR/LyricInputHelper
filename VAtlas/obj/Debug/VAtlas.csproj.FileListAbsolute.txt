@@ -1,0 +1,6 @@
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\bin\Debug\VAtlas.dll
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\bin\Debug\VAtlas.pdb
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\obj\Debug\VAtlas.csprojAssemblyReference.cache
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\obj\Debug\VAtlas.csproj.CoreCompileInputs.cache
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\obj\Debug\VAtlas.dll
+F:\External\Github\HeidenBZR\LyricInputHelper\VAtlas\obj\Debug\VAtlas.pdb

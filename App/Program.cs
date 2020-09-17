@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using LyricInputHelper.Classes;
 using LyricInputHelper.UI;
 using System.Windows.Forms;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms.VisualStyles;
+using VAtlas;
 
 namespace LyricInputHelper
 {
@@ -27,7 +27,6 @@ namespace LyricInputHelper
         public static string LOG_DIR { get { return GetTempFile("LyricInputHelper", @"log.txt"); } }
         public static string[] args;
         public static NumberFormatInfo NFI;
-        public static Settings settings;
 
         static void InitLang()
         {
@@ -37,7 +36,7 @@ namespace LyricInputHelper
             }
             catch(ExecutionEngineException ex)
             {
-                Program.ErrorMessage(ex, "Error on Lang Init");
+                ErrorMessage(ex, "Error on Lang Init");
             }
         }
 
@@ -363,10 +362,10 @@ namespace LyricInputHelper
 
             try
             {
-                if (ProgramMode == Mode.Plugin)
+                if (ProgramMode == Mode.Plugin && PluginWindow.window != null)
                 {
                     DebugLog("Set Status attempt");
-                    PluginWindow.SetStatus(text, appendTextbox);
+                    PluginWindow.window.SetStatus(text, appendTextbox);
                 }
             }
             catch (Exception ex)

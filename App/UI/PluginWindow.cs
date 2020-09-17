@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using LyricInputHelper.Classes;
-using System.Collections.Generic;
+using VAtlas;
 using LyricInputHelper.UI;
 using System.Drawing;
-using System.Linq;
-using System.IO;
-using System.Globalization;
 
 namespace LyricInputHelper
 {
@@ -14,11 +10,13 @@ namespace LyricInputHelper
     {
         public static PluginWindow window;
         static SetTextWindow SetTextWindow;
+        public AtlasSettings Settings = new AtlasSettings();
+        public Version VERSION = new Version(0, 4, 2, 0);
 
         public PluginWindow()
         {
-            InitializeComponent();
             window = this;
+            InitializeComponent();
         }
 
         void SetTitle()
@@ -61,18 +59,18 @@ namespace LyricInputHelper
         {
             if (double.TryParse(textBoxCompressionRatio.Text, out double ratio))
                 if (ratio > 0)
-                    CompressionRatio = ratio;
+                    Settings.CompressionRatio = ratio;
             if (double.TryParse(textBoxCompressionRatio.Text, out double lchratio))
                 if (ratio > 0)
-                    LastChildCompressionRatio = lchratio;
+                    Settings.LastChildCompressionRatio = lchratio;
             if (int.TryParse(textBoxMinLength.Text, out int minLength))
-                MinLength = minLength;
+                Settings.MinLength = minLength;
             if (double.TryParse(textBoxVelocity.Text, out double velocity))
-                Velocity = velocity;
-            MakeVR = checkBoxVR.Checked;
-            MakeShort = checkBoxInsertShort.Checked;
-            LengthByOto = checkBoxLengthByOto.Checked;
-            MakeFade = checkBoxFade.Checked;
+                Settings.Velocity = velocity;
+            Settings.MakeVR = checkBoxVR.Checked;
+            Settings.MakeShort = checkBoxInsertShort.Checked;
+            Settings.LengthByOto = checkBoxLengthByOto.Checked;
+            Settings.MakeFade = checkBoxFade.Checked;
         }
 
         public void Recolor(DataGridView lyricView)
@@ -113,7 +111,7 @@ namespace LyricInputHelper
             for (int y = 0; y < lyricView.Rows.Count; y++)
             {
                 Note note = Ust.Notes[y];
-                if (note.Number == Classes.NumberManager.INSERT)
+                if (note.Number == NumberManager.INSERT)
                 {
                     for (int x = 1; x < 3; x++)
                         lyricView[x, y].Style = insertCellStyle;
@@ -123,7 +121,7 @@ namespace LyricInputHelper
                     for (int x = 0; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = darkCellStyle;
                 }
-                if (note.Number == Classes.NumberManager.DELETE)
+                if (note.Number == NumberManager.DELETE)
                 {
                     for (int x = 1; x < lyricView.Columns.Count; x++)
                         lyricView[x, y].Style = deleteCellStyle;
@@ -136,25 +134,25 @@ namespace LyricInputHelper
             }
         }
 
-        public static void SetStatus(string text, bool appendTextbox = false)
+        public void SetStatus(string text, bool appendTextbox = false)
         {
             if (window != null)
                 window.labelStatus.Text = text;
         }
 
-        public static void CheckAccess()
+        public void CheckAccess()
         {
-            window.buttonSetText.Enabled = !IsUnparsed;
-            window.buttonSplit.Enabled = !IsUnparsed;
-            window.buttonAtlasConvert.Enabled = !IsUnparsed;
-            window.buttonToCV.Enabled = !IsParsed;
-            window.buttonToCVC.Enabled = !IsParsed;
+            window.buttonSetText.Enabled = !Settings.IsUnparsed;
+            window.buttonSplit.Enabled = !Settings.IsUnparsed;
+            window.buttonAtlasConvert.Enabled = !Settings.IsUnparsed;
+            window.buttonToCV.Enabled = !Settings.IsParsed;
+            window.buttonToCVC.Enabled = !Settings.IsParsed;
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
         {
             GetValues();
-            Ust.Save();
+            Ust.Save(Settings);
             Application.Exit();
         }
 
@@ -300,11 +298,6 @@ namespace LyricInputHelper
                 ((DataGridView)sender)[2, i].ToolTipText = Ust.Notes[i].AliasType;
         }
 
-
-        void contextMenuStripMelisma_Click(object sender, EventArgs e)
-        {
-            
-        }
 
         private void PluginWindow_KeyDown(object sender, KeyEventArgs e)
         {

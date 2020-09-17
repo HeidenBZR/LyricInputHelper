@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Globalization;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public enum Insert : int
     {
@@ -54,7 +54,6 @@ namespace LyricInputHelper.Classes
         {
             int? n = Notes[0].Number == NumberManager.PREV ? 1 : 0; // нота
             int s = 0; // слог
-            string cc = "";
             while (s < syllables.Count && n < Notes.Length)
             {
                 n = SkipNotes(n.Value);
@@ -68,7 +67,7 @@ namespace LyricInputHelper.Classes
                 s++;
             }
             if (s < syllables.Count - 1)
-                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенных слогов. Часть слогов была утеряна.", "Предупреждение");
+                Errors.WarningBox("Недостаточно нот для введенных слогов. Часть слогов была утеряна.", "Предупреждение");
 
             foreach (var note in Notes)
                 note.SetParsedLyric(Atlas, Atlas.PhonemeReplace(note.ParsedLyric));
@@ -114,7 +113,7 @@ namespace LyricInputHelper.Classes
                 }
             }
             if (w < words.Count - 1)
-                System.Windows.Forms.MessageBox.Show("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
+                Errors.WarningBox("Недостаточно нот для введенного текста. Часть текста была утеряна.", "Предупреждение");
 
             foreach (var note in Notes)
                 note.SetParsedLyric(Atlas, Atlas.PhonemeReplace(note.ParsedLyric));
@@ -184,18 +183,18 @@ namespace LyricInputHelper.Classes
             return lyrics.ToArray();
         }
 
-        public int GetLength(Note note)
+        public int GetLength(Note note, AtlasSettings settings)
         {
-            if (!PluginWindow.LengthByOto)
-                return PluginWindow.MinLength;
+            if (!settings.LengthByOto)
+                return settings.MinLength;
             var next = GetNextNote(note);
             if (next is null)
-                return PluginWindow.MinLength;
+                return settings.MinLength;
             if (Atlas.IsRest(next.ParsedLyric))
-                return PluginWindow.MinLength;
+                return settings.MinLength;
             var oto = Singer.Current.FindOto(next);
             if (oto is null)
-                return PluginWindow.MinLength;
+                return settings.MinLength;
             var length = MusicMath.MillisecondToTick(oto.Preutterance, Tempo) + 1;
             return length;
         }
@@ -217,7 +216,7 @@ namespace LyricInputHelper.Classes
             }
         }
 
-        public void SetLength()
+        public void SetLength(AtlasSettings settings)
         {
             try
             {
@@ -234,14 +233,14 @@ namespace LyricInputHelper.Classes
                         parents.Add(note);
                     else
                     {
-                        note.FinalLength = GetLength(Notes[i]) + 1;
+                        note.FinalLength = GetLength(Notes[i], settings) + 1;
                         note.Parent.Children.Add(note);
                     }
                 }
                 foreach (var note in parents)
                 {
                     bool isRest = Atlas.IsRest(note.ParsedLyric);
-                    var minSize = isRest ? 0 : PluginWindow.MinLength;
+                    var minSize = isRest ? 0 : settings.MinLength;
 
                     if (note.Children.Count == 0)
                     {
@@ -255,7 +254,7 @@ namespace LyricInputHelper.Classes
                     else
                     {
                         // initial velocity
-                        double velocity = 1 / ((double)note.Length / (minSize + children_length)) * PluginWindow.CompressionRatio;
+                        double velocity = 1 / ((double)note.Length / (minSize + children_length)) * settings.CompressionRatio;
                         // 2 kind of velocity
                         var velocity_last = velocity;
                         var velocity_children = velocity;
@@ -265,8 +264,8 @@ namespace LyricInputHelper.Classes
                         {
                             /// watch length_formula.png
                             children_length = note.Children.Take(note.Children.Count - 1).Sum(n => n.FinalLength);
-                            var LCCR = PluginWindow.LastChildCompressionRatio;
-                            var CR = PluginWindow.CompressionRatio;
+                            var LCCR = settings.LastChildCompressionRatio;
+                            var CR = settings.CompressionRatio;
                             velocity = (minSize + children_length * LCCR / CR + last_child.FinalLength / CR) / note.Length;
                             velocity_last = velocity * CR;
                             velocity_children = velocity_last / LCCR;
@@ -303,7 +302,7 @@ namespace LyricInputHelper.Classes
                             throw new Exception($"Critical error with {note.Number}[{note.ParsedLyric}]. note.Length != note.FinalLength + children_length");
                     }
 
-                    if (note.IsRest && note.FinalLength < PluginWindow.MinLength)
+                    if (note.IsRest && note.FinalLength < settings.MinLength)
                     {
                         var prev = GetPrevNote(note);
                         note.MergeIntoLeft(prev);
@@ -312,7 +311,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, "Error on SetLength");
+                Errors.ErrorMessage(ex, "Error on SetLength");
             }
         }
 

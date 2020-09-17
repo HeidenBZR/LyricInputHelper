@@ -1,10 +1,10 @@
-﻿using LyricInputHelper.Classes;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace LyricInputHelper
+namespace VAtlas
 {
     public class Parser
     {
@@ -197,7 +197,7 @@ namespace LyricInputHelper
             }
         }
 
-        public void AtlasConverting()
+        public void AtlasConverting(AtlasSettings settings)
         {
 
             //int i = Ust.Notes.First().Number == Number.PREV ? 1 : 0;
@@ -218,13 +218,13 @@ namespace LyricInputHelper
                     aliasTypePrev = Atlas.GetAliasType(lyricPrev);
                     tookAliases = true;
                 }
-                catch (KeyNotFoundException ex) { Program.Log(ex.Message); }
+                catch (KeyNotFoundException ex) { Errors.Log(ex.Message); }
                 if (!tookAliases) { i++; continue; }
 
                 if (lyricPrev == "b'e" && lyric == "po")
                     Console.WriteLine();
 
-                Classes.Rule rule = Atlas.RuleManager.GetRule($"{aliasTypePrev},{aliasType}");
+                VAtlas.Rule rule = Atlas.RuleManager.GetRule($"{aliasTypePrev},{aliasType}");
                 if (rule == null)
                 {
                     Ust.Notes[i].SetParsedLyric(Atlas, lyric);
@@ -257,7 +257,7 @@ namespace LyricInputHelper
                     Note pitchparent = prevIsRest ? Ust.Notes[i] : Ust.Notes[i - 1];
                     Insert insert = isRest  ? Insert.Before : Insert.After ;
                     Note parent = isRest  ? Ust.Notes[i] : Ust.Notes[i - 1];
-                    if (PluginWindow.MakeVR || result.AliasType != "V-")
+                    if (settings.MakeVR || result.AliasType != "V-")
                         if (Ust.InsertNote(parent, result.Alias, insert, pitchparent))
                             Console.WriteLine(Ust.Notes[i].ParsedLyric);
                     if (new[] { "-C" }.Contains(result.AliasType))

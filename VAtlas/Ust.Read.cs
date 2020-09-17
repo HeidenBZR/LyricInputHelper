@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public partial class Ust
     {
@@ -103,10 +104,10 @@ namespace LyricInputHelper.Classes
 
 
 
-        public string[] Save()
+        public string[] Save(AtlasSettings settings)
         {
-            SetLength();
-            if (PluginWindow.MakeFade)
+            SetLength(settings);
+            if (settings.MakeFade)
                 GetEnvelope();
             string[] text = GetText();
             File.WriteAllLines(Dir, text, Encoding.GetEncoding(932));
@@ -114,9 +115,9 @@ namespace LyricInputHelper.Classes
             return text;
         }
 
-        public void Save(string dir)
+        public void Save(string dir, AtlasSettings settings)
         {
-            SetLength();
+            SetLength(settings);
             string[] text = GetText();
             File.WriteAllLines(dir, text, Encoding.GetEncoding(932));
             Console.WriteLine("Successfully saved debug UST.");

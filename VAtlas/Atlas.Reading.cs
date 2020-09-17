@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public partial class Atlas
     {
@@ -159,7 +159,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on reading Alias Replace: {line}");
+                Errors.ErrorMessage(ex, $"Error on reading Alias Replace: {line}");
             }
         }
 
@@ -181,7 +181,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on reading Phoneme Replace: {line}");
+                Errors.ErrorMessage(ex, $"Error on reading Phoneme Replace: {line}");
             }
         }
 

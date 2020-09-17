@@ -171,7 +171,7 @@
             // 
             // uNoteBindingSource
             // 
-            this.uNoteBindingSource.DataSource = typeof(LyricInputHelper.Classes.Note);
+            this.uNoteBindingSource.DataSource = typeof(VAtlas.Note);
             // 
             // buttonAtlasConvert
             // 

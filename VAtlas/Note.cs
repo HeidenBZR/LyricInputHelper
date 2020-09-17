@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public class Note
     {
@@ -93,10 +93,10 @@ namespace LyricInputHelper.Classes
             string lyric = Lyric != ParsedLyric && ParsedLyric == "" ? Lyric : ParsedLyric;
             if (atlas.IsLoaded && atlas.IsRest(lyric)) lyric = "R";
             if (lyric == "r") lyric = "rr";
-            if (lyric == Classes.NumberManager.DELETE) lyric = "";
+            if (lyric == VAtlas.NumberManager.DELETE) lyric = "";
             var note = this;
             if (FinalLength == 0)
-                Number = Classes.NumberManager.DELETE;
+                Number = VAtlas.NumberManager.DELETE;
             List<string> text = new List<string>
             {
                 Number,
@@ -107,7 +107,7 @@ namespace LyricInputHelper.Classes
             if (atlas.IsLoaded && !atlas.IsRest(ParsedLyric))
             {
                 text.Add($"Intensity={Intensity}");
-                if (Number == Classes.NumberManager.INSERT) text.Add("Modulation=0");
+                if (Number == VAtlas.NumberManager.INSERT) text.Add("Modulation=0");
                 var velocity = (int)(Velocity * 100);
                 if (HadVelocity || Velocity != 1)
                     text.Add($"Velocity={(velocity > 200 ? 200 : velocity)}");
@@ -170,7 +170,7 @@ namespace LyricInputHelper.Classes
             }
             catch (EntryPointNotFoundException ex)
             {
-                Program.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{ParsedLyric}]");
+                Errors.ErrorMessage(ex, $"Error on GetEnvelope for {Number} [{ParsedLyric}]");
             }
         }
 
@@ -180,13 +180,13 @@ namespace LyricInputHelper.Classes
             {
                 if (prev is null)
                     return;
-                Number = Classes.NumberManager.DELETE;
+                Number = VAtlas.NumberManager.DELETE;
                 prev.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoLeft: {Number}");
+                Errors.ErrorMessage(ex, $"Error on MergeIntoLeft: {Number}");
             }
         }
 
@@ -196,13 +196,13 @@ namespace LyricInputHelper.Classes
             {
                 if (next is null)
                     return;
-                Number = Classes.NumberManager.DELETE;
+                Number = VAtlas.NumberManager.DELETE;
                 next.FinalLength += FinalLength;
                 FinalLength = 0;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, $"Error on MergeIntoRight: {Number}");
+                Errors.ErrorMessage(ex, $"Error on MergeIntoRight: {Number}");
             }
         }
     }

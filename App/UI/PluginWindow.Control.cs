@@ -1,4 +1,4 @@
-﻿using LyricInputHelper.Classes;
+﻿using VAtlas;
 using LyricInputHelper.UI;
 using System;
 using System.Collections.Generic;
@@ -12,21 +12,6 @@ namespace LyricInputHelper
     public partial class PluginWindow
     {
 
-        public static Dictionary<string, string> DefaultLyric = new Dictionary<string, string> { };
-        public static double Velocity = 1;
-        public static bool MakeVR = true;
-        public static bool MakeShort = true;
-        public static bool IsParsed = false;
-        public static bool IsUnparsed = false;
-        private static int MinLengthDefault;
-        public static int MinLength;
-        public static string LOG_Dir = @"log.txt";
-        public static Dictionary<string, string> parents = new Dictionary<string, string>();
-        public static Version VERSION = new Version(0, 4, 2, 0);
-        public static double CompressionRatio = 1;
-        public static double LastChildCompressionRatio = 1;
-        public static bool LengthByOto = false;
-        public static bool MakeFade = false;
 
         public Ust Ust;
         public Atlas Atlas;
@@ -37,9 +22,9 @@ namespace LyricInputHelper
             Atlas = atlas;
             Ust = ust;
             Parser = new Parser(Atlas, Ust);
-            MinLengthDefault = 110 * (int)Ust.Tempo / 120;
-            MinLength = MinLengthDefault;
-            textBoxMinLength.Text = MinLength.ToString();
+            Settings.MinLengthDefault = 110 * (int)Ust.Tempo / 120;
+            Settings.MinLength = Settings.MinLengthDefault;
+            textBoxMinLength.Text = Settings.MinLength.ToString();
             ImportDict();
             comboBoxLanguage.Items.Clear();
             comboBoxLanguage.Items.AddRange(Lang.Languages);
@@ -85,8 +70,8 @@ namespace LyricInputHelper
         void Reset()
         {
             Ust.Reload();
-            IsParsed = false;
-            IsUnparsed = false;
+            Settings.IsParsed = false;
+            Settings.IsUnparsed = false;
             CheckAccess();
             SetLyric();
             SetLang();
@@ -105,7 +90,7 @@ namespace LyricInputHelper
                     Ust.SetLyric(SetTextWindow.Words);
                 else
                     Ust.SetLyric(SetTextWindow.Syllables);
-                IsParsed = true;
+                Settings.IsParsed = true;
                 CheckAccess();
             }
             catch (Exception ex)
@@ -119,12 +104,12 @@ namespace LyricInputHelper
         void Split()
         {
             GetValues();
-            if (int.TryParse(textBoxMinLength.Text, out int vcLength)) MinLength = vcLength;
-            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Velocity = velocity;
+            if (int.TryParse(textBoxMinLength.Text, out int vcLength)) Settings.MinLength = vcLength;
+            if (double.TryParse(textBoxVelocity.Text, out double velocity)) Settings.Velocity = velocity;
             try
             {
                 Parser.Split();
-                IsParsed = true;
+                Settings.IsParsed = true;
                 CheckAccess();
                 labelStatus.Text = Lang.Get("button_reload_resources");
             }
@@ -141,8 +126,8 @@ namespace LyricInputHelper
             GetValues();
             try
             {
-                Parser.AtlasConverting();
-                IsParsed = true;
+                Parser.AtlasConverting(Settings);
+                Settings.IsParsed = true;
                 CheckAccess();
             }
             catch (Exception ex)
@@ -159,7 +144,7 @@ namespace LyricInputHelper
             try
             {
                 Parser.ToCV();
-                IsUnparsed = true;
+                Settings.IsUnparsed = true;
                 CheckAccess();
             }
             catch (Exception ex)
@@ -177,7 +162,7 @@ namespace LyricInputHelper
             {
                 Parser.ToCVC();
                 Parser.Split();
-                IsUnparsed = true;
+                Settings.IsUnparsed = true;
                 CheckAccess();
             }
             catch (Exception ex)
@@ -216,7 +201,7 @@ namespace LyricInputHelper
                 window.ShowDialog();
                 if (window.DialogResult == DialogResult.OK)
                 {
-                    if (Atlas.AddWord(window.Word, window.Phonemes, window.IsToSendMail))
+                    if (Atlas.AddWord(window.Word, window.Phonemes))
                         labelStatus.Text = $"Слово \"{window.Word}\" успешно добавлено.";
                     else
                         labelStatus.Text = "Ошибка при добавлении слова.";

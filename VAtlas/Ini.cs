@@ -5,7 +5,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     class Ini
     {

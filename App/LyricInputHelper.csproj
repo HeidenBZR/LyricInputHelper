@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>LyricInputHelper</RootNamespace>
     <AssemblyName>LyricInputHelper</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -69,27 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Atlas.cs" />
-    <Compile Include="Classes\Atlas.Reading.cs" />
-    <Compile Include="Classes\Dict.cs" />
-    <Compile Include="Classes\Flag.cs" />
-    <Compile Include="Classes\Ini.cs" />
-    <Compile Include="Classes\Lang.cs" />
-    <Compile Include="Classes\MusicMath.cs" />
-    <Compile Include="Classes\NumberManager.cs" />
-    <Compile Include="Classes\Oto.cs" />
-    <Compile Include="Classes\Pitchmap.cs" />
-    <Compile Include="Classes\Rule.cs" />
-    <Compile Include="Classes\RuleManager.cs" />
-    <Compile Include="Classes\Settings.cs" />
-    <Compile Include="Classes\Singer.cs" />
-    <Compile Include="Classes\Note.cs" />
-    <Compile Include="Classes\Syllable.cs" />
-    <Compile Include="Classes\Ust.cs" />
-    <Compile Include="Classes\Ust.Read.cs" />
-    <Compile Include="Classes\Wav.cs" />
-    <Compile Include="Classes\Word.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Lang.cs" />
     <Compile Include="UI\AddWordDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,8 +149,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
-    <Content Include="log.txt" />
     <Content Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VAtlas\VAtlas.csproj">
+      <Project>{e9023a0f-8ae9-40b4-81e3-277f5d9f215c}</Project>
+      <Name>VAtlas</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

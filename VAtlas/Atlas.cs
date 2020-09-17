@@ -8,7 +8,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
 
     public partial class Atlas
@@ -81,17 +81,17 @@ namespace LyricInputHelper.Classes
 
         public string GetDictPath()
         {
-            return Program.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".dict"));
+            return PathResolver.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".dict"));
         }
 
         public string GetAtlasPath()
         {
-            return Program.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".Atlas"));
+            return PathResolver.GetResourceFile(Path.Combine(@"Atlas", VoicebankType + ".Atlas"));
         }
 
         public static string GetAtlasPath(string voicebankType)
         {
-            return Program.GetResourceFile(Path.Combine(@"Atlas", voicebankType + ".Atlas"));
+            return PathResolver.GetResourceFile(Path.Combine(@"Atlas", voicebankType + ".Atlas"));
         }
 
         public string GetAliasType(string alias)
@@ -208,7 +208,7 @@ namespace LyricInputHelper.Classes
                 }
                 catch (Exception ex)
                 {
-                    Program.ErrorMessage(ex, "Error on AliasReplace");
+                    Errors.ErrorMessage(ex, "Error on AliasReplace");
                 }
             }
             return line;
@@ -325,7 +325,7 @@ namespace LyricInputHelper.Classes
             return aliases.Count(n => new[] { "CV", "V", "-CV", "`V", "-V"}.Contains(GetAliasType(n)));
         }
 
-        public bool AddWord(string word, string phonemes, bool toSendMail = false)
+        public bool AddWord(string word, string phonemes)
         {
             if (HasDict)
             {
@@ -339,10 +339,6 @@ namespace LyricInputHelper.Classes
                     if (!wasInDict || old_phonemes != phonemes)
                     {
                         WriteWord(line, wasInDict);
-                        if (toSendMail)
-                        {
-                            SendMail(word, phonemes, wasInDict);
-                        }
                     }
                     return true;
                 }
@@ -405,7 +401,7 @@ namespace LyricInputHelper.Classes
                 }
                 catch (Exception ex)
                 {
-                    Program.ErrorMessage(ex, "Cant modify dict file");
+                    Errors.ErrorMessage(ex, "Cant modify dict file");
                 }
             }
             else
@@ -416,33 +412,10 @@ namespace LyricInputHelper.Classes
                 }
                 catch (Exception ex)
                 {
-                    Program.ErrorMessage(ex, "Cant modify dict file");
+                    Errors.ErrorMessage(ex, "Cant modify dict file");
                 }
             }
         }
-
-        private void SendMail(string word, string phonemes, bool wasInDict)
-        {
-            return; //disable this shit
-            try
-            {
-                MailAddress from = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
-                MailAddress to = new MailAddress("wavconfigtool@gmail.com", "WavConfigTool");
-                MailMessage m = new MailMessage(from, to);
-                m.Subject = (wasInDict ? "Word correction " : "New word") + $" [{word}]";
-                m.Body = $"<h1>{VoicebankType}</h1><p>{word}={phonemes}</p>";
-                m.IsBodyHtml = true;
-                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-                smtp.Credentials = new NetworkCredential("wavconfigtool@gmail.com", "wavconfig99231");
-                smtp.EnableSsl = true;
-                smtp.Send(m);
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex, "Error on sending mail");
-            }
-        }
-
         #endregion
     }
 }

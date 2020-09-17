@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public class RuleManager
     {
@@ -163,7 +163,7 @@ namespace LyricInputHelper.Classes
             if (Links.ContainsKey(link))
                 Links[subject] = Links[link];
             else
-                Program.Log($"Referensed rule {link} for {subject} was not defined");
+                Errors.Log($"Referensed rule {link} for {subject} was not defined");
         }
 
         #region private

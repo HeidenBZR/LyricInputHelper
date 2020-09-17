@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     [StructLayout(LayoutKind.Sequential)]
     // Структура, описывающая заголовок WAV файла.

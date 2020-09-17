@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public class Syllable
     {
@@ -63,7 +63,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, "Error on Syllable parsing");
+                Errors.ErrorMessage(ex, "Error on Syllable parsing");
             }
                 
         }

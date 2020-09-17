@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
 
     public class Singer
@@ -29,7 +29,10 @@ namespace LyricInputHelper.Classes
         public Pitchmap Pitchmap { get; private set; }
 
         public bool IsLoaded = false;
-        
+
+        public bool LengthByOto;
+
+
         public Singer(string dir)
         {
             Current = this;
@@ -131,7 +134,7 @@ namespace LyricInputHelper.Classes
                 else File.Create(filename);
             }
             IsLoaded = true;
-            PluginWindow.LengthByOto = true;
+            LengthByOto = true;
         }
 
         public Oto FindOto(Note note)

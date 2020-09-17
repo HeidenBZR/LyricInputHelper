@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LyricInputHelper.Classes
+namespace VAtlas
 {
     public class Dict
     {
@@ -15,7 +15,6 @@ namespace LyricInputHelper.Classes
         private string _path;
         private bool _isMergeCV = true;
         private string _source;
-        private StringBuilder _memory;
 
         public bool IsEnabled = false;
         public bool IsGenerated = false;
@@ -46,7 +45,7 @@ namespace LyricInputHelper.Classes
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, "Error on reading additional dict");
+                Errors.ErrorMessage(ex, "Error on reading additional dict");
                 return false;
             }
         }
@@ -85,17 +84,17 @@ namespace LyricInputHelper.Classes
                     }
                     catch (Exception ex)
                     {
-                        Program.Log($"Error on import dict.\r\n{ex.Message}\r\n{ex.StackTrace}");
+                        Errors.Log($"Error on import dict.\r\n{ex.Message}\r\n{ex.StackTrace}");
                         was_errors = true;
                     }
                 });
                 if (was_errors)
-                    Program.Log("Some errors occured on dict import. Check the log file.");
+                    Errors.Log("Some errors occured on dict import. Check the log file.");
                 return true;
             }
             catch (Exception ex)
             {
-                Program.ErrorMessage(ex, "Error on import dict");
+                Errors.ErrorMessage(ex, "Error on import dict");
                 return false;
             }
         }
@@ -110,7 +109,7 @@ namespace LyricInputHelper.Classes
             string[] info = File.ReadAllLines(generate_file, Encoding.UTF8);
             _source = info[0].Substring("source=".Length).Replace("\r\n", "");
             if (!Path.IsPathRooted(_source))
-                _source = Path.Combine(Program.GetResourceFile("Atlas"), _source);
+                _source = Path.Combine(PathResolver.GetResourceFile("Atlas"), _source);
             var converts = info.Skip(1).Select(n => n.Split('\t'));
             _convert_rules = new ConcurrentDictionary<string, string>();
             foreach (var pair in converts)
@@ -189,23 +188,6 @@ namespace LyricInputHelper.Classes
                 return _words[word];
             else
                 return null;
-        }
-
-        void Memorize(string word, string[] phonemes)
-        {
-            _memory.Append($"{word}={String.Join(" ", phonemes)}\r\n");
-        }
-
-        public void Write()
-        {
-            try
-            {
-                File.WriteAllText(_path, _memory.ToString(), Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                Program.ErrorMessage(ex, "Error writing dict");
-            }
         }
     }
 }
