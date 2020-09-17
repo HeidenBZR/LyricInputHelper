@@ -40,8 +40,9 @@ namespace LyricInputHelper.Classes
             Atlas = atlas;
             foreach (var note in Notes)
             {
-                note.Lyric = Atlas.ValidateLyric(note.Lyric);
+                note.Lyric = atlas.ValidateLyric(note.Lyric);
                 note.ParsedLyric = note.Lyric;
+                note.IsRest = atlas.IsRest(note.Lyric);
             }
         }
 

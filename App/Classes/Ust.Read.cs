@@ -73,7 +73,6 @@ namespace LyricInputHelper.Classes
                         note.ParsedLyric = note.Lyric;
                     }
                     i++;
-                    Console.WriteLine(i);
                     if (i == lines.Length) break;
                 }
                 notes.Add(note);
