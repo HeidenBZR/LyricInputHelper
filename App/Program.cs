@@ -27,6 +27,7 @@ namespace LyricInputHelper
         public static string LOG_DIR { get { return GetTempFile("LyricInputHelper", @"log.txt"); } }
         public static string[] args;
         public static NumberFormatInfo NFI;
+        public static Encoding Encoding;
 
         static void InitLang()
         {
@@ -52,6 +53,7 @@ namespace LyricInputHelper
             try
             {
                 NFI = new CultureInfo("en-US", false).NumberFormat;
+                Encoding = Encoding.GetEncoding(932);
                 Program.args = args;
                 ProgramMode = DetectMode();
             }
@@ -196,7 +198,7 @@ namespace LyricInputHelper
         {
             Try(() =>
             {
-                Ust = new Ust(args[0]);
+                Ust = new Ust(args[0], Encoding);
                 Ust.SetAtlas(Atlas);
                 if (Ust.IsLoaded)
                     Log("Ust loaded");

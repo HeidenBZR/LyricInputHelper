@@ -69,12 +69,13 @@ namespace LyricInputHelper
 
         void Reset()
         {
-            Ust.Reload();
+            Ust.Reload(Program.Encoding);
             Settings.IsParsed = false;
             Settings.IsUnparsed = false;
             CheckAccess();
             SetLyric();
             SetLang();
+            Ust.SetAtlas(Atlas);
             SetTitle();
         }
 

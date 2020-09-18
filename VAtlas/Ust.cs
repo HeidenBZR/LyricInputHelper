@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Globalization;
+using System.Text;
 
 namespace VAtlas
 {
@@ -23,16 +24,21 @@ namespace VAtlas
         public string Dir;
 
         public Atlas Atlas;
+
+        public Ust()
+        {
+
+        }
         
-        public Ust(string dir)
+        public Ust(string dir, Encoding encoding)
         {
             Dir = dir;
-            Read();
+            Read(encoding);
         }
 
-        public void Reload()
+        public void Reload(Encoding encoding)
         {
-            Read();
+            Read(encoding);
         }
 
         public void SetAtlas(Atlas atlas)

@@ -70,5 +70,19 @@ namespace VAtlas
                 else return Preutterance;
             }
         }
+
+        public static Oto CreateDefault()
+        {
+            var oto = new Oto()
+            {
+                Preutterance = 100,
+                Overlap = 50,
+                Cutoff = -300,
+                Consonant = 150,
+                Offset = 100,
+                File = ""
+            };
+            return oto;
+        }
     }
 }

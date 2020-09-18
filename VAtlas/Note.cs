@@ -26,7 +26,7 @@ namespace VAtlas
             }
         }
 
-        private string envelope;
+        public string envelope;
 
         public Word Word { get; set; }
         public Syllable Syllable { get; set; }
@@ -42,7 +42,7 @@ namespace VAtlas
 
         public string Lyric { get; set; }
         public string Number { get; set; }
-        public double Velocity { get; private set; } = 1;
+        public double Velocity { get; set; } = 1;
         public string ParsedLyric { get ; set; }
         public string ParsedLyricView => IsRest ? "" : ParsedLyric;
         public bool IsRest { get; set; }

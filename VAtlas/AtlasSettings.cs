@@ -17,8 +17,6 @@ namespace VAtlas
         public bool IsUnparsed = false;
         public int MinLengthDefault;
         public int MinLength;
-        public string LOG_Dir = @"log.txt";
-        public Dictionary<string, string> parents = new Dictionary<string, string>();
         public double CompressionRatio = 1;
         public double LastChildCompressionRatio = 1;
         public bool MakeFade = false;

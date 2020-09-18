@@ -17,9 +17,9 @@ namespace VAtlas
         public string TakeIn(string name, dynamic value) { return $"{name}={value}"; }
 
 
-        private void Read()
+        private void Read(Encoding encoding)
         {
-            string[] lines = System.IO.File.ReadAllLines(Dir, Encoding.GetEncoding(932));
+            string[] lines = System.IO.File.ReadAllLines(Dir, encoding);
             int i = 0;
             // Reading version
             if (lines[0] == NumberManager.VERSION)

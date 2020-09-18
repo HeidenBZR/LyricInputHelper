@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "BLIBcUafvWfqmjkvijCqGDR28NjPJW3E3EuJ4BjAHvU5xu3EwaORJoM6r9HFcKTlYqw8kQyKdqfrvme8QD8TPw==",
+  "success": true,
+  "projectFilePath": "F:\\External\\Github\\HeidenBZR\\LyricInputHelper\\Avis\\Avis.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Heiden\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.1\\microsoft.netcore.platforms.3.1.1.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\naudio\\1.10.0\\naudio.1.10.0.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\system.resources.extensions\\4.7.0\\system.resources.extensions.4.7.0.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\system.security.accesscontrol\\4.7.0\\system.security.accesscontrol.4.7.0.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\system.security.principal.windows\\4.7.0\\system.security.principal.windows.4.7.0.nupkg.sha512",
+    "C:\\Users\\Heiden\\.nuget\\packages\\system.text.encoding.codepages\\4.7.1\\system.text.encoding.codepages.4.7.1.nupkg.sha512"
+  ],
+  "logs": []
+}

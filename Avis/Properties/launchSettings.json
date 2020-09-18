@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Avis": {
+      "commandName": "Project",
+      "commandLineArgs": "tmp000.tmp"
+    }
+  }
+}
