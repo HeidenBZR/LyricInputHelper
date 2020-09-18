@@ -35,15 +35,14 @@ namespace Avis
             Errors.Log("Render started...");
             var rendered = false;
 
-            var resampler = @"C:\Program Files (x86)\UTAU\r\tips.exe";
-            var appendtool = @"C:\Program Files (x86)\UTAU\r\wavtool2.exe";
-            var tempFolder = PathResolver.GetTempFolder("Avis", "Temp");
+            var avisFolder = PathResolver.GetTempFolder("Avis");
+            var tempFolder = Path.Combine(avisFolder, "Temp");
+            var resampler = Path.Combine(avisFolder, "resampler.exe");
+            var appendtool = Path.Combine(avisFolder, "wavtool.exe");
             var output = "output.wav";
             Program.Try(() =>
             {
                 var renderer = new Renderer();
-
-
                 rendered = renderer.Render(Ust, Singer, tempFolder, output, resampler, appendtool);
             }, "Render failed");
             if (!rendered)
@@ -84,10 +83,21 @@ namespace Avis
             var convertingPassed = false;
             Program.Try(() =>
             {
-                var atlasSettings = new AtlasSettings();
+                var minLength = 110 * (int)Ust.Tempo / 120;
+                var atlasSettings = new AtlasSettings()
+                {
+                    LengthByOto = true,
+                    IsParsed = true,
+                    MinLengthDefault = minLength,
+                    MinLength = minLength,
+                    MakeFade = true,
+                    CompressionRatio = 1.1,
+                    LastChildCompressionRatio = 1.4
+                };
                 var parser = new Parser(Atlas, Ust);
                 parser.Split();
                 parser.AtlasConverting(atlasSettings);
+                Ust.SetLength(atlasSettings);
                 convertingPassed = true;
             }, "Ust converting failed");
             return convertingPassed;

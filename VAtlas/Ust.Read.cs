@@ -37,11 +37,12 @@ namespace VAtlas
                 if (lines[i].StartsWith("UstVersion")) TakeOut(lines[i], "UstVersion", out Version);
                 if (lines[i].StartsWith("Tempo")) TakeOut(lines[i], "Tempo", out Tempo);
                 if (lines[i].StartsWith("VoiceDir")) TakeOut(lines[i], "VoiceDir", out VoiceDir);
+                if (lines[i].StartsWith("Flags")) TakeOut(lines[i], "Flags", out Flags);
                 i++;
             }
 
             List<Note> notes = new List<Note>();
-            Note note = new Note();
+            Note note;
             while (i + 1 < lines.Length)
             {
                 note = new Note();

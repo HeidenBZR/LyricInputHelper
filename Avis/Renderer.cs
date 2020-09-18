@@ -59,14 +59,14 @@ namespace Avis
             {
                 RenderNote note = notes[i];
                 RenderNote next = notes.ElementAtOrDefault(i + 1);
-                var tempFile = Path.Combine(tempFolder, $"_#{i.ToString().PadLeft(3, '0')}_[{note.ParsedLyric}]lyrics_[{note.NoteNum}]num_[{note.Length}]length.wav");
+                var tempFile = Path.Combine(tempFolder, $"_{i.ToString().PadLeft(3, '0')}_[{note.ParsedLyric}]_[{note.NoteNum}]_[{note.FinalLength}].wav");
                 if (note.IsRest)
                 {
                     SendRestToAppendTool(note.FinalLength, output, tempFile, ust.Tempo, appendtool);
                 }
                 else
                 {
-                    SendToResampler(note, next, tempFile, ust.VoiceDir, resampler);
+                    SendToResampler(note, next, tempFile, ust.VoiceDir, ust.Flags, resampler);
                     SendToAppendTool(note, next, tempFile, appendtool, ust.Tempo, output);
                 }
             }
@@ -109,12 +109,12 @@ namespace Avis
             return renderNotes.ToArray();
         }
 
-        private void SendToResampler(RenderNote note, RenderNote next, string tempFilename, string voiceDir, string resampler)
+        private void SendToResampler(RenderNote note, RenderNote next, string tempFilename, string voiceDir, string flags, string resampler)
         {
             var pitchBase64 = Base64.Current.Base64EncodeInt12(note.PitchBend.Array);
             var oto = note.Oto;
             var otoFile = Path.Combine(voiceDir, oto.File);
-            var stringNum = MusicMath.Current.NoteNum2String(note.NoteNum - 12);
+            var stringNum = MusicMath.Current.NoteNum2String(note.NoteNum - 24);
             var requiredLength = GetRequiredLength(note, next);
             string request = string.Format(
                 "\"{0}\" \"{1}\" \"{2}\" {3} {4} \"{5}\" {6} {7} {8} {9} {10} {11} !{12} {13}\r\n\r\n",
@@ -123,7 +123,7 @@ namespace Avis
                 tempFilename,
                 stringNum,
                 note.Velocity * 100,
-                note.Flags, //Part.Flags + note.Flags,
+                "D" + note.Flags,
                 oto.Offset,
                 requiredLength,
                 oto.Consonant,

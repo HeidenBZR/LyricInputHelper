@@ -18,6 +18,7 @@ namespace VAtlas
         public string VoiceDir;
         public double Tempo;
         public double Version;
+        public string Flags = "";
         public Note[] Notes { get; set; }
 
         public bool IsLoaded = false;
